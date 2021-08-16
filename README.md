@@ -1,2 +1,2 @@
-# py-signal
-Python tool for signal analysis.
+# Signal Analyzer
+Python tool for analyzing signals.
