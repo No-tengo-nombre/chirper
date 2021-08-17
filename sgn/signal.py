@@ -1,5 +1,5 @@
-from signpy.exceptions import DimensionError
-from . import INTERPOLATION_METHOD
+from exceptions import DimensionError
+from config import INTERPOLATION_METHOD
 
 import numpy as np
 import bisect
@@ -166,3 +166,43 @@ class Signal:
     def unpack(self):
         """Unpacks the signal into two arrays. If used for its intended purpose, should be unpacked with *."""
         return self.time, self.values
+
+    def rect_smooth(self, factor):
+        """Directly applies a rectangular smoothing to the signal.
+
+        With this method the edges of the signal look a bit rough.
+
+        Parameters
+        ----------
+        factor : int (odd)
+            Smoothing factor.
+
+        Returns
+        -------
+        Smooth signal (it also mutates the original signal).
+        """
+        if factor % 2 != 1 or factor <= 1:
+            raise ValueError("The smoothing factor must be an odd number.")
+        shift = int((factor - 1) / 2)
+        self_len = len(self)
+        new_values = self.values[0:1]               # Copies the first element
+
+        # Smooths the first elements with the only possible elements
+        for n in range(1, shift):
+            arr = self.values[0:2 * n + 1]
+            new_values = np.append(new_values, arr.sum() / (2 * n + 1))
+
+        # Smooths the other elements using the given factor
+        for n in range(shift, self_len - shift):
+            arr = self.values[n - shift:n + shift + 1]
+            new_values = np.append(new_values, arr.sum() / factor)
+
+        # Smooths the last elements adapting the smoothing factor
+        for n in range(self_len - shift, self_len):
+            new_shift = self_len - n - 1
+            arr = self.values[n - new_shift:self_len]
+            new_values = np.append(new_values, arr.sum() / (2 * new_shift + 1))
+
+        assert self_len == len(new_values), "There was an error during the smoothing."
+        self.values = new_values
+        return self

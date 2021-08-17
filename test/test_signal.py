@@ -1,4 +1,4 @@
-from signal.signal import Signal
+from sgn.signal import Signal
 
 import unittest
 
