@@ -1,4 +1,4 @@
-from src.signal.signal import Signal
+from signal.signal import Signal
 
 import unittest
 

@@ -1,5 +1,5 @@
-from src.exceptions import DimensionError
-from src import INTERPOLATION_METHOD
+from signpy.exceptions import DimensionError
+from . import INTERPOLATION_METHOD
 
 import numpy as np
 import bisect
