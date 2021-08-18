@@ -1,5 +1,5 @@
 from exceptions import DimensionError
-from config import INTERPOLATION_METHOD
+from config import INTERPOLATION_METHOD, NOISE_TYPE
 
 import numpy as np
 import bisect
@@ -40,15 +40,23 @@ class Signal:
         return self.values[index]
 
     def __add__(self, signal):
+        if isinstance(signal, float) or isinstance(signal, int):                # Ugly code
+            return Signal(self.time, self.values + signal)
         return Signal(*self._do_bin_operation(signal, operator.add))
 
     def __sub__(self, signal):
+        if isinstance(signal, float) or isinstance(signal, int):                # Ugly code
+            return Signal(self.time, self.values - signal)
         return Signal(*self._do_bin_operation(signal, operator.sub))
 
     def __mul__(self, signal):
+        if isinstance(signal, float) or isinstance(signal, int):                # Ugly code
+            return Signal(self.time, self.values * signal)
         return Signal(*self._do_bin_operation(signal, operator.mul))
 
     def __truediv__(self, signal):
+        if isinstance(signal, float) or isinstance(signal, int):                # Ugly code
+            return Signal(self.time, self.values / signal)
         return Signal(*self._do_bin_operation(signal, operator.truediv))
 
     def __eq__(self, signal):
@@ -167,6 +175,14 @@ class Signal:
         """Unpacks the signal into two arrays. If used for its intended purpose, should be unpacked with *."""
         return self.time, self.values
 
+    def time_span(self):
+        """Gets the time span of the signal"""
+        return self.time[-1] - self.time[0]
+
+    def half(self, first=True):
+        """Gets half of the signal"""
+        return self[:self.time_span() / 2] * 2 if first else self[self.time_span() / 2:] * 2
+
     def rect_smooth(self, factor):
         """Directly applies a rectangular smoothing to the signal.
 
@@ -206,3 +222,105 @@ class Signal:
         assert self_len == len(new_values), "There was an error during the smoothing."
         self.values = new_values
         return self
+
+
+class SQUARE(Signal):
+    """Square signal"""
+    def __init__(self, time, freq, amp, rads=False, phase=0):
+        """Generates a square signal centered at 0.
+
+        Parameters
+        ----------
+        time : array_like
+            Array for the time.
+        freq : float
+            Frequency for the square wave.
+        amp : float
+            Amplitude of the wave.
+        rads : bool
+            Whether the frequency is given in radians or hertz, by default False.
+        phase : float, optional
+            Phase of the wave, by default 0.
+        """
+        super().__init__(time, self._generate(time, freq, amp, rads, phase))
+
+    @staticmethod
+    def _generate(time, freq, amp, rads, phase):
+        real_freq = freq if rads else 2 * np.pi * freq
+        real_phase = phase if rads else 2 * np.pi * phase
+        return amp * np.array(list(map(lambda x: int(x >= 0), np.sin(real_freq * time + real_phase))))
+
+
+class SIN(Signal):
+    """Sinusoidal signal"""
+    def __init__(self, time, freq, amp, rads=False, phase=0):
+        """Generates a sinusoidal signal centered at 0.
+
+        Parameters
+        ----------
+        time : array_like
+            Array for the time.
+        freq : float
+            Frequency for the wave.
+        amp : float
+            Amplitude of the wave.
+        rads : bool, optional
+            Whether the frequency is given in radians or hertz, by default False.
+        phase : float, optional
+            Phase of the wave, by default 0.
+        """
+        super().__init__(time, self._generate(time, freq, amp, rads, phase))
+
+    @staticmethod
+    def _generate(time, freq, amp, rads, phase):
+        real_freq = freq if rads else 2 * np.pi * freq
+        real_phase = phase if rads else 2 * np.pi * phase
+        return amp * np.sin(real_freq * time + real_phase)
+
+
+class NOISE(Signal):
+    """Noise signal"""
+    def __init__(self, time, std, add=True, noise_type=NOISE_TYPE):
+        """Generates a noise signal.
+
+        Parameters
+        ----------
+        time : array_like
+            Array for the time.
+        std : float
+            Standard deviation of the noise.
+        add : bool, optional
+            Whether the noise should be additive (with mean 0) or multiplicative (with mean 1), by default True.
+        noise_type : {"gaussian"}, optional
+            The type of noise to use, by default `NOISE_TYPE` defined in the config file (gaussian).
+        """
+        if noise_type == "gaussian":
+            super().__init__(time, self._generate_gaussian(time, std, add))
+
+    @staticmethod
+    def _generate_gaussian(time, std, add):
+        mean = 0 if add else 1
+        return np.random.normal(mean, std, len(time))
+
+
+class HEAVISIDE(Signal):
+    """Heaviside step function centered at a certain time."""
+    def __init__(self, time, point=0, inverted=False):
+        """Creates a Heaviside step function.
+
+        Parameters
+        ----------
+        time : array_like
+            Array for the time.
+        point : float, optional
+            Point to center the signal around (e.g if `point == 0` then the function would change values at 0), by
+            default 0.
+        inverted : bool, optional
+            Whether to invert the signal or not. If true, the signal would be 1 and switch to 0 after the point. By
+            default False.
+        """
+        if inverted:
+            values = list(map(lambda x: int(x <= point), time))
+        else:
+            values = list(map(lambda x: int(x >= point), time))
+        super().__init__(time, values)
