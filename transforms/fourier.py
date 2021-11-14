@@ -33,7 +33,7 @@ class Fourier(Transform):
                 temp += self.signal.values[n] * np.exp(-1j * (2 * n * k * np.pi / signal_len))
             new_values[k] = temp
             self.values = new_values
-        return sgn.signal.Signal(self.time, self.values) / signal_len
+        return sgn.signal.Signal(self.time, self.values)
 
 
 class InverseFourier(Transform):

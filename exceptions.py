@@ -1,3 +1,7 @@
 class DimensionError(Exception):
-    """The dimensions of the objects are not appropriate."""
+    """Exception for innapropriate object dimensions."""
+    pass
+
+class InvalidModulation(Exception):
+    """Exception for invalid calls to modulators."""
     pass

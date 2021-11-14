@@ -223,6 +223,26 @@ class Signal:
         self.values = new_values
         return self
 
+    def apply_function(self, func):
+        """Applies a function to the values of the signal.
+
+        Parameters
+        ----------
+        func : function
+            Function to apply to the signal.
+
+        Returns
+        -------
+        Modified signal.
+        """
+        self.values = np.array([func(x) for x in self.values])
+        return self
+
+
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||||||| DEFAULT SIGNALS ||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
+
 
 class SQUARE(Signal):
     """Square signal"""
@@ -276,6 +296,33 @@ class SIN(Signal):
         real_freq = freq if rads else 2 * np.pi * freq
         real_phase = phase if rads else 2 * np.pi * phase
         return amp * np.sin(real_freq * time + real_phase)
+
+
+class COS(Signal):
+    """Cosine signal"""
+    def __init__(self, time, freq, amp, rads=False, phase=0):
+        """Generates a cosine signal centered at 0.
+
+        Parameters
+        ----------
+        time : array_like
+            Array for the time.
+        freq : float
+            Frequency for the wave.
+        amp : float
+            Amplitude of the wave.
+        rads : bool, optional
+            Whether the frequency is given in radians or hertz, by default False.
+        phase : float, optional
+            Phase of the wave, by default 0.
+        """
+        super().__init__(time, self._generate(time, freq, amp, rads, phase))
+
+    @staticmethod
+    def _generate(time, freq, amp, rads, phase):
+        real_freq = freq if rads else 2 * np.pi * freq
+        real_phase = phase if rads else 2 * np.pi * phase
+        return amp * np.cos(real_freq * time + real_phase)
 
 
 class NOISE(Signal):
