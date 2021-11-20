@@ -1,4 +1,4 @@
-from exceptions import InvalidModulation
+from signpy.exceptions import InvalidModulation
 
 class Modulator:
     """Modulator object."""

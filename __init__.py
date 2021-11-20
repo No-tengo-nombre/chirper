@@ -11,4 +11,4 @@ sgn
     Basic creation and manipulation of signals.
 """
 
-from . import sgn
+__all__ = ["sgn", "modulation", "transforms"]

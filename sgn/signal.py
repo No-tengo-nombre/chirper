@@ -1,5 +1,5 @@
-from exceptions import DimensionError
-from config import INTERPOLATION_METHOD, NOISE_TYPE
+from signpy.exceptions import DimensionError
+from signpy.config import INTERPOLATION_METHOD, NOISE_TYPE, HERTZ
 
 import numpy as np
 import bisect
@@ -273,7 +273,7 @@ class SQUARE(Signal):
 
 class SIN(Signal):
     """Sinusoidal signal"""
-    def __init__(self, time, freq, amp, rads=False, phase=0):
+    def __init__(self, time, freq, amp, hertz=HERTZ, phase=0):
         """Generates a sinusoidal signal centered at 0.
 
         Parameters
@@ -284,23 +284,24 @@ class SIN(Signal):
             Frequency for the wave.
         amp : float
             Amplitude of the wave.
-        rads : bool, optional
-            Whether the frequency is given in radians or hertz, by default False.
+        hertz : bool, optional
+            If True then the frequency is assumed to be in hertz, if not
+            then it is in radians, by default config.HERTZ.
         phase : float, optional
             Phase of the wave, by default 0.
         """
-        super().__init__(time, self._generate(time, freq, amp, rads, phase))
+        super().__init__(time, self._generate(time, freq, amp, hertz, phase))
 
     @staticmethod
-    def _generate(time, freq, amp, rads, phase):
-        real_freq = freq if rads else 2 * np.pi * freq
-        real_phase = phase if rads else 2 * np.pi * phase
+    def _generate(time, freq, amp, hertz, phase):
+        real_freq = 2 * np.pi * freq if hertz else freq
+        real_phase = 2 * np.pi * phase if hertz else phase
         return amp * np.sin(real_freq * time + real_phase)
 
 
 class COS(Signal):
     """Cosine signal"""
-    def __init__(self, time, freq, amp, rads=False, phase=0):
+    def __init__(self, time, freq, amp, hertz=HERTZ, phase=0):
         """Generates a cosine signal centered at 0.
 
         Parameters
@@ -311,17 +312,18 @@ class COS(Signal):
             Frequency for the wave.
         amp : float
             Amplitude of the wave.
-        rads : bool, optional
-            Whether the frequency is given in radians or hertz, by default False.
+        hertz : bool, optional
+            If True then the frequency is assumed to be in hertz, if not
+            then it is in radians, by default config.HERTZ.
         phase : float, optional
             Phase of the wave, by default 0.
         """
-        super().__init__(time, self._generate(time, freq, amp, rads, phase))
+        super().__init__(time, self._generate(time, freq, amp, hertz, phase))
 
     @staticmethod
-    def _generate(time, freq, amp, rads, phase):
-        real_freq = freq if rads else 2 * np.pi * freq
-        real_phase = phase if rads else 2 * np.pi * phase
+    def _generate(time, freq, amp, hertz, phase):
+        real_freq = 2 * np.pi * freq if hertz else freq
+        real_phase = 2 * np.pi * phase if hertz else phase
         return amp * np.cos(real_freq * time + real_phase)
 
 
