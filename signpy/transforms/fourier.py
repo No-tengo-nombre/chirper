@@ -18,6 +18,14 @@ class Fourier(Transform):
     def calculate(self, method=FOURIER_METHOD):
         return self.methods[method]()
 
+    def calculate_shift(self, method=FOURIER_METHOD):
+        output = self.methods[method]()
+        signal_len = len(output)
+
+        shifted_values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
+        freq_axis = output.time - output.time_span() / 2
+        return Signal(freq_axis, shifted_values)
+
     def calculate_dft(self):
         """Calculates the Discrete Fourier Transform (DFT) of a signal :math:`\\mathcal{F}\\{x[n]\\} = X[k]`, such that
 
@@ -40,20 +48,14 @@ class Fourier(Transform):
         shifted_values = np.array([*self.values[signal_len // 2:], *self.values[:signal_len // 2]])
         shifted_time = np.array([*self.time[signal_len // 2:], *self.time[:signal_len // 2]])
 
-        return Signal(self.time, self.values), Signal(shifted_time, shifted_values)
+        return Signal(self.time, self.values)#, Signal(shifted_time, shifted_values)
 
     # def calculate_fft(self):
     #     pass
 
     def calculate_fft(self):
         self.values = np.fft.fft(self.signal.values)
-
-        signal_len = len(self.signal)
-        
-        shifted_values = np.array([*self.values[signal_len // 2:], *self.values[:signal_len // 2]])
-        freq_axis = self.time - self.signal.time_span() / 2
-
-        return Signal(freq_axis, shifted_values)
+        return Signal(self.time, self.values)
 
 
 class InverseFourier(Transform):
@@ -66,6 +68,13 @@ class InverseFourier(Transform):
         }
     
     def calculate(self, method=FOURIER_METHOD):
+        return self.methods[method]()
+
+    def calculate_shift(self, method=FOURIER_METHOD):
+        signal_len = len(self.signal)
+        self.signal.time = self.signal.time + self.signal.time_span() / 2
+        self.signal.values = np.array([*self.signal.values[signal_len // 2:], *self.signal.values[:signal_len // 2]])
+        # return Signal(*self.signal.unpack())
         return self.methods[method]()
 
     def calculate_dft(self):
@@ -90,4 +99,4 @@ class InverseFourier(Transform):
 
     def calculate_fft(self):
         self.values = np.fft.ifft(self.signal.values)
-        return Signal(self.time, self.values) * len(self.signal)
+        return Signal(self.time, self.values)

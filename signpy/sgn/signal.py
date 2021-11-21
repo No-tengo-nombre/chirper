@@ -244,9 +244,7 @@ class Signal:
 
     def convolute(self, signal):
         """Convolute this signal with another."""
-        # values = list(map(lambda v: self._conv_helper(v, signal), self.values))
-        # return Signal(self.time, values)
-        copy_signal = self
+        copy_signal = Signal(self.time, self.values)
         return copy_signal.apply_function(self._conv_helper, signal)
 
     def _conv_helper(self, a, signal):
@@ -258,6 +256,14 @@ class Signal:
     def shift(self, value):
         """Shifts the time axis by `value`."""
         self.time += value
+
+    def real_part(self):
+        values = np.real(self.values)
+        return Signal(self.time, values)
+
+    def imag_part(self):
+        values = np.imag(self.values)
+        return Signal(self.time, values)
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||| DEFAULT SIGNALS ||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -271,7 +277,7 @@ class SQUARE(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         freq : float
             Frequency for the square wave.
@@ -298,7 +304,7 @@ class SIN(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         freq : float
             Frequency for the wave.
@@ -326,7 +332,7 @@ class COS(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         freq : float
             Frequency for the wave.
@@ -354,7 +360,7 @@ class NOISE(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         std : float
             Standard deviation of the noise.
@@ -379,7 +385,7 @@ class HEAVISIDE(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         point : float, optional
             Point to center the signal around (e.g if `point == 0` then the function would change values at 0), by
@@ -402,7 +408,7 @@ class IMPULSE(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         value : float, optional
             Value for the impulse to take at 0, by default 1.0
@@ -417,3 +423,18 @@ class IMPULSE(Signal):
             else:
                 values.append(1.0 if t == 0 or time[i - 1] < 0 else 0.0)
         return values
+
+
+class CONSTANT(Signal):
+    """Constant signal."""
+    def __init__(self, time, value=1.0):
+        """Creates a constant signal.
+
+        Parameters
+        ----------
+        time : array like
+            Array for the time.
+        value : float or complex, optional
+            Value to use for the constant, by default 1.0.
+        """
+        super().__init__(time, [value for t in time])
