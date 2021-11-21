@@ -9,6 +9,7 @@ Default parameters for this package.
 INTERPOLATION_METHOD = "linear"
 NOISE_TYPE = "gaussian"
 HERTZ = True
+CONVOLUTION_METHOD = "fft"
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||# TRANSFORMS #||||||||||||||||||||||||||||||||||||||||||||||||||||||| #

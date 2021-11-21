@@ -86,7 +86,7 @@ class Signal:
         return time_list, new_values
 
     @classmethod
-    def from_function(cls, time, func):
+    def from_function(cls, time, func, *args, **kwargs):
         """Creates a signal from a time list and a function.
 
         The function is applied to each element in the time series, so
@@ -101,7 +101,7 @@ class Signal:
         func : function
             Function to apply to each element.
         """
-        return cls(time, func(np.array(time)))
+        return cls(time, func(np.array(time), *args, **kwargs))
 
     def interpolate(self, time, method):
         """Interpolates the current values to obtain a new value.
@@ -223,7 +223,7 @@ class Signal:
         self.values = new_values
         return self
 
-    def apply_function(self, func):
+    def apply_function(self, func, *args, **kwargs):
         """Applies a function to the values of the signal.
 
         Parameters
@@ -235,9 +235,29 @@ class Signal:
         -------
         Modified signal.
         """
-        self.values = np.array([func(x) for x in self.values])
+        self.values = np.array([func(x, *args, **kwargs) for x in self.values])
         return self
 
+    def apply_function_tuple(self, func, *args, **kwargs):
+        self.values = np.array([func(t, x, *args, **kwargs) for t, x in zip(self.time, self.values)])
+        return self
+
+    def convolute(self, signal):
+        """Convolute this signal with another."""
+        # values = list(map(lambda v: self._conv_helper(v, signal), self.values))
+        # return Signal(self.time, values)
+        copy_signal = self
+        return copy_signal.apply_function(self._conv_helper, signal)
+
+    def _conv_helper(self, a, signal):
+        sum = 0
+        for k in signal.time:
+            sum += a * signal[k]
+        return sum
+
+    def shift(self, value):
+        """Shifts the time axis by `value`."""
+        self.time += value
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||| DEFAULT SIGNALS ||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -373,3 +393,27 @@ class HEAVISIDE(Signal):
         else:
             values = list(map(lambda x: int(x >= point), time))
         super().__init__(time, values)
+
+
+class IMPULSE(Signal):
+    """Discrete impulse/delta function centered at 0."""
+    def __init__(self, time, value=1.0):
+        """Creates a discrete impulse centered at 0, with value `value`.
+
+        Parameters
+        ----------
+        time : array_like
+            Array for the time.
+        value : float, optional
+            Value for the impulse to take at 0, by default 1.0
+        """
+        super().__init__(time, value * self._init_helper(time))
+        
+    def _init_helper(self, time):
+        values = []
+        for i, t in enumerate(time):
+            if t < 0.0:
+                values.append(0.0)
+            else:
+                values.append(1.0 if t == 0 or time[i - 1] < 0 else 0.0)
+        return values

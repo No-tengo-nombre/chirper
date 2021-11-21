@@ -1,5 +1,5 @@
 from signpy.sgn import signal
-from signpy.sgn.signal import SIN, Signal
+from signpy.sgn.signal import HEAVISIDE, SIN, Signal, IMPULSE
 from signpy.transforms.fourier import Fourier, InverseFourier
 from signpy.modulation.am import Modulator_AM
 
@@ -124,5 +124,23 @@ if __name__ == '__main__':
 
     # plt.plot(*triangle_built.unpack(), color="r", alpha=1)
     # plt.plot(*triangle_mod.unpack(), color="b", alpha=1)
+
+    s1 = SIN(time[1:], 5, 100).apply_function_tuple(lambda t, x: x / t)
+    s2 = HEAVISIDE(time[1:], 100) * HEAVISIDE(time, 500, True)
+    s1_fourier = Fourier(s1)
+    s2_fourier = Fourier(s2)
+
+    fig, ax = plt.subplots()
+    # ax.plot(*s1.unpack(), label="s1", color="b", alpha=0.4)
+    # ax.plot(*s2.unpack(), label="s2", color="r", alpha=0.4)
+
+    # ax.plot(*abs(s1_fourier.calculate()).unpack(), label="s1", color="r")
+    ax.plot(*abs(s2_fourier.calculate()).unpack(), label="s2", color="b")
+
+    ax.set_xlim(-300, 300)
+
+    # ax.plot(*(s1.convolute(s2)).unpack(), label="convolution", color="g", linestyle=":")
+
+    ax.legend()
 
     plt.show()
