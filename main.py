@@ -1,7 +1,8 @@
 from signpy.sgn import signal
 from signpy.sgn.signal import HEAVISIDE, SIN, Signal, IMPULSE
+from signpy.transforms.hilbert import Hilbert
 from signpy.transforms.fourier import Fourier, InverseFourier
-from signpy.modulation.am import Modulator_AM
+from signpy.modulation import am, pm
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -58,7 +59,7 @@ if __name__ == '__main__':
 
     # mixed_signal = (signal1 + signal2 + signal3 + noise5)
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
     # plt.scatter(*signal1.unpack())
     # plt.scatter(*signal2.unpack())
@@ -95,28 +96,79 @@ if __name__ == '__main__':
 
     triangle_built = SIN(time, 5, 10) + SIN(time, 10, 5) + SIN(time, 15, 2.5) + SIN(time, 20, 1.25) + SIN(time, 25, 0.625) + SIN(time, 30, 0.3125)
 
-    am_mod = Modulator_AM(200, 1)
+    am_mod = am.Modulator_AM(200, 1)
+    pm_mod = pm.Modulator_PM(100, 10)
     triangle_mod = am_mod.apply(triangle_built)
+    triangle_pm_mod = pm_mod.apply(triangle_built)
 
     orig_fourier = Fourier(triangle_built)
     mod_fourier = Fourier(triangle_mod)
+    pm_fourier = Fourier(triangle_pm_mod)
 
     # orig_fourier_dft = orig_fourier.calculate("dft")
     # mod_fourier_dft = mod_fourier.calculate("dft")
 
-    orig_fourier_fft = orig_fourier.calculate()
-    mod_fourier_fft = mod_fourier.calculate()
+    orig_fourier_fft = orig_fourier.calculate_shift()
+    mod_fourier_fft = mod_fourier.calculate_shift()
+    pm_fourier_fft = pm_fourier.calculate_shift()
 
     # plt.suptitle("DFT")
     # plt.plot(*abs(orig_fourier_dft).unpack(), color="r")
     # plt.plot(*abs(mod_fourier_dft).unpack(), color="b")
     # # plt.xlim(0, 400)
 
+    fig, ax = plt.subplots()
+
+    fig.suptitle("FFT")
+    ax.plot(*abs(orig_fourier_fft).unpack(), color="r", label="Fourier original")
+    ax.plot(*abs(mod_fourier_fft).unpack(), color="b", label="Fourier AM modulated")
+    ax.plot(*abs(pm_fourier_fft).unpack(), color="g", label="Fourier PM modulated")
+    ax.legend()
+
+    fig, ax = plt.subplots()
+
+    fig.suptitle("Original vs modulated")
+    # ax.plot(*triangle_built.unpack(), color="r", label="Original")
+    # ax.plot(*triangle_mod.unpack(), color="b", label="AM Modulated")
+    ax.plot(*triangle_pm_mod.unpack(), color="g", label="PM Modulated")
+    ax.legend()
+
+    orig_inv = InverseFourier(orig_fourier_fft).calculate_shift()
+    mod_inv = InverseFourier(mod_fourier_fft).calculate_shift()
+    pm_inv = InverseFourier(pm_fourier_fft).calculate_shift()
+
+    fig, ax = plt.subplots()
+
+    fig.suptitle("Reconstructed signals")
+    ax.plot(*orig_inv.unpack(), color="r", label="Original reconstructed")
+    ax.plot(*mod_inv.unpack(), color="b", label="AM Modulated reconstructed")
+    ax.plot(*pm_inv.unpack(), color="g", label="PM Modulated reconstructed")
+    ax.legend()
+
+    fig, ax = plt.subplots()
+
+    fig.suptitle("Reconstructed vs originals")
+    ax.plot(*triangle_built.unpack(), color="r", label="Original")
+    ax.plot(*orig_inv.unpack(), color="b", label="Original reconstructed")
+    ax.legend()
+
+    fig, ax = plt.subplots()
+
+    fig.suptitle("Reconstructed vs originals")
+    ax.plot(*triangle_mod.unpack(), color="r", label="AM Modulated")
+    ax.plot(*mod_inv.unpack(), color="b", label="AM Modulated reconstructed")
+    ax.legend()
+
     # fig, ax = plt.subplots()
 
-    plt.suptitle("FFT")
-    plt.plot(*abs(orig_fourier_fft).unpack(), color="r")
-    plt.plot(*abs(mod_fourier_fft).unpack(), color="b")
+    # sin_signal = SIN(time, 10, 10)
+    # hilbert = Hilbert(sin_signal).calculate()
+
+    # ax.plot(*sin_signal.unpack(), color="r", label="Original", linestyle=":")
+    # ax.plot(*hilbert.real_part().unpack(), color="b", label="Hilbert real")
+    # ax.plot(*hilbert.imag_part().unpack(), color="g", label="Hilbert imag")
+    # ax.legend()
+
     # plt.xlim(0, 400)
 
     # plt.plot(*InverseFourier(orig_fourier_vals).calculate().unpack(), color="r")
@@ -125,22 +177,22 @@ if __name__ == '__main__':
     # plt.plot(*triangle_built.unpack(), color="r", alpha=1)
     # plt.plot(*triangle_mod.unpack(), color="b", alpha=1)
 
-    s1 = SIN(time[1:], 5, 100).apply_function_tuple(lambda t, x: x / t)
-    s2 = HEAVISIDE(time[1:], 100) * HEAVISIDE(time, 500, True)
-    s1_fourier = Fourier(s1)
-    s2_fourier = Fourier(s2)
+    # s1 = SIN(time[1:], 5, 100).apply_function_tuple(lambda t, x: x / t)
+    # s2 = HEAVISIDE(time[1:], 100) * HEAVISIDE(time, 500, True)
+    # s1_fourier = Fourier(s1)
+    # s2_fourier = Fourier(s2)
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
     # ax.plot(*s1.unpack(), label="s1", color="b", alpha=0.4)
     # ax.plot(*s2.unpack(), label="s2", color="r", alpha=0.4)
 
     # ax.plot(*abs(s1_fourier.calculate()).unpack(), label="s1", color="r")
-    ax.plot(*abs(s2_fourier.calculate()).unpack(), label="s2", color="b")
+    # ax.plot(*abs(s2_fourier.calculate()).unpack(), label="s2", color="b")
 
-    ax.set_xlim(-300, 300)
+    # ax.set_xlim(-300, 300)
 
     # ax.plot(*(s1.convolute(s2)).unpack(), label="convolution", color="g", linestyle=":")
 
-    ax.legend()
+    # ax.legend()
 
     plt.show()

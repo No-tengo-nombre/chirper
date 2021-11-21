@@ -1,7 +1,7 @@
 from signpy.sgn.signal import COS, HEAVISIDE
 from signpy.modulation import Modulator
 from signpy.config import AM_MODULATION, HERTZ, SSB_UPPER
-from signpy.transforms.fourier import Fourier
+from signpy.transforms.fourier import Fourier, InverseFourier
 
 class Modulator_AM(Modulator):
     def __init__(self, carrier_freq, carrier_amp):
@@ -13,22 +13,13 @@ class Modulator_AM(Modulator):
         }
 
     def apply(self, signal, method=AM_MODULATION, hertz=HERTZ):
-        return self._modulate(
-            method,
-            signal=signal,
-            carrier_freq=self.carrier_freq,
-            carrier_amp=self.carrier_amp,
-            hertz=hertz,
-        )
-
-    def _modulate(self, method, *args, **kwargs):
-        mod_method = self.methods[method]
-        return mod_method(*args, **kwargs)
+        return self.methods[method](signal, self.carrier_freq, self.carrier_amp, hertz)
 
     def dsbfc_modulation(self, signal, carrier_freq, carrier_amp, hertz=HERTZ):
         time = signal.time
         carrier = COS(time, carrier_freq, 1, hertz)
-        return (carrier_amp + signal) * carrier
+        # return (carrier_amp + signal) * carrier
+        return COS(time, carrier_freq, carrier_amp, hertz) + signal * carrier
 
     def dsbsc_modulation(self, signal, carrier_freq, carrier_amp, hertz=HERTZ):
         time = signal.time
@@ -36,10 +27,14 @@ class Modulator_AM(Modulator):
         return carrier * signal
 
     def ssb_modulation(self, signal, carrier_freq, carrier_amp, hertz=HERTZ, upper=SSB_UPPER):
-        time = signal.time
-        carrier = COS(time, carrier_freq, carrier_amp, hertz)
-        modulated = carrier * signal
-        filter = HEAVISIDE(time, -carrier_freq, upper) + ((-1) ** int(not upper)) * HEAVISIDE(time, carrier_freq, False)
-
-        mod_fourier = Fourier(modulated).calculate()
-        
+        pass
+        # time = signal.time
+        # carrier = COS(time, carrier_freq, carrier_amp, hertz)
+        # modulated = carrier * signal
+        # # filter = HEAVISIDE(time, -carrier_freq, upper) + ((-1) ** int(not upper)) * HEAVISIDE(time, carrier_freq, False)
+        # if upper:
+        #     filter = HEAVISIDE(time, -carrier_freq, True) + HEAVISIDE(time, carrier_freq)
+        # else:
+        #     filter = HEAVISIDE(time, -carrier_freq) - HEAVISIDE(time, carrier_freq)
+        # mod_fourier = Fourier(modulated).calculate() * filter
+        # return InverseFourier(mod_fourier).calculate()
