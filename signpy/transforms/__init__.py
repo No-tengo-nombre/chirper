@@ -1,9 +1,9 @@
 import abc
 
-import sgn.signal
+import signpy.sgn.signal
 
 
-class Transform(abc.ABC, sgn.signal.Signal):
+class Transform(abc.ABC, signpy.sgn.signal.Signal):
     """Abstract class for an integral transform (Fourier, Laplace, etc.)."""
     def __init__(self, target):
         """Creates an instance of this integral transform.
@@ -18,11 +18,11 @@ class Transform(abc.ABC, sgn.signal.Signal):
         super().__init__(target_time, 0 * target_time)
 
     @abc.abstractmethod
-    def calculate(self) -> sgn.signal.Signal:
+    def calculate(self):
         """Applies the transform to the target signal.
 
         Returns
         -------
-        New sgn.signal.Signal representing the result of the transform.
+        Result of the transform.
         """
         pass

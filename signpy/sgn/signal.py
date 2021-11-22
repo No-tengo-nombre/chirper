@@ -1,5 +1,5 @@
-from exceptions import DimensionError
-from config import INTERPOLATION_METHOD, NOISE_TYPE
+from signpy.exceptions import DimensionError
+from signpy.config import INTERPOLATION_METHOD, NOISE_TYPE, HERTZ
 
 import numpy as np
 import bisect
@@ -86,7 +86,7 @@ class Signal:
         return time_list, new_values
 
     @classmethod
-    def from_function(cls, time, func):
+    def from_function(cls, time, func, *args, **kwargs):
         """Creates a signal from a time list and a function.
 
         The function is applied to each element in the time series, so
@@ -101,7 +101,7 @@ class Signal:
         func : function
             Function to apply to each element.
         """
-        return cls(time, func(np.array(time)))
+        return cls(time, func(np.array(time), *args, **kwargs))
 
     def interpolate(self, time, method):
         """Interpolates the current values to obtain a new value.
@@ -223,6 +223,52 @@ class Signal:
         self.values = new_values
         return self
 
+    def apply_function(self, func, *args, **kwargs):
+        """Applies a function to the values of the signal.
+
+        Parameters
+        ----------
+        func : function
+            Function to apply to the signal.
+
+        Returns
+        -------
+        Modified signal.
+        """
+        self.values = np.array([func(x, *args, **kwargs) for x in self.values])
+        return self
+
+    def apply_function_tuple(self, func, *args, **kwargs):
+        self.values = np.array([func(t, x, *args, **kwargs) for t, x in zip(self.time, self.values)])
+        return self
+
+    def convolute(self, signal):
+        """Convolute this signal with another."""
+        copy_signal = Signal(self.time, self.values)
+        return copy_signal.apply_function(self._conv_helper, signal)
+
+    def _conv_helper(self, a, signal):
+        sum = 0
+        for k in signal.time:
+            sum += a * signal[k]
+        return sum
+
+    def shift(self, value):
+        """Shifts the time axis by `value`."""
+        self.time += value
+
+    def real_part(self):
+        values = np.real(self.values)
+        return Signal(self.time, values)
+
+    def imag_part(self):
+        values = np.imag(self.values)
+        return Signal(self.time, values)
+
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||||||| DEFAULT SIGNALS ||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
+
 
 class SQUARE(Signal):
     """Square signal"""
@@ -231,7 +277,7 @@ class SQUARE(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         freq : float
             Frequency for the square wave.
@@ -253,29 +299,58 @@ class SQUARE(Signal):
 
 class SIN(Signal):
     """Sinusoidal signal"""
-    def __init__(self, time, freq, amp, rads=False, phase=0):
+    def __init__(self, time, freq, amp, hertz=HERTZ, phase=0):
         """Generates a sinusoidal signal centered at 0.
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         freq : float
             Frequency for the wave.
         amp : float
             Amplitude of the wave.
-        rads : bool, optional
-            Whether the frequency is given in radians or hertz, by default False.
+        hertz : bool, optional
+            If True then the frequency is assumed to be in hertz, if not
+            then it is in radians, by default config.HERTZ.
         phase : float, optional
             Phase of the wave, by default 0.
         """
-        super().__init__(time, self._generate(time, freq, amp, rads, phase))
+        super().__init__(time, self._generate(time, freq, amp, hertz, phase))
 
     @staticmethod
-    def _generate(time, freq, amp, rads, phase):
-        real_freq = freq if rads else 2 * np.pi * freq
-        real_phase = phase if rads else 2 * np.pi * phase
+    def _generate(time, freq, amp, hertz, phase):
+        real_freq = 2 * np.pi * freq if hertz else freq
+        real_phase = 2 * np.pi * phase if hertz else phase
         return amp * np.sin(real_freq * time + real_phase)
+
+
+class COS(Signal):
+    """Cosine signal"""
+    def __init__(self, time, freq, amp, hertz=HERTZ, phase=0):
+        """Generates a cosine signal centered at 0.
+
+        Parameters
+        ----------
+        time : array like
+            Array for the time.
+        freq : float
+            Frequency for the wave.
+        amp : float
+            Amplitude of the wave.
+        hertz : bool, optional
+            If True then the frequency is assumed to be in hertz, if not
+            then it is in radians, by default config.HERTZ.
+        phase : float, optional
+            Phase of the wave, by default 0.
+        """
+        super().__init__(time, self._generate(time, freq, amp, hertz, phase))
+
+    @staticmethod
+    def _generate(time, freq, amp, hertz, phase):
+        real_freq = 2 * np.pi * freq if hertz else freq
+        real_phase = 2 * np.pi * phase if hertz else phase
+        return amp * np.cos(real_freq * time + real_phase)
 
 
 class NOISE(Signal):
@@ -285,7 +360,7 @@ class NOISE(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         std : float
             Standard deviation of the noise.
@@ -310,7 +385,7 @@ class HEAVISIDE(Signal):
 
         Parameters
         ----------
-        time : array_like
+        time : array like
             Array for the time.
         point : float, optional
             Point to center the signal around (e.g if `point == 0` then the function would change values at 0), by
@@ -324,3 +399,42 @@ class HEAVISIDE(Signal):
         else:
             values = list(map(lambda x: int(x >= point), time))
         super().__init__(time, values)
+
+
+class IMPULSE(Signal):
+    """Discrete impulse/delta function centered at 0."""
+    def __init__(self, time, value=1.0):
+        """Creates a discrete impulse centered at 0, with value `value`.
+
+        Parameters
+        ----------
+        time : array like
+            Array for the time.
+        value : float, optional
+            Value for the impulse to take at 0, by default 1.0
+        """
+        super().__init__(time, value * self._init_helper(time))
+        
+    def _init_helper(self, time):
+        values = []
+        for i, t in enumerate(time):
+            if t < 0.0:
+                values.append(0.0)
+            else:
+                values.append(1.0 if t == 0 or time[i - 1] < 0 else 0.0)
+        return values
+
+
+class CONSTANT(Signal):
+    """Constant signal."""
+    def __init__(self, time, value=1.0):
+        """Creates a constant signal.
+
+        Parameters
+        ----------
+        time : array like
+            Array for the time.
+        value : float or complex, optional
+            Value to use for the constant, by default 1.0.
+        """
+        super().__init__(time, [value for t in time])

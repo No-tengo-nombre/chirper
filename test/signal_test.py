@@ -1,4 +1,4 @@
-from sgn.signal import Signal
+from signpy.sgn.signal import Signal
 
 import unittest
 
