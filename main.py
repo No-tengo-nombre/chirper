@@ -1,5 +1,5 @@
 from signpy.sgn import signal
-from signpy.sgn.signal import HEAVISIDE, SIN, TimeSignal, IMPULSE
+from signpy.sgn.signal import HEAVISIDE, SIN, Signal1, IMPULSE
 from signpy.transforms.hilbert import Hilbert
 from signpy.transforms.fourier import Fourier, InverseFourier
 from signpy.modulation import am, pm
@@ -23,15 +23,15 @@ if __name__ == '__main__':
 
     time = np.linspace(0, 3000, 3000)
 
-    signal1 = TimeSignal.from_function(
+    signal1 = Signal1.from_function(
         time,
         lambda t: wave1["amp"] * np.sin(wave1["freq"] * t)
     )
-    signal2 = TimeSignal.from_function(
+    signal2 = Signal1.from_function(
         time,
         lambda t: wave2["amp"] * np.sin(wave2["freq"] * t)
     )
-    signal3 = TimeSignal.from_function(
+    signal3 = Signal1.from_function(
         time,
         lambda t: wave3["amp"] * np.sin(wave3["freq"] * t)
     )
