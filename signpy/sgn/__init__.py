@@ -1,5 +1,5 @@
 from signpy.exceptions import DimensionError
-from signpy.config import INTERPOLATION_METHOD, NOISE_TYPE, HERTZ
+from signpy.config import INTERPOLATION_METHOD
 from signpy import math
 from . import handler
 
