@@ -1,5 +1,6 @@
-from signpy.sgn import signal
-from signpy.sgn.signal import HEAVISIDE, SIN, Signal1, IMPULSE
+# from signpy.sgn import signal
+from signpy.sgn import Signal1
+from signpy.sgn.defaults import HEAVISIDE, SIN, IMPULSE, NOISE, SQUARE
 from signpy.transforms.hilbert import Hilbert
 from signpy.transforms.fourier import Fourier, InverseFourier
 from signpy.modulation import am, pm
@@ -36,23 +37,23 @@ if __name__ == '__main__':
         lambda t: wave3["amp"] * np.sin(wave3["freq"] * t)
     )
 
-    sq_signal = signal.SQUARE(time, 100e-4, 10)
+    sq_signal = SQUARE(time, 100e-4, 10)
 
-    noise0 = signal.NOISE(time, 0.1)
-    noise1 = signal.NOISE(time, 1)
-    noise2 = signal.NOISE(time, 2)
-    noise3 = signal.NOISE(time, 3)
-    noise4 = signal.NOISE(time, 4)
-    noise5 = signal.NOISE(time, 5)
+    noise0 = NOISE(time, 0.1)
+    noise1 = NOISE(time, 1)
+    noise2 = NOISE(time, 2)
+    noise3 = NOISE(time, 3)
+    noise4 = NOISE(time, 4)
+    noise5 = NOISE(time, 5)
 
-    noise_m_0 = signal.NOISE(time, 0.1, add=False)
-    noise_m_1 = signal.NOISE(time, 1, add=False)
-    noise_m_2 = signal.NOISE(time, 2, add=False)
-    noise_m_3 = signal.NOISE(time, 3, add=False)
-    noise_m_4 = signal.NOISE(time, 4, add=False)
-    noise_m_5 = signal.NOISE(time, 5, add=False)
+    noise_m_0 = NOISE(time, 0.1, add=False)
+    noise_m_1 = NOISE(time, 1, add=False)
+    noise_m_2 = NOISE(time, 2, add=False)
+    noise_m_3 = NOISE(time, 3, add=False)
+    noise_m_4 = NOISE(time, 4, add=False)
+    noise_m_5 = NOISE(time, 5, add=False)
 
-    heaviside1 = signal.HEAVISIDE(time, 1000)
+    heaviside1 = HEAVISIDE(time, 1000)
 
     # fourier = Fourier(signal1).calculate()
     # sum_signal = signal1 + signal2 + signal3
