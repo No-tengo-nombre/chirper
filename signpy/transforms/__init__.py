@@ -14,11 +14,13 @@ class Transform(sgn.Signal, abc.ABC):
             Signal to apply the transform to.
         """
         self.signal = target
-        target_axis = target.axis
-        super().__init__(target_axis, 0 * target_axis)
+        self.methods = {}
+        super().__init__(*self.calculate(target).unpack())
+        # target_axis = target.axis
+        # super().__init__(target_axis, 0 * target_axis)
 
     @abc.abstractmethod
-    def calculate(self) -> sgn.Signal:
+    def calculate(self, target) -> sgn.Signal:
         """Applies the transform to the target signal.
 
         Returns

@@ -1,25 +1,26 @@
 from signpy.sgn import Signal1
-from signpy.transforms import Transform
+from signpy.transforms import Transform1
 from signpy.config import FOURIER_METHOD
 
 import numpy as np
 from tqdm import tqdm
 
 
-class Fourier(Transform):
+class Fourier(Transform1):
     """Fourier transform"""
-    def __init__(self, target):
-        super().__init__(target)
+    def __init__(self, target : Signal1):
         self.methods = {
             "dft": self.calculate_dft,
             "fft": self.calculate_fft,
         }
+        super().__init__(target)
 
     def calculate(self, method=FOURIER_METHOD):
         return self.methods[method]()
 
-    def calculate_shift(self, method=FOURIER_METHOD):
-        output = self.methods[method]()
+    def freq_shift(self, method=FOURIER_METHOD):
+        # output = self.methods[method]()
+        output = self.signal
         signal_len = len(output)
 
         shifted_values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
@@ -43,22 +44,22 @@ class Fourier(Transform):
             for n in range(signal_len):
                 temp += self.signal.values[n] * np.exp(-1j * (2 * n * k * np.pi / signal_len))
             new_values[k] = temp
-        self.values = new_values
+        # self.values = new_values
 
-        shifted_values = np.array([*self.values[signal_len // 2:], *self.values[:signal_len // 2]])
-        shifted_time = np.array([*self.time[signal_len // 2:], *self.time[:signal_len // 2]])
+        # shifted_values = np.array([*self.values[signal_len // 2:], *self.values[:signal_len // 2]])
+        # shifted_time = np.array([*self.time[signal_len // 2:], *self.time[:signal_len // 2]])
 
-        return Signal1(self.time, self.values)#, Signal(shifted_time, shifted_values)
+        return Signal1(self.time, new_values)#, Signal(shifted_time, shifted_values)
 
     # def calculate_fft(self):
     #     pass
 
     def calculate_fft(self):
-        self.values = np.fft.fft(self.signal.values)
-        return Signal1(self.time, self.values)
+        values = np.fft.fft(self.signal.values)
+        return Signal1(self.time, values)
 
 
-class InverseFourier(Transform):
+class InverseFourier(Transform1):
     """Inverse Fourier transform"""
     def __init__(self, target):
         super().__init__(target)
@@ -70,12 +71,12 @@ class InverseFourier(Transform):
     def calculate(self, method=FOURIER_METHOD):
         return self.methods[method]()
 
-    def calculate_shift(self, method=FOURIER_METHOD):
+    def freq_shift(self, method=FOURIER_METHOD):
         signal_len = len(self.signal)
-        self.signal.time = self.signal.time + self.signal.time_span() / 2
-        self.signal.values = np.array([*self.signal.values[signal_len // 2:], *self.signal.values[:signal_len // 2]])
-        # return Signal(*self.signal.unpack())
-        return self.methods[method]()
+        new_time = self.signal.time + self.signal.time_span() / 2
+        new_values = np.array([*self.signal.values[signal_len // 2:], *self.signal.values[:signal_len // 2]])
+        return Signal1(new_time, new_values)
+        # return self.methods[method]()
 
     def calculate_dft(self):
         """Calculates the inverse Fourier Transform :math:`\\mathcal{F}^{-1}\\{X[k]\\} = x[n]` such that
@@ -94,9 +95,9 @@ class InverseFourier(Transform):
             for k in range(signal_len):
                 temp += self.signal.values[k] * np.exp(1j * (2 * n * k * np.pi / signal_len))
             new_values[n] = temp / signal_len
-        self.values = new_values
-        return Signal1(self.time, self.values) * signal_len
+        # self.values = new_values
+        return Signal1(self.time, new_values) * signal_len
 
     def calculate_fft(self):
-        self.values = np.fft.ifft(self.signal.values)
-        return Signal1(self.time, self.values)
+        values = np.fft.ifft(self.signal.values)
+        return Signal1(self.time, values)
