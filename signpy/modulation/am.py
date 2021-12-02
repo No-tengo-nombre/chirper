@@ -1,7 +1,8 @@
-from signpy.sgn.signal import COS, HEAVISIDE
+from signpy.sgn.signal import COS, HEAVISIDE, Signal1
 from signpy.modulation import Modulator
 from signpy.config import AM_MODULATION, HERTZ, SSB_UPPER
 from signpy.transforms.fourier import Fourier, InverseFourier
+
 
 class Modulator_AM(Modulator):
     def __init__(self, carrier_freq, carrier_amp):
@@ -12,21 +13,21 @@ class Modulator_AM(Modulator):
             "ssb": self.ssb_modulation,
         }
 
-    def apply(self, signal, method=AM_MODULATION, hertz=HERTZ):
+    def apply(self, signal : Signal1, method=AM_MODULATION, hertz=HERTZ):
         return self.methods[method](signal, self.carrier_freq, self.carrier_amp, hertz)
 
-    def dsbfc_modulation(self, signal, carrier_freq, carrier_amp, hertz=HERTZ):
+    def dsbfc_modulation(self, signal : Signal1, carrier_freq, carrier_amp, hertz=HERTZ):
         time = signal.time
         carrier = COS(time, carrier_freq, 1, hertz)
         # return (carrier_amp + signal) * carrier
         return COS(time, carrier_freq, carrier_amp, hertz) + signal * carrier
 
-    def dsbsc_modulation(self, signal, carrier_freq, carrier_amp, hertz=HERTZ):
+    def dsbsc_modulation(self, signal : Signal1, carrier_freq, carrier_amp, hertz=HERTZ):
         time = signal.time
         carrier = COS(time, carrier_freq, carrier_amp, hertz)
         return carrier * signal
 
-    def ssb_modulation(self, signal, carrier_freq, carrier_amp, hertz=HERTZ, upper=SSB_UPPER):
+    def ssb_modulation(self, signal : Signal1, carrier_freq, carrier_amp, hertz=HERTZ, upper=SSB_UPPER):
         pass
         # time = signal.time
         # carrier = COS(time, carrier_freq, carrier_amp, hertz)

@@ -1,5 +1,5 @@
 from signpy.transforms import Transform
-from signpy.sgn.signal import HEAVISIDE, Signal
+from signpy.sgn.signal import HEAVISIDE, Signal1
 from signpy.transforms.fourier import Fourier, InverseFourier
 from signpy.config import HILBERT_METHOD
 
@@ -23,7 +23,7 @@ class Hilbert(Transform):
 
     def calculate_conv(self):
         return self.signal.convolute(
-            Signal.from_function(
+            TimeSignal.from_function(
                 self.signal.time,
                 self._char_function
             )
@@ -32,7 +32,7 @@ class Hilbert(Transform):
     def calculate_fft(self):
         self_fourier = Fourier(self.signal).calculate()
         t_fourier = Fourier(
-            Signal.from_function(self.signal.time, self._char_function)
+            TimeSignal.from_function(self.signal.time, self._char_function)
         ).calculate()
 
         return InverseFourier(self_fourier * t_fourier).calculate()

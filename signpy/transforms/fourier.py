@@ -1,4 +1,4 @@
-from signpy.sgn.signal import Signal
+from signpy.sgn.signal import Signal1
 from signpy.transforms import Transform
 from signpy.config import FOURIER_METHOD
 
@@ -24,7 +24,7 @@ class Fourier(Transform):
 
         shifted_values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
         freq_axis = output.time - output.time_span() / 2
-        return Signal(freq_axis, shifted_values)
+        return Signal1(freq_axis, shifted_values)
 
     def calculate_dft(self):
         """Calculates the Discrete Fourier Transform (DFT) of a signal :math:`\\mathcal{F}\\{x[n]\\} = X[k]`, such that
@@ -48,14 +48,14 @@ class Fourier(Transform):
         shifted_values = np.array([*self.values[signal_len // 2:], *self.values[:signal_len // 2]])
         shifted_time = np.array([*self.time[signal_len // 2:], *self.time[:signal_len // 2]])
 
-        return Signal(self.time, self.values)#, Signal(shifted_time, shifted_values)
+        return Signal1(self.time, self.values)#, Signal(shifted_time, shifted_values)
 
     # def calculate_fft(self):
     #     pass
 
     def calculate_fft(self):
         self.values = np.fft.fft(self.signal.values)
-        return Signal(self.time, self.values)
+        return Signal1(self.time, self.values)
 
 
 class InverseFourier(Transform):
@@ -95,8 +95,8 @@ class InverseFourier(Transform):
                 temp += self.signal.values[k] * np.exp(1j * (2 * n * k * np.pi / signal_len))
             new_values[n] = temp / signal_len
         self.values = new_values
-        return Signal(self.time, self.values) * signal_len
+        return Signal1(self.time, self.values) * signal_len
 
     def calculate_fft(self):
         self.values = np.fft.ifft(self.signal.values)
-        return Signal(self.time, self.values)
+        return Signal1(self.time, self.values)
