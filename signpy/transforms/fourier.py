@@ -1,4 +1,4 @@
-from signpy.sgn.signal import Signal1
+from signpy.sgn import Signal1
 from signpy.transforms import Transform
 from signpy.config import FOURIER_METHOD
 

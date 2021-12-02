@@ -1,4 +1,5 @@
-from signpy.sgn.signal import COS, HEAVISIDE, Signal1
+from signpy.sgn import Signal1
+from signpy.sgn.defaults import COS, HEAVISIDE
 from signpy.modulation import Modulator
 from signpy.config import AM_MODULATION, HERTZ, SSB_UPPER
 from signpy.transforms.fourier import Fourier, InverseFourier

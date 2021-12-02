@@ -1,5 +1,5 @@
 # from numpy.lib.twodim_base import tri
-from signpy.sgn import signal
+from signpy import sgn
 from signpy.transforms import fourier
 
 import matplotlib.pyplot as plt
@@ -8,13 +8,13 @@ import numpy as np
 time = np.linspace(0, 3000, 3000)
 
 triangle_built = (
-    signal.SIN(time, 5, 10)
-    + signal.SIN(time, 10, 5) 
-    + signal.SIN(time, 15, 2.5) 
-    + signal.SIN(time, 20, 1.25) 
-    + signal.SIN(time, 25, 0.625) 
-    + signal.SIN(time, 30, 0.3125)
-    + signal.SIN(time, 35, 0.15625)
+    sgn.SIN(time, 5, 10)
+    + sgn.SIN(time, 10, 5) 
+    + sgn.SIN(time, 15, 2.5) 
+    + sgn.SIN(time, 20, 1.25) 
+    + sgn.SIN(time, 25, 0.625) 
+    + sgn.SIN(time, 30, 0.3125)
+    + sgn.SIN(time, 35, 0.15625)
 )
 
 orig_fourier = fourier.Fourier(triangle_built)

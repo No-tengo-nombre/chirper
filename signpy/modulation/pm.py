@@ -1,4 +1,4 @@
-from signpy.sgn.signal import Signal1
+from signpy.sgn import Signal1
 from signpy.modulation import Modulator
 from signpy.config import PM_MODULATION, HERTZ
 
