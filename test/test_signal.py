@@ -43,7 +43,7 @@ class TestSignal(unittest.TestCase):
 
     def test_indexing(self):
         self.assertEqual(45 ** 3, self.signal8[45], "Time signal indexing test failed")
-        for t in self.signal8.time:
+        for t in self.signal8.axis:
             self.assertEqual(t ** 3, self.signal8[t], "Time signal indexing test failed")
 
     def test_addition(self):

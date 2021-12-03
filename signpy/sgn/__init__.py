@@ -192,21 +192,21 @@ class Signal1(Signal):
         return len(self.axis)
 
     def _do_bin_operation(self, signal, operation):
-        # Joins the axiss of both signals
+        # Joins the axes of both signals
         axis_list = np.union1d(self.axis, signal.axis)
         axis_list.sort()
 
         new_values = np.array([])
         for t in axis_list:
             # Interpolates the values
-            y1 = self.interp(t)[1]
-            y2 = signal.interp(t)[1]
+            y1 = self.interp(t)[2]
+            y2 = signal.interp(t)[2]
             # Operates using the interpolated values
             new_values = np.append(new_values, operation(y1, y2))
         return axis_list, new_values
 
     @classmethod
-    def from_function(cls, axis: np.ndarray, func: function, *args, **kwargs):
+    def from_function(cls, axis: np.ndarray, func, *args, **kwargs):
         """Creates a signal from an axis list and a function.
 
         The function is applied to each element in the axis, so if the

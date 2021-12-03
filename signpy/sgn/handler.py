@@ -1,4 +1,4 @@
-from signpy import sgn
+# from signpy import sgn
 
 import csv
 
@@ -6,7 +6,7 @@ import csv
 class HandlerCSV:
     """Class for handling imports and exports with .csv files."""
     @staticmethod
-    def export_signal1(filename: str, signal1: sgn.Signal1):
+    def export_signal1(filename: str, signal1):
         """Exports the given one dimensional signal to the .csv file."""
         with open(filename, "w+") as file:
             writer = csv.writer(file)
@@ -16,7 +16,7 @@ class HandlerCSV:
 class HandlerJSON:
     """Class for handling imports and exports with .json files."""
     @staticmethod
-    def export_signal1(filename: str, signal1: sgn.Signal1):
+    def export_signal1(filename: str, signal1):
         """Exports the given one dimensional signal to the .json file."""
         with open(filename, "w+") as file:
             pass

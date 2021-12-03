@@ -1,9 +1,9 @@
-from signpy import sgn
+# from signpy.sgn import Signal1
 
 import numpy as np
 
 
-def convolute(s1_x: sgn.Signal1, s1_y: sgn.Signal1) -> sgn.Signal1:
+def convolute(s1_x, s1_y):
     copy = s1_x.clone()
     return copy.apply_function(_conv_helper, s1_y)
 
@@ -13,5 +13,5 @@ def _conv_helper(self, a, signal1):
         sum += a * signal1[k]
     return sum
 
-def cross_correlation(s1_x: sgn.Signal1, s1_y: sgn.Signal1) -> sgn.Signal1:
+def cross_correlation(s1_x, s1_y):
     copy = s1_x.clone()
