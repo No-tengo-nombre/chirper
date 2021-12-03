@@ -8,23 +8,23 @@ from tqdm import tqdm
 
 class Fourier(Transform1):
     """Fourier transform"""
-    def __init__(self, target : Signal1):
+    def __init__(self, target : Signal1, method=FOURIER_METHOD):
         self.methods = {
             "dft": self.calculate_dft,
             "fft": self.calculate_fft,
         }
         super().__init__(target)
+        self.axis, self.values = self.calculate(method).unpack()
 
     def calculate(self, method=FOURIER_METHOD):
         return self.methods[method]()
 
-    def freq_shift(self, method=FOURIER_METHOD):
-        # output = self.methods[method]()
-        output = self.signal
+    def freq_shift(self):
+        output = self.clone()
         signal_len = len(output)
 
         shifted_values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
-        freq_axis = output.time - output.time_span() / 2
+        freq_axis = output.axis - output.span() / 2
         return Signal1(freq_axis, shifted_values)
 
     def calculate_dft(self):
@@ -44,34 +44,28 @@ class Fourier(Transform1):
             for n in range(signal_len):
                 temp += self.signal.values[n] * np.exp(-1j * (2 * n * k * np.pi / signal_len))
             new_values[k] = temp
-        # self.values = new_values
 
-        # shifted_values = np.array([*self.values[signal_len // 2:], *self.values[:signal_len // 2]])
-        # shifted_time = np.array([*self.time[signal_len // 2:], *self.time[:signal_len // 2]])
-
-        return Signal1(self.time, new_values)#, Signal(shifted_time, shifted_values)
-
-    # def calculate_fft(self):
-    #     pass
+        return Signal1(self.signal.axis, new_values)
 
     def calculate_fft(self):
         values = np.fft.fft(self.signal.values)
-        return Signal1(self.time, values)
+        return Signal1(self.signal.axis, values)
 
 
 class InverseFourier(Transform1):
     """Inverse Fourier transform"""
-    def __init__(self, target):
-        super().__init__(target)
+    def __init__(self, target: Signal1, method=FOURIER_METHOD):
         self.methods = {
             "dft": self.calculate_dft,
             "fft": self.calculate_fft,
         }
+        super().__init__(target)
+        self.axis, self.values = self.calculate(method).unpack()
     
     def calculate(self, method=FOURIER_METHOD):
         return self.methods[method]()
 
-    def freq_shift(self, method=FOURIER_METHOD):
+    def freq_shift(self):
         signal_len = len(self.signal)
         new_time = self.signal.time + self.signal.time_span() / 2
         new_values = np.array([*self.signal.values[signal_len // 2:], *self.signal.values[:signal_len // 2]])
@@ -96,8 +90,8 @@ class InverseFourier(Transform1):
                 temp += self.signal.values[k] * np.exp(1j * (2 * n * k * np.pi / signal_len))
             new_values[n] = temp / signal_len
         # self.values = new_values
-        return Signal1(self.time, new_values) * signal_len
+        return Signal1(self.signal.axis, new_values) * signal_len
 
     def calculate_fft(self):
         values = np.fft.ifft(self.signal.values)
-        return Signal1(self.time, values)
+        return Signal1(self.signal.axis, values)

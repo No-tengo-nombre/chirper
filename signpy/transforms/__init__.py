@@ -5,22 +5,22 @@ import abc
 
 class Transform(sgn.Signal, abc.ABC):
     """Abstract class for an integral transform (Fourier, Laplace, etc.)."""
-    def __init__(self, target: sgn.Signal):
-        """Creates an instance of this transform.
+    # def __init__(self, target: sgn.Signal):
+    #     """Creates an instance of this transform.
 
-        Parameters
-        ----------
-        target : sgn.Signal
-            Signal to apply the transform to.
-        """
-        self.signal = target
-        self.methods = {}
-        super().__init__(*self.calculate(target).unpack())
+    #     Parameters
+    #     ----------
+    #     target : sgn.Signal
+    #         Signal to apply the transform to.
+    #     """
+    #     self.signal = target
+    #     self.methods = {}
+    #     super().__init__(*self.calculate().unpack())
         # target_axis = target.axis
         # super().__init__(target_axis, 0 * target_axis)
 
     @abc.abstractmethod
-    def calculate(self, target) -> sgn.Signal:
+    def calculate(self) -> sgn.Signal:
         """Applies the transform to the target signal.
 
         Returns
@@ -30,4 +30,6 @@ class Transform(sgn.Signal, abc.ABC):
         pass
 
 class Transform1(Transform, sgn.Signal1):
-    pass
+    def __init__(self, target : sgn.Signal1):
+        self.signal = target
+        super().__init__(*target.unpack())
