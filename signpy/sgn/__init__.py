@@ -1,5 +1,5 @@
 from signpy.exceptions import DimensionError
-from signpy.config import INTERPOLATION_METHOD
+from signpy.config import CONVOLUTION_METHOD, INTERPOLATION_METHOD
 from signpy import math
 from . import handler
 
@@ -226,10 +226,12 @@ class Signal1(Signal):
     @classmethod
     def from_file(cls, filename: str):
         try:
-            name, extension = filename.split(".")
-            Signal1.handlers[extension].export_signal1(filename, cls)
+            extension = filename.split(".")[-1]
+            if extension == filename:
+                raise ValueError()
+            cls(*Signal1.handlers[extension].import_signal1(filename))
         except ValueError:
-            print("Name must not contain dots.")
+            print("Invalid name.")
         except Exception:
             print("An unexpected error has ocurred.")
 
@@ -369,28 +371,44 @@ class Signal1(Signal):
 
         Returns
         -------
-        Modified signal.
+        Signal1
+            Modified signal.
         """
-        self.values = np.array([func(x, *args, **kwargs) for x in self.values])
-        return self
+        copy = self.clone()
+        copy.values = np.array([func(x, *args, **kwargs) for x in copy.values])
+        return copy
 
     def apply_function_tuple(self, func, *args, **kwargs):
-        self.values = np.array([func(t, x, *args, **kwargs) for t, x in zip(self.axis, self.values)])
-        return self
+        """Applies a function to both the axis and values of the signal.
 
-    def convolute(self, sign):
-        return math.convolute(self, sign)
+        Parameters
+        ----------
+        func : function
+            Function to apply to the signal.
 
-    # def convolute(self, signal):
-    #     """Convolute this signal with another."""
-    #     copy_signal = Signal(self.axis, self.values)
-    #     return copy_signal.apply_function(self._conv_helper, signal)
+        Returns
+        -------
+        Signal1
+            Modified signal.
+        """
+        copy = self.clone()
+        copy.values = np.array([func(t, x, *args, **kwargs) for t, x in zip(copy.axis, copy.values)])
+        return copy
 
-    # def _conv_helper(self, a, signal):
-    #     sum = 0
-    #     for k in signal.axis:
-    #         sum += a * signal[k]
-    #     return sum
+    def convolute(self, sign, method=CONVOLUTION_METHOD):
+        """Convolute this signal with another.
+
+        Parameters
+        ----------
+        sign : Signal1
+            Signal to convolute with.
+
+        Returns
+        -------
+        Signal1
+            Convoluted signal.
+        """
+        return math.convolute(self, sign, method)
 
     def shift(self, value):
         """Shifts the axis by `value`."""
@@ -399,23 +417,38 @@ class Signal1(Signal):
         return copy
 
     def real_part(self):
+        """Takes the real part of the values."""
         values = np.real(self.values)
         return Signal1(self.axis, values)
 
     def imag_part(self):
+        """Takes the imaginary part of the values."""
         values = np.imag(self.values)
         return Signal1(self.axis, values)
 
-    # def clone(self):
-    #     return Signal1(self.axis, self.values)
-
     def conjugate(self):
+        """Takes the conjugate of the values."""
         copy = self.copy()
         copy.values = copy.values.conjugate()
         return copy
 
-    def export_to_file(self, filename):
-        pass
+    def export_to_file(self, filename : str):
+        """Exports the one dimensional signal to the given file.
+
+        Parameters
+        ----------
+        filename : str
+            String corrresponding to the file.
+        """
+        try:
+            extension = filename.split(".")[-1]
+            if extension == filename:
+                raise ValueError
+            Signal1.handlers[extension].export_signal1(filename, self)
+        except ValueError:
+            print("Invalid name.")
+        except Exception:
+            print("An unexpected error has occured.")
 
 
 ########################################################################################################################
@@ -596,4 +629,3 @@ class Signal1(Signal):
 #             Value to use for the constant, by default 1.0.
 #         """
 #         super().__init__(axis, [value for t in axis])
-
