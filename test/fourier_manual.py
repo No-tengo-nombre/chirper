@@ -1,9 +1,13 @@
-from signpy import sgn
-from signpy.sgn.defaults import SIN
-from signpy.transforms import fourier
+from signpy.sgn.defaults import SIN, SQUARE
+from signpy.transforms.fourier import Fourier1, InverseFourier1
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 time = np.linspace(0, 3000, 3000)
 
@@ -17,8 +21,8 @@ triangle_built = (
     + SIN(time, 35, 0.15625)
 )
 
-orig_fourier = fourier.Fourier(triangle_built)
-triangle_inv = fourier.InverseFourier(orig_fourier)
+orig_fourier = Fourier1(triangle_built)
+triangle_inv = InverseFourier1(orig_fourier)
 
 fig, ax = plt.subplots()
 fig.suptitle("Triangular signal fourier spectrum")
@@ -31,5 +35,34 @@ ax1.plot(*triangle_built.unpack(), label="Original")
 ax2.plot(*triangle_inv.unpack(), label="Reconstructed")
 ax1.legend()
 ax2.legend()
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+time = np.linspace(0, 100, 1000)
+
+pulse = (
+    SQUARE(time, 0.2, 10)
+)
+
+pulse_fourier = Fourier1(pulse)
+pulse_inv = InverseFourier1(pulse_fourier)
+
+fig, ax = plt.subplots()
+fig.suptitle("Pulse fourier spectrum")
+ax.plot(*abs(pulse_fourier.freq_shift()).unpack(), label="Spectrum")
+ax.legend()
+
+fig, (ax1, ax2) = plt.subplots(2, 1)
+fig.suptitle("Original vs reconstructed signal")
+ax1.plot(*pulse.unpack(), label="Original")
+ax2.plot(*pulse_inv.unpack(), label="Reconstructed")
+ax1.legend()
+ax2.legend()
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 plt.show()
