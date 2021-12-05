@@ -1,6 +1,6 @@
-from signpy.sgn import Signal1
-
 import unittest
+
+from signpy.sgn import Signal1
 
 
 class TestSignal(unittest.TestCase):

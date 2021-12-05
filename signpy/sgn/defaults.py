@@ -165,7 +165,7 @@ class IMPULSE(Signal1):
                 values.append(0.0)
             else:
                 values.append(1.0 if t == 0 or axis[i - 1] < 0 else 0.0)
-        return values
+        return np.array(values)
 
 
 class CONSTANT(Signal1):

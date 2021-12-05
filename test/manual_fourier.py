@@ -1,8 +1,8 @@
-from signpy.sgn.defaults import SIN, SQUARE
-from signpy.transforms.fourier import Fourier1, InverseFourier1
-
 import matplotlib.pyplot as plt
 import numpy as np
+
+from signpy.sgn.defaults import IMPULSE, SIN, SQUARE
+from signpy.transforms.fourier import Fourier1, InverseFourier1
 
 
 ################################################################################################################
