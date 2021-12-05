@@ -1,15 +1,13 @@
-from signpy.sgn import Signal1
-from signpy.sgn.defaults import HEAVISIDE
-from signpy.transforms import Transform
-from signpy.transforms.fourier import Fourier, InverseFourier
-from signpy.config import HILBERT_METHOD
-
 import numpy as np
 
-from signpy.transforms.fourier import Fourier
+from signpy.sgn import Signal1
+from signpy.sgn.defaults import HEAVISIDE
+from signpy.transforms import Transform1
+from signpy.transforms.fourier import Fourier1, InverseFourier1
+from signpy.config import HILBERT_METHOD
 
-class Hilbert(Transform):
-    def __init__(self, target):
+class Hilbert(Transform1):
+    def __init__(self, target: Signal1):
         super().__init__(target)
         self.methods = {
             "conv": self.calculate_conv,
@@ -31,9 +29,10 @@ class Hilbert(Transform):
         )
 
     def calculate_fft(self):
-        self_fourier = Fourier(self.signal).calculate()
-        t_fourier = Fourier(
+        output = self.signal.clone()
+        self_fourier = Fourier1(self.signal)
+        t_fourier = Fourier1(
             Signal1.from_function(self.signal.time, self._char_function)
-        ).calculate()
+        )
 
-        return InverseFourier(self_fourier * t_fourier).calculate()
+        return InverseFourier1(self_fourier * t_fourier)

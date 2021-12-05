@@ -1,8 +1,8 @@
+import numpy as np
+
 from signpy.sgn import Signal1
 from signpy.modulation import Modulator
 from signpy.config import PM_MODULATION, HERTZ
-
-import numpy as np
 
 
 class Modulator_PM(Modulator):

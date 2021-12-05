@@ -1,7 +1,8 @@
-from . import Signal1
-from signpy.config import HERTZ, NOISE_TYPE
-
 import numpy as np
+
+from signpy.config import HERTZ, NOISE_TYPE
+from . import Signal1
+
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #

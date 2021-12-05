@@ -1,13 +1,12 @@
-from signpy.exceptions import InvalidModulation
-
 import abc
+
+from signpy.exceptions import InvalidModulation
 
 
 class Modulator(abc.ABC):
     """Modulator object."""
     def __init__(self, carrier_freq, carrier_amp):
-        """Create an empty modulator. Generally, you probably don't want
-        to call this function.
+        """Create an empty modulator.
 
         Parameters
         ----------

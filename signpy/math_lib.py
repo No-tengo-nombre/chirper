@@ -1,12 +1,9 @@
-# from signpy.sgn import Signal1
-
 import numpy as np
 
 from signpy.config import CONVOLUTION_METHOD
-from signpy.transforms.fourier import Fourier, InverseFourier
 
 
-def convolute(s1_x, s1_y, method=CONVOLUTION_METHOD):
+def convolution(s1_x, s1_y, method=CONVOLUTION_METHOD):
     """Calculates the convolution of two one-dimensional signals.
 
     There are different methods to calculate the convolution of two
@@ -42,9 +39,10 @@ def convolute(s1_x, s1_y, method=CONVOLUTION_METHOD):
 
 def conv_fft(s1_x, s1_y):
     """Convolutes using the FFT."""
-    x_fourier = Fourier(s1_x)
-    y_fourier = Fourier(s1_y)
-    return InverseFourier(x_fourier * y_fourier)
+    from signpy.transforms.fourier import Fourier1, InverseFourier1
+    x_fourier = Fourier1(s1_x)
+    y_fourier = Fourier1(s1_y)
+    return InverseFourier1(x_fourier * y_fourier)
 
 def conv_direct(s1_x, s1_y):
     """Convolutes via brute-force."""

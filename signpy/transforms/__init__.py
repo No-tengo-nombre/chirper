@@ -1,6 +1,8 @@
-from signpy import sgn
-
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import abc
+
+from signpy import sgn
 
 
 class Transform(sgn.Signal, abc.ABC):
@@ -16,11 +18,11 @@ class Transform(sgn.Signal, abc.ABC):
     #     self.signal = target
     #     self.methods = {}
     #     super().__init__(*self.calculate().unpack())
-        # target_axis = target.axis
-        # super().__init__(target_axis, 0 * target_axis)
+    #     target_axis = target.axis
+    #     super().__init__(target_axis, 0 * target_axis)
 
     @abc.abstractmethod
-    def calculate(self) -> sgn.Signal:
+    def calculate(self):
         """Applies the transform to the target signal.
 
         Returns
