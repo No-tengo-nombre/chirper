@@ -56,14 +56,14 @@ time = np.linspace(0, 1000, 1000)
 
 # signal1 = NOISE(time, 5)
 signal1 = SIN(time, 5, 10)
-for i in range(10, 200, 5):
-    signal1 += SIN(time, i, 10)
-signal1 += NOISE(time, 10)
+# for i in range(10, 200, 5):
+#     signal1 += SIN(time, i, 10)
+signal1 += NOISE(time, 2)
 # signal1 *= NOISE(time, 2, False)
 
 
 signal2 = Signal1.from_function(time, lambda t: 10 * np.sinc(2 * np.pi * 0.01 * t))
-# signal2 += NOISE(time, 1)
+signal2 += NOISE(time, 0.5)
 # signal2 = Signal1(time, [np.sin(0.1 * t) / t if t != 0 else 1 for t in time])
 # signal2 = Signal1(time, [np.log(t) if t != 0 else 1 for t in time])
 
