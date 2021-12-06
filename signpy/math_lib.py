@@ -1,6 +1,8 @@
 import numpy as np
 
-from signpy.config import CONVOLUTION_METHOD
+from signpy.config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD
+from signpy.exceptions import DimensionError
+# from signpy.sgn import Signal1
 
 
 def convolution(s1_x, s1_y, method=CONVOLUTION_METHOD):
@@ -46,14 +48,69 @@ def conv_fft(s1_x, s1_y):
 
 def conv_direct(s1_x, s1_y):
     """Convolutes via brute-force."""
-    copy = s1_x.clone()
-    return copy.apply_function(_conv_helper, s1_y)
+    x_copy = s1_x.clone()
+    y_copy = s1_y.clone()
+    if not np.array_equal(x_copy.axis, y_copy.axis):
+        raise DimensionError("Dimensions of signals do not match.")
+    # return copy.apply_function(_conv_helper, s1_y)
+    vals = []
+    for n, _ in enumerate(x_copy.values):
+        sum = 0
+        for m, _ in enumerate(y_copy.values):
+            sum += x_copy.values[m] * y_copy.values[n - m]
+        vals.append(sum)
+    output = s1_x.clone()
+    output.values = np.array(vals)
+    return output
 
-def _conv_helper(self, a, signal1):
+def _conv_helper(a, signal1):
     sum = 0
-    for k in signal1.time:
+    for k in signal1.axis:
         sum += a * signal1[k]
     return sum
 
-def cross_correlation(s1_x, s1_y):
-    copy = s1_x.clone()
+def cross_correlation(s1_x, s1_y, method=CROSS_CORRELATION_METHOD):
+    """Calculates the cross correlation of two signals.
+
+    Parameters
+    ----------
+    s1_x : Signal1
+        First signal.
+    s1_y : Signal1
+        Second signal
+    method : {"direct"}, optional
+        Desired method to calculate the cross correlation, by default
+        CROSS_CORRELATION_METHOD.
+
+    Returns
+    -------
+    Signal1
+        Cross correlated signal
+    """
+    cc_methods = {
+        # "fft" : conv_fft,
+        "direct" : cc_direct,
+    }
+    return cc_methods[method](s1_x, s1_y)
+
+def cc_direct(s1_x, s1_y):
+    x_copy = s1_x.clone()
+    y_copy = s1_y.clone()
+    if not np.array_equal(x_copy.axis, y_copy.axis):
+        raise DimensionError("Dimensions of signals do not match.")
+    # return copy.apply_function(_conv_helper, s1_y)
+    vals = []
+    for n, _ in enumerate(x_copy.values):
+        sum = 0
+        for m, _ in enumerate(y_copy.values):
+            sum += np.conjugate(x_copy.values[m]) * y_copy.values[(m + n) % len(x_copy)]
+        vals.append(sum)
+    output = s1_x.clone()
+    output.values = np.array(vals)
+    return output
+
+def _correlation_helper(a, signal1):
+    sum = 0
+    for k in signal1.axis:
+        sum += np.conjugate(a) * signal1[k]
+

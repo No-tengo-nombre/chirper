@@ -7,7 +7,7 @@ import abc
 from copy import deepcopy
 
 from signpy.exceptions import DimensionError
-from signpy.config import CONVOLUTION_METHOD, INTERPOLATION_METHOD
+from signpy.config import CONVOLUTION_METHOD, INTERPOLATION_METHOD, CROSS_CORRELATION_METHOD
 from signpy import math_lib
 from . import handler
 
@@ -394,20 +394,57 @@ class Signal1(Signal):
         copy.values = np.array([func(t, x, *args, **kwargs) for t, x in zip(copy.axis, copy.values)])
         return copy
 
-    def convolute(self, sign: Signal1, method=CONVOLUTION_METHOD):
+    def convolute(self, signal1: Signal1, method=CONVOLUTION_METHOD):
         """Convolute this signal with another.
 
         Parameters
         ----------
-        sign : Signal1
+        signal1 : Signal1
             Signal to convolute with.
+        method : {"fft", "direct"}, optional
+            Method utilized to calculate the convolution, by
+            default CONVOLUTION_METHOD.
 
         Returns
         -------
         Signal1
             Convoluted signal.
         """
-        return math_lib.convolution(self, sign, method)
+        return math_lib.convolution(self, signal1, method)
+
+    def cross_correlate(self, signal1: Signal1, method=CROSS_CORRELATION_METHOD):
+        """Cross-correlates this signal with another.
+
+        Parameters
+        ----------
+        signal1 : Signal1
+            Signal to cross-correlate with.
+        method : {"direct"}, optional
+            Method utilized to calculate the cross-correlation, by
+            default CROSS_CORRELATION_METHOD.
+
+        Returns
+        -------
+        Signal1
+            Cross-correlated signal.
+        """
+        return math_lib.cross_correlation(self, signal1, method)
+
+    def auto_correlate(self, method=CROSS_CORRELATION_METHOD):
+        """Auto-correlates this signal.
+
+        Parameters
+        ----------
+        method : {"direct"}, optional
+            Method utilized to calculate the auto-correlation, by
+            default CROSS_CORRELATION_METHOD.
+
+        Returns
+        -------
+        Signal1
+            Auto-correlated signal.
+        """
+        return math_lib.cross_correlation(self, self, method)
 
     def shift(self, value):
         """Shifts the axis by `value`."""
