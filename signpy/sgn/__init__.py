@@ -234,6 +234,10 @@ class Signal1(Signal):
         except Exception:
             print("An unexpected error has ocurred.")
 
+    def sampling_freq(self):
+        """Calculates the sampling frequency in hertz, assuming it is constant."""
+        return 1 / (self.values[1] - self.values[0])
+
     def interpolate(self, element, method: str):
         """Interpolates the current values to obtain a new value.
 
