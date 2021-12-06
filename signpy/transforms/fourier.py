@@ -17,10 +17,18 @@ class Fourier1(Transform1):
             "fft": self.calculate_fft,
         }
         super().__init__(target)
+        self.samp_freq = self.signal.sampling_freq()
+        # print(f"FFT SF : {self.samp_freq}")
         self.axis, self.values = self.calculate(method).unpack()
 
+    def sampling_freq(self):
+        return self.samp_freq
+
     def calculate(self, method=FOURIER_METHOD):
-        return self.methods[method]()
+        output = self.methods[method]()
+        # output.axis *= self.samp_freq / output.span()
+        return output
+        # return self.methods[method]()
 
     def freq_shift(self):
         output = self.clone()
@@ -65,10 +73,22 @@ class InverseFourier1(Transform1):
             "fft": self.calculate_fft,
         }
         super().__init__(target)
+        # try:
+        #     self.samp_freq = self.signal.samp_freq
+        # except AttributeError:
+        #     self.samp_freq = self.signal.sampling_freq()
+        self.samp_freq = self.signal.sampling_freq()
+        # print(f"IFFT SF : {self.samp_freq}")
         self.axis, self.values = self.calculate(method).unpack()
+
+    def sampling_freq(self):
+        return self.samp_freq
     
     def calculate(self, method=FOURIER_METHOD):
-        return self.methods[method]()
+        # return self.methods[method]()
+        output = self.methods[method]()
+        # output.axis /= self.samp_freq / output.span()
+        return output
 
     def freq_shift(self):
         output = self.signal.clone()
