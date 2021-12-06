@@ -126,6 +126,7 @@ class Signal1(Signal):
     handlers = {
         "csv": handler.HandlerCSV,
         "json": handler.HandlerJSON,
+        "wav": handler.HandlerWAV,
     }
 
     def __init__(self, axis: np.ndarray, values: np.ndarray):
@@ -223,20 +224,16 @@ class Signal1(Signal):
         return cls(axis, func(np.array(axis), *args, **kwargs))
 
     @classmethod
-    def from_file(cls, filename: str):
-        try:
-            extension = filename.split(".")[-1]
-            if extension == filename:
-                raise ValueError()
-            cls(*Signal1.handlers[extension].import_signal1(filename))
-        except ValueError:
-            print("Invalid name.")
-        except Exception:
-            print("An unexpected error has ocurred.")
+    def from_file(cls, filename: str, *args, **kwargs):
+        extension = filename.split(".")[-1]
+        if extension == filename:
+            raise ValueError()
+        cls(*Signal1.handlers[extension].import_signal1(filename, *args, **kwargs))
 
     def sampling_freq(self):
         """Calculates the sampling frequency in hertz, assuming it is constant."""
-        return 1 / (self.values[1] - self.values[0])
+        sf = 1 / (self.axis[1] - self.axis[0])
+        return sf if sf > 0 else 0
 
     def interpolate(self, element, method: str):
         """Interpolates the current values to obtain a new value.
@@ -472,20 +469,20 @@ class Signal1(Signal):
         copy.values = copy.values.conjugate()
         return copy
 
-    def export_to_file(self, filename : str):
+    def export_to_file(self, filename : str, *args, **kwargs):
         """Exports the one dimensional signal to the given file.
 
         Parameters
         ----------
         filename : str
             String corrresponding to the file.
+
+        Raises
+        ------
+        ValueError
+            If the filename is empty (e.g trying to export to the file ".csv").
         """
-        try:
-            extension = filename.split(".")[-1]
-            if extension == filename:
-                raise ValueError
-            Signal1.handlers[extension].export_signal1(filename, self)
-        except ValueError:
-            print("Invalid name.")
-        except Exception:
-            print("An unexpected error has occured.")
+        extension = filename.split(".")[-1]
+        if extension == filename:
+            raise ValueError
+        Signal1.handlers[extension].export_signal1(filename, self, *args, **kwargs)
