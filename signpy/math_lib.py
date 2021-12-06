@@ -1,12 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import numpy as np
 
 from signpy.config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD
 from signpy.exceptions import DimensionError
-# from signpy.transforms.fourier import Fourier1, InverseFourier1
-# from signpy.sgn import Signal1
+if TYPE_CHECKING:
+    from signpy.sgn import Signal1
 
 
-def convolution(s1_x, s1_y, method=CONVOLUTION_METHOD):
+def convolution(s1_x: Signal1, s1_y: Signal1, method=CONVOLUTION_METHOD) -> Signal1:
     """Calculates the convolution of two one-dimensional signals.
 
     There are different methods to calculate the convolution of two
@@ -40,20 +42,19 @@ def convolution(s1_x, s1_y, method=CONVOLUTION_METHOD):
     }
     return conv_methods[method](s1_x, s1_y)
 
-def conv_fft(s1_x, s1_y):
+def conv_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     """Convolutes using the FFT."""
     from signpy.transforms.fourier import Fourier1, InverseFourier1
     x_fourier = Fourier1(s1_x)
     y_fourier = Fourier1(s1_y)
     return InverseFourier1(x_fourier * y_fourier)
 
-def conv_direct(s1_x, s1_y):
+def conv_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     """Convolutes via brute-force."""
     x_copy = s1_x.clone()
     y_copy = s1_y.clone()
     if not np.array_equal(x_copy.axis, y_copy.axis):
         raise DimensionError("Dimensions of signals do not match.")
-    # return copy.apply_function(_conv_helper, s1_y)
     vals = []
     for n, _ in enumerate(x_copy.values):
         sum = 0
@@ -64,7 +65,7 @@ def conv_direct(s1_x, s1_y):
     output.values = np.array(vals)
     return output
 
-def cross_correlation(s1_x, s1_y, method=CROSS_CORRELATION_METHOD):
+def cross_correlation(s1_x: Signal1, s1_y: Signal1, method=CROSS_CORRELATION_METHOD) -> Signal1:
     """Calculates the cross correlation of two signals.
 
     Parameters
@@ -88,12 +89,11 @@ def cross_correlation(s1_x, s1_y, method=CROSS_CORRELATION_METHOD):
     }
     return cc_methods[method](s1_x, s1_y)
 
-def cc_direct(s1_x, s1_y):
+def cc_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     x_copy = s1_x.clone()
     y_copy = s1_y.clone()
     if not np.array_equal(x_copy.axis, y_copy.axis):
         raise DimensionError("Dimensions of signals do not match.")
-    # return copy.apply_function(_conv_helper, s1_y)
     vals = []
     for n, _ in enumerate(x_copy.values):
         sum = 0
@@ -104,7 +104,7 @@ def cc_direct(s1_x, s1_y):
     output.values = np.array(vals)
     return output
 
-def cc_fft(s1_x, s1_y):
+def cc_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     from signpy.transforms.fourier import Fourier1, InverseFourier1
     x_copy = s1_x.clone()
     y_copy = s1_y.clone()

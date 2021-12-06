@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from signpy.sgn import Signal1
 import numpy as np
 from tqdm import tqdm
 
 from signpy.config import FOURIER_METHOD
 from . import Transform1
+if TYPE_CHECKING:
+    from signpy.sgn import Signal1
 
 
 class Fourier1(Transform1):
@@ -18,26 +18,24 @@ class Fourier1(Transform1):
         }
         super().__init__(target)
         self.samp_freq = self.signal.sampling_freq()
-        # print(f"FFT SF : {self.samp_freq}")
         self.axis, self.values = self.calculate(method).unpack()
 
-    def sampling_freq(self):
+    def sampling_freq(self) -> float:
         return self.samp_freq
 
-    def calculate(self, method=FOURIER_METHOD):
+    def calculate(self, method=FOURIER_METHOD) -> Signal1:
         output = self.methods[method]()
         # output.axis *= self.samp_freq / output.span()
         return output
-        # return self.methods[method]()
 
-    def freq_shift(self):
+    def freq_shift(self) -> Signal1:
         output = self.clone()
         signal_len = len(output)
         output.axis = output.axis - output.span() / 2
         output.values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
         return output
 
-    def calculate_dft(self):
+    def calculate_dft(self) -> Signal1:
         """Calculates the Discrete Fourier Transform (DFT) of a signal :math:`\\mathcal{F}\\{x[n]\\} = X[k]`, such that
 
         .. math::
@@ -59,7 +57,7 @@ class Fourier1(Transform1):
 
         return output
 
-    def calculate_fft(self):
+    def calculate_fft(self) -> Signal1:
         output = self.signal.clone()
         output.values = np.fft.fft(output.values)
         return output
@@ -73,31 +71,25 @@ class InverseFourier1(Transform1):
             "fft": self.calculate_fft,
         }
         super().__init__(target)
-        # try:
-        #     self.samp_freq = self.signal.samp_freq
-        # except AttributeError:
-        #     self.samp_freq = self.signal.sampling_freq()
         self.samp_freq = self.signal.sampling_freq()
-        # print(f"IFFT SF : {self.samp_freq}")
         self.axis, self.values = self.calculate(method).unpack()
 
-    def sampling_freq(self):
+    def sampling_freq(self) -> float:
         return self.samp_freq
     
-    def calculate(self, method=FOURIER_METHOD):
-        # return self.methods[method]()
+    def calculate(self, method=FOURIER_METHOD) -> Signal1:
         output = self.methods[method]()
         # output.axis /= self.samp_freq / output.span()
         return output
 
-    def freq_shift(self):
+    def freq_shift(self) -> Signal1:
         output = self.signal.clone()
         signal_len = len(output)
         output.axis = output.axis + output.span() / 2
         output.values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
         return output
 
-    def calculate_dft(self):
+    def calculate_dft(self) -> Signal1:
         """Calculates the inverse Fourier Transform :math:`\\mathcal{F}^{-1}\\{X[k]\\} = x[n]` such that
 
          .. math::
@@ -118,7 +110,7 @@ class InverseFourier1(Transform1):
         output.values = new_values
         return output * signal_len
 
-    def calculate_fft(self):
+    def calculate_fft(self) -> Signal1:
         output = self.signal.clone()
         output.values = np.fft.ifft(output.values)
         return output

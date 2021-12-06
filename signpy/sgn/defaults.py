@@ -93,7 +93,6 @@ class COS(Signal1):
 
 class NOISE(Signal1):
     """Noise signal"""
-
     def __init__(self, axis, std, add=True, noise_type=NOISE_TYPE):
         """Generates a noise signal.
 
