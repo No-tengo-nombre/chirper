@@ -14,12 +14,12 @@ from signpy.transforms.hilbert import Hilbert
 time = np.linspace(0, 10, 99)
 
 signal1 = Signal1.from_function(time, lambda t: 1 / (t ** 2 + 1))
-hilbert_signal1 = Hilbert(signal1, "prod")
+hilbert_signal1 = Hilbert(signal1, "scipy")
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
 fig.suptitle("Original and hilbert transform")
 ax1.plot(*signal1.unpack(), label="Original")
-ax2.plot(*hilbert_signal1.unpack(), label="Hilbert")
+ax2.plot(*hilbert_signal1.imag_part().unpack(), label="Hilbert")
 ax1.legend()
 ax2.legend()
 
@@ -42,7 +42,7 @@ hilbert_signal1 = Hilbert(signal1, "prod")
 fig, (ax1, ax2) = plt.subplots(2, 1)
 fig.suptitle("Original and hilbert transform")
 ax1.plot(*signal1.unpack(), label="Original")
-ax2.plot(*hilbert_signal1.unpack(), label="Hilbert")
+ax2.plot(*hilbert_signal1.imag_part().unpack(), label="Hilbert")
 ax1.legend()
 ax2.legend()
 
