@@ -75,8 +75,8 @@ ax2.plot(*signal2.unpack(), label="Signal 2")
 ax1.legend()
 ax2.legend()
 
-sign1_ac = signal1.auto_correlate()
-sign2_ac = signal2.auto_correlate()
+sign1_ac = signal1.auto_correlate(method="fft")
+sign2_ac = signal2.auto_correlate(method="fft")
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
 fig.suptitle("Auto-correlated signals")

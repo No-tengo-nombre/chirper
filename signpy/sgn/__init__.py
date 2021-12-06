@@ -464,7 +464,7 @@ class Signal1(Signal):
 
     def conjugate(self):
         """Takes the conjugate of the values."""
-        copy = self.copy()
+        copy = self.clone()
         copy.values = copy.values.conjugate()
         return copy
 

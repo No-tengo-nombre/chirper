@@ -2,6 +2,7 @@ import numpy as np
 
 from signpy.config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD
 from signpy.exceptions import DimensionError
+# from signpy.transforms.fourier import Fourier1, InverseFourier1
 # from signpy.sgn import Signal1
 
 
@@ -63,12 +64,6 @@ def conv_direct(s1_x, s1_y):
     output.values = np.array(vals)
     return output
 
-def _conv_helper(a, signal1):
-    sum = 0
-    for k in signal1.axis:
-        sum += a * signal1[k]
-    return sum
-
 def cross_correlation(s1_x, s1_y, method=CROSS_CORRELATION_METHOD):
     """Calculates the cross correlation of two signals.
 
@@ -88,7 +83,7 @@ def cross_correlation(s1_x, s1_y, method=CROSS_CORRELATION_METHOD):
         Cross correlated signal
     """
     cc_methods = {
-        # "fft" : conv_fft,
+        "fft" : cc_fft,
         "direct" : cc_direct,
     }
     return cc_methods[method](s1_x, s1_y)
@@ -109,8 +104,10 @@ def cc_direct(s1_x, s1_y):
     output.values = np.array(vals)
     return output
 
-def _correlation_helper(a, signal1):
-    sum = 0
-    for k in signal1.axis:
-        sum += np.conjugate(a) * signal1[k]
-
+def cc_fft(s1_x, s1_y):
+    from signpy.transforms.fourier import Fourier1, InverseFourier1
+    x_copy = s1_x.clone()
+    y_copy = s1_y.clone()
+    x_fourier = Fourier1(x_copy)
+    y_fourier = Fourier1(y_copy)
+    return InverseFourier1(x_fourier.conjugate() * y_fourier)
