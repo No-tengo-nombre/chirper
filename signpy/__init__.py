@@ -9,6 +9,9 @@ Subpackages
 -----------
 sgn
     Basic creation and manipulation of signals.
+transforms
+    Implementation of different integral transforms utilized in signal
+    processing applications.
 """
 
 __all__ = ["sgn", "modulation", "transforms"]

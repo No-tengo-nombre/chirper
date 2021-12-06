@@ -1,30 +1,41 @@
-from signpy.sgn.signal import Signal
-from signpy.transforms import Transform
-from signpy.config import FOURIER_METHOD
-
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from signpy.sgn import Signal1
 import numpy as np
 from tqdm import tqdm
 
+from signpy.config import FOURIER_METHOD
+from . import Transform1
 
-class Fourier(Transform):
-    """Fourier transform"""
-    def __init__(self, target):
-        super().__init__(target)
+
+class Fourier1(Transform1):
+    """One dimensional Fourier transform."""
+    def __init__(self, target: Signal1, method=FOURIER_METHOD):
         self.methods = {
             "dft": self.calculate_dft,
             "fft": self.calculate_fft,
         }
+        super().__init__(target)
+        self.samp_freq = self.signal.sampling_freq()
+        # print(f"FFT SF : {self.samp_freq}")
+        self.axis, self.values = self.calculate(method).unpack()
+
+    def sampling_freq(self):
+        return self.samp_freq
 
     def calculate(self, method=FOURIER_METHOD):
-        return self.methods[method]()
-
-    def calculate_shift(self, method=FOURIER_METHOD):
         output = self.methods[method]()
-        signal_len = len(output)
+        # output.axis *= self.samp_freq / output.span()
+        return output
+        # return self.methods[method]()
 
-        shifted_values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
-        freq_axis = output.time - output.time_span() / 2
-        return Signal(freq_axis, shifted_values)
+    def freq_shift(self):
+        output = self.clone()
+        signal_len = len(output)
+        output.axis = output.axis - output.span() / 2
+        output.values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
+        return output
 
     def calculate_dft(self):
         """Calculates the Discrete Fourier Transform (DFT) of a signal :math:`\\mathcal{F}\\{x[n]\\} = X[k]`, such that
@@ -36,46 +47,55 @@ class Fourier(Transform):
         -------
         Signal representing the Fourier Transform.
         """
-        signal_len = len(self.signal)
+        output = self.signal.clone()
+        signal_len = len(output)
         new_values = np.zeros(signal_len, dtype=complex)
         for k in tqdm(range(signal_len), "Calculating DFT"):
             temp = 0 + 0j
             for n in range(signal_len):
-                temp += self.signal.values[n] * np.exp(-1j * (2 * n * k * np.pi / signal_len))
+                temp += output.values[n] * np.exp(-1j * (2 * n * k * np.pi / signal_len))
             new_values[k] = temp
-        self.values = new_values
+        output.values = new_values
 
-        shifted_values = np.array([*self.values[signal_len // 2:], *self.values[:signal_len // 2]])
-        shifted_time = np.array([*self.time[signal_len // 2:], *self.time[:signal_len // 2]])
-
-        return Signal(self.time, self.values)#, Signal(shifted_time, shifted_values)
-
-    # def calculate_fft(self):
-    #     pass
+        return output
 
     def calculate_fft(self):
-        self.values = np.fft.fft(self.signal.values)
-        return Signal(self.time, self.values)
+        output = self.signal.clone()
+        output.values = np.fft.fft(output.values)
+        return output
 
 
-class InverseFourier(Transform):
-    """Inverse Fourier transform"""
-    def __init__(self, target):
-        super().__init__(target)
+class InverseFourier1(Transform1):
+    """One dimensional inverse Fourier transform."""
+    def __init__(self, target: Signal1, method=FOURIER_METHOD):
         self.methods = {
             "dft": self.calculate_dft,
             "fft": self.calculate_fft,
         }
+        super().__init__(target)
+        # try:
+        #     self.samp_freq = self.signal.samp_freq
+        # except AttributeError:
+        #     self.samp_freq = self.signal.sampling_freq()
+        self.samp_freq = self.signal.sampling_freq()
+        # print(f"IFFT SF : {self.samp_freq}")
+        self.axis, self.values = self.calculate(method).unpack()
+
+    def sampling_freq(self):
+        return self.samp_freq
     
     def calculate(self, method=FOURIER_METHOD):
-        return self.methods[method]()
+        # return self.methods[method]()
+        output = self.methods[method]()
+        # output.axis /= self.samp_freq / output.span()
+        return output
 
-    def calculate_shift(self, method=FOURIER_METHOD):
-        signal_len = len(self.signal)
-        self.signal.time = self.signal.time + self.signal.time_span() / 2
-        self.signal.values = np.array([*self.signal.values[signal_len // 2:], *self.signal.values[:signal_len // 2]])
-        # return Signal(*self.signal.unpack())
-        return self.methods[method]()
+    def freq_shift(self):
+        output = self.signal.clone()
+        signal_len = len(output)
+        output.axis = output.axis + output.span() / 2
+        output.values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
+        return output
 
     def calculate_dft(self):
         """Calculates the inverse Fourier Transform :math:`\\mathcal{F}^{-1}\\{X[k]\\} = x[n]` such that
@@ -87,16 +107,18 @@ class InverseFourier(Transform):
         -------
         Signal representing the Inverse Fourier Transform.
         """
-        signal_len = len(self.signal)
+        output = self.signal.clone()
+        signal_len = len(output)
         new_values = np.zeros(signal_len, dtype=complex)
         for n in tqdm(range(signal_len), "Calculating Inverse DFT"):
             temp = 0 + 0j
             for k in range(signal_len):
-                temp += self.signal.values[k] * np.exp(1j * (2 * n * k * np.pi / signal_len))
+                temp += output.values[k] * np.exp(1j * (2 * n * k * np.pi / signal_len))
             new_values[n] = temp / signal_len
-        self.values = new_values
-        return Signal(self.time, self.values) * signal_len
+        output.values = new_values
+        return output * signal_len
 
     def calculate_fft(self):
-        self.values = np.fft.ifft(self.signal.values)
-        return Signal(self.time, self.values)
+        output = self.signal.clone()
+        output.values = np.fft.ifft(output.values)
+        return output

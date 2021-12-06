@@ -1,10 +1,12 @@
+import abc
+
 from signpy.exceptions import InvalidModulation
 
-class Modulator:
+
+class Modulator(abc.ABC):
     """Modulator object."""
     def __init__(self, carrier_freq, carrier_amp):
-        """Create an empty modulator. Generally, you probably don't want
-        to call this function.
+        """Create an empty modulator.
 
         Parameters
         ----------
@@ -16,6 +18,7 @@ class Modulator:
         self.carrier_freq = carrier_freq
         self.carrier_amp = carrier_amp
 
+    @abc.abstractmethod
     def apply(self, signal, method=None):
         """Applies the modulator to a given signal.
 
@@ -32,4 +35,5 @@ class Modulator:
             If the modulation could not be applied, or if trying to apply
             an empty modulator.
         """
-        raise InvalidModulation("Can not apply empty modulator.")
+        # raise InvalidModulation("Can not apply empty modulator.")
+        pass
