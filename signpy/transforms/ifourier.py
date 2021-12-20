@@ -39,7 +39,7 @@ def if1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
     output = F1_METHODS[method](output)
     return output
 
-def calculate_dft1(signal1: Signal1) -> Signal1:
+def _calculate_dft1(signal1: Signal1) -> Signal1:
     """Calculates the Inverse Fourier Transform :math:`\\mathcal{F}^{-1}\\{X[k]\\} = x[n]` such that
 
         .. math::
@@ -60,7 +60,7 @@ def calculate_dft1(signal1: Signal1) -> Signal1:
     output.values = new_values
     return output * signal_len
 
-def calculate_fft1(signal1: Signal1) -> Signal1:
+def _calculate_fft1(signal1: Signal1) -> Signal1:
     """Calculates the inverse FFT of a given signal.
 
     Parameters
@@ -86,6 +86,6 @@ def freq_shift(signal1: Signal1) -> Signal1:
     return output
 
 F1_METHODS = {
-    "dft": calculate_dft1,
-    "fft": calculate_fft1,
+    "dft": _calculate_dft1,
+    "fft": _calculate_fft1,
 }

@@ -30,7 +30,7 @@ def pm_modulation(signal1 : Signal1, carrier_freq, carrier_amp, method=PM_MODULA
     """
     return PM_MODULATION_METHODS[method](signal1, carrier_freq, carrier_amp, hertz)
 
-def trad_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz):
+def _trad_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz):
     copy = signal1.clone()
     axis = copy.axis
     freq = 2 * np.pi * carrier_freq if hertz else carrier_freq
@@ -38,5 +38,5 @@ def trad_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz):
     return Signal1(axis, values)
         
 PM_MODULATION_METHODS = {
-    "traditional": trad_modulation,
+    "traditional": _trad_modulation,
 }

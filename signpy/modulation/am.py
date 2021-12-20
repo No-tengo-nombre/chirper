@@ -32,19 +32,19 @@ def am_modulation(signal1 : Signal1, carrier_freq, carrier_amp, *args, method=AM
     """
     return AM_MODULATION_METHODS[method](signal1, carrier_freq, carrier_amp, hertz, *args, **kwargs)
 
-def dsbfc_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ) -> Signal1:
+def _dsbfc_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ) -> Signal1:
     copy = signal1.clone()
     axis = copy.axis
     carrier = COS(axis, carrier_freq, 1, hertz)
     return (carrier_amp + copy) * carrier
 
-def dsbsc_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ) -> Signal1:
+def _dsbsc_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ) -> Signal1:
     copy = signal1.clone()
     axis = copy.axis
     carrier = COS(axis, carrier_freq, carrier_amp, hertz)
     return carrier * copy
 
-def ssb_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ, upper=SSB_UPPER) -> Signal1:
+def _ssb_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ, upper=SSB_UPPER) -> Signal1:
     return signal1
     # time = signal.time
     # carrier = COS(time, carrier_freq, carrier_amp, hertz)
@@ -58,7 +58,7 @@ def ssb_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ, up
     # return InverseFourier(mod_fourier).calculate()
 
 AM_MODULATION_METHODS = {
-    "dsbfc": dsbfc_modulation,
-    "dsbsc": dsbsc_modulation,
-    "ssb": ssb_modulation,
+    "dsbfc": _dsbfc_modulation,
+    "dsbsc": _dsbsc_modulation,
+    "ssb": _ssb_modulation,
 }

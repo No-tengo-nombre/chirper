@@ -38,7 +38,7 @@ def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
         output = freq_shift(output)
     return output
 
-def calculate_dft1(signal1: Signal1) -> Signal1:
+def _calculate_dft1(signal1: Signal1) -> Signal1:
     """Calculates the Discrete Fourier Transform (DFT) of a signal :math:`\\mathcal{F}\\{x[n]\\} = X[k]`, such that
 
     .. math::
@@ -65,7 +65,7 @@ def calculate_dft1(signal1: Signal1) -> Signal1:
     output.values = new_values
     return output
 
-def calculate_fft1(signal1: Signal1) -> Signal1:
+def _calculate_fft1(signal1: Signal1) -> Signal1:
     """Calculates the FFT of a given signal.
 
     Parameters
@@ -103,6 +103,6 @@ def freq_shift(signal1: Signal1) -> Signal1:
     return output
 
 F1_METHODS = {
-    "dft": calculate_dft1,
-    "fft": calculate_fft1,
+    "dft": _calculate_dft1,
+    "fft": _calculate_fft1,
 }
