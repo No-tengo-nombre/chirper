@@ -38,5 +38,5 @@ def _trad_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz):
     return Signal1(axis, values)
         
 PM_MODULATION_METHODS = {
-    "traditional": _trad_modulation,
+    "trad": _trad_modulation,
 }

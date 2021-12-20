@@ -1,4 +1,5 @@
 """
+======
 SignPy
 ======
 
@@ -9,6 +10,10 @@ Subpackages
 -----------
 sgn
     Basic creation and manipulation of signals.
+modulation
+    Different methods for modulating and demodulating signals,
+    particularly useful when using signals to transmit and receive
+    information.
 transforms
     Implementation of different integral transforms utilized in signal
     processing applications.
