@@ -1,2 +1,2 @@
-# Signal Analyzer
-Python tool for analyzing signals.
+# SignPy
+*SignPy* is a Python package used for Digital Signal Processing. It implements different tools to create, import and export signals, as well as integral transforms and different modulation methods, useful when using signals to carry information.

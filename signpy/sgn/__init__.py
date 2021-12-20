@@ -69,7 +69,7 @@ class Signal(abc.ABC):
         pass
 
     @abc.abstractclassmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str):
         """Creates a signal from a file.
 
         Parameters
@@ -101,7 +101,7 @@ class Signal(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def export_to_file(self, filename):
+    def export_to_file(self, filename: str):
         """Exports the signal values to a file.
 
         Parameters
@@ -158,6 +158,9 @@ class Signal1(Signal):
             )
         index = np.where(self.axis == key)[0]
         return self.values[index]
+
+    def __radd__(self, num):
+        return self.__add__(num)
 
     def __add__(self, signal):
         if isinstance(signal, float) or isinstance(signal, int):
@@ -230,7 +233,7 @@ class Signal1(Signal):
             raise ValueError()
         cls(*Signal1.handlers[extension].import_signal1(filename, *args, **kwargs))
 
-    def sampling_freq(self):
+    def sampling_freq(self) -> float:
         """Calculates the sampling frequency in hertz, assuming it is constant."""
         sf = 1 / (self.axis[1] - self.axis[0])
         return sf if sf > 0 else 0
@@ -313,7 +316,7 @@ class Signal1(Signal):
         """Unpacks the signal into two arrays. If used for its intended purpose, should be unpacked with *."""
         return self.axis, self.values
 
-    def span(self):
+    def span(self) -> float:
         """Gets the span of the signal"""
         return self.axis[-1] - self.axis[0]
 
@@ -321,7 +324,7 @@ class Signal1(Signal):
         """Gets half of the signal"""
         return self[:self.span() / 2] * 2 if first else self[self.span() / 2:] * 2
 
-    def rect_smooth(self, factor: int):
+    def rect_smooth(self, factor: int) -> Signal1:
         """Directly applies a rectangular smoothing to the signal.
 
         With this method the edges of the signal look a bit rough.
@@ -333,35 +336,37 @@ class Signal1(Signal):
 
         Returns
         -------
-        Smooth signal (it also mutates the original signal).
+        Signal1
+            Smooth signal.
         """
+        copy = self.clone()
         if factor % 2 != 1 or factor <= 1:
             raise ValueError("The smoothing factor must be an odd number.")
         shift = int((factor - 1) / 2)
-        self_len = len(self)
-        new_values = self.values[0:1]               # Copies the first element
+        self_len = len(copy)
+        new_values = copy.values[0:1]               # Copies the first element
 
         # Smooths the first elements with the only possible elements
         for n in range(1, shift):
-            arr = self.values[0:2 * n + 1]
+            arr = copy.values[0:2 * n + 1]
             new_values = np.append(new_values, arr.sum() / (2 * n + 1))
 
         # Smooths the other elements using the given factor
         for n in range(shift, self_len - shift):
-            arr = self.values[n - shift:n + shift + 1]
+            arr = copy.values[n - shift:n + shift + 1]
             new_values = np.append(new_values, arr.sum() / factor)
 
         # Smooths the last elements adapting the smoothing factor
         for n in range(self_len - shift, self_len):
             new_shift = self_len - n - 1
-            arr = self.values[n - new_shift:self_len]
+            arr = copy.values[n - new_shift:self_len]
             new_values = np.append(new_values, arr.sum() / (2 * new_shift + 1))
 
         assert self_len == len(new_values), "There was an error during the smoothing."
-        self.values = new_values
-        return self
+        copy.values = new_values
+        return copy
 
-    def apply_function(self, func, *args, **kwargs):
+    def apply_function(self, func, *args, **kwargs) -> Signal1:
         """Applies a function to the values of the signal.
 
         Parameters
@@ -378,7 +383,7 @@ class Signal1(Signal):
         copy.values = np.array([func(x, *args, **kwargs) for x in copy.values])
         return copy
 
-    def apply_function_tuple(self, func, *args, **kwargs):
+    def apply_function_tuple(self, func, *args, **kwargs) -> Signal1:
         """Applies a function to both the axis and values of the signal.
 
         Parameters
@@ -395,7 +400,7 @@ class Signal1(Signal):
         copy.values = np.array([func(t, x, *args, **kwargs) for t, x in zip(copy.axis, copy.values)])
         return copy
 
-    def convolute(self, signal1: Signal1, method=CONVOLUTION_METHOD):
+    def convolute(self, signal1: Signal1, method=CONVOLUTION_METHOD) -> Signal1:
         """Convolute this signal with another.
 
         Parameters
@@ -413,7 +418,7 @@ class Signal1(Signal):
         """
         return math_lib.convolution(self, signal1, method)
 
-    def cross_correlate(self, signal1: Signal1, method=CROSS_CORRELATION_METHOD):
+    def cross_correlate(self, signal1: Signal1, method=CROSS_CORRELATION_METHOD) -> Signal1:
         """Cross-correlates this signal with another.
 
         Parameters
@@ -431,7 +436,7 @@ class Signal1(Signal):
         """
         return math_lib.cross_correlation(self, signal1, method)
 
-    def auto_correlate(self, method=CROSS_CORRELATION_METHOD):
+    def auto_correlate(self, method=CROSS_CORRELATION_METHOD) -> Signal1:
         """Auto-correlates this signal.
 
         Parameters
@@ -447,23 +452,25 @@ class Signal1(Signal):
         """
         return math_lib.cross_correlation(self, self, method)
 
-    def shift(self, value):
+    def shift(self, value) -> Signal1:
         """Shifts the axis by `value`."""
         copy = self.clone()
         copy.axis += value
         return copy
 
-    def real_part(self):
+    def real_part(self) -> Signal1:
         """Takes the real part of the values."""
-        values = np.real(self.values)
-        return Signal1(self.axis, values)
+        copy = self.clone()
+        copy.values = np.real(copy.values)
+        return copy
 
-    def imag_part(self):
+    def imag_part(self) -> Signal1:
         """Takes the imaginary part of the values."""
-        values = np.imag(self.values)
-        return Signal1(self.axis, values)
+        copy = self.clone()
+        copy.values = np.imag(copy.values)
+        return copy
 
-    def conjugate(self):
+    def conjugate(self) -> Signal1:
         """Takes the conjugate of the values."""
         copy = self.clone()
         copy.values = copy.values.conjugate()
