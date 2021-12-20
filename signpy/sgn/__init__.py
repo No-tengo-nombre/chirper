@@ -159,6 +159,9 @@ class Signal1(Signal):
         index = np.where(self.axis == key)[0]
         return self.values[index]
 
+    def __radd__(self, num):
+        return self.__add__(num)
+
     def __add__(self, signal):
         if isinstance(signal, float) or isinstance(signal, int):
             return Signal1(self.axis, self.values + signal)
