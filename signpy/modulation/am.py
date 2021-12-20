@@ -4,12 +4,13 @@ from signpy.config import AM_MODULATION, HERTZ, SSB_UPPER
 from signpy.transforms import fourier, ifourier
 
 
-def am_modulation(signal1 : Signal1, carrier_freq, carrier_amp, method=AM_MODULATION, hertz=HERTZ) -> Signal1:
+def am_modulation(signal1 : Signal1, carrier_freq, carrier_amp, *args, method=AM_MODULATION, hertz=HERTZ, **kwargs) -> Signal1:
     """Applies AM modulation to the given one dimensional signal.
 
     The currently available methods for modulation are:
      - DSBFC : Double-SideBand Full Carrier.
      - DSBSC : Double-SideBand Suppressed Carrier.
+     - SSB : Single-SideBand.
 
     Parameters
     ----------
@@ -29,7 +30,7 @@ def am_modulation(signal1 : Signal1, carrier_freq, carrier_amp, method=AM_MODULA
     Signal1
         Modulated one dimensional signal.
     """
-    return AM_MODULATION_METHODS[method](signal1, carrier_freq, carrier_amp, hertz)
+    return AM_MODULATION_METHODS[method](signal1, carrier_freq, carrier_amp, hertz, *args, **kwargs)
 
 def dsbfc_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ) -> Signal1:
     copy = signal1.clone()
@@ -44,7 +45,7 @@ def dsbsc_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ) 
     return carrier * copy
 
 def ssb_modulation(signal1 : Signal1, carrier_freq, carrier_amp, hertz=HERTZ, upper=SSB_UPPER) -> Signal1:
-    pass
+    return signal1
     # time = signal.time
     # carrier = COS(time, carrier_freq, carrier_amp, hertz)
     # modulated = carrier * signal
