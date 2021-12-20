@@ -17,7 +17,7 @@ from copy import deepcopy
 from signpy.exceptions import DimensionError
 from signpy.config import CONVOLUTION_METHOD, INTERPOLATION_METHOD, CROSS_CORRELATION_METHOD
 from signpy import math_lib
-from . import handler
+from .handlers import handler_csv, handler_json, handler_wav
 
 
 class Signal(abc.ABC):
@@ -132,9 +132,9 @@ class Signal(abc.ABC):
 class Signal1(Signal):
     """Class representing a signal object."""
     handlers = {
-        "csv": handler.HandlerCSV,
-        "json": handler.HandlerJSON,
-        "wav": handler.HandlerWAV,
+        "csv": handler_csv,
+        "json": handler_json,
+        "wav": handler_wav,
     }
 
     def __init__(self, axis: np.ndarray, values: np.ndarray):
