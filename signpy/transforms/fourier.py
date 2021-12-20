@@ -4,7 +4,6 @@ import numpy as np
 from tqdm import tqdm
 
 from signpy.config import F1_METHOD
-# from . import Transform1
 if TYPE_CHECKING:
     from signpy.sgn import Signal1
 

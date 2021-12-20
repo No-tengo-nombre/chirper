@@ -44,10 +44,10 @@ def convolution(s1_x: Signal1, s1_y: Signal1, method=CONVOLUTION_METHOD) -> Sign
 
 def conv_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     """Convolutes using the FFT."""
-    from signpy.transforms.fourier import Fourier1, InverseFourier1
-    x_fourier = Fourier1(s1_x)
-    y_fourier = Fourier1(s1_y)
-    return InverseFourier1(x_fourier * y_fourier)
+    from signpy.transforms import fourier, ifourier
+    x_fourier = fourier.f1(s1_x)
+    y_fourier = fourier.f1(s1_y)
+    return ifourier.if1(x_fourier * y_fourier)
 
 def conv_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     """Convolutes via brute-force."""
@@ -105,9 +105,9 @@ def cc_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     return output
 
 def cc_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
-    from signpy.transforms.fourier import Fourier1, InverseFourier1
+    from signpy.transforms import fourier, ifourier
     x_copy = s1_x.clone()
     y_copy = s1_y.clone()
-    x_fourier = Fourier1(x_copy)
-    y_fourier = Fourier1(y_copy)
-    return InverseFourier1(x_fourier.conjugate() * y_fourier)
+    x_fourier = fourier.f1(x_copy)
+    y_fourier = fourier.f1(y_copy)
+    return ifourier.if1(x_fourier.conjugate() * y_fourier)

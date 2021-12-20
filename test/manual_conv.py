@@ -3,7 +3,8 @@ import numpy as np
 from signpy.sgn import Signal1
 
 from signpy.sgn.defaults import NOISE, SIN
-from signpy.transforms.fourier import Fourier1, InverseFourier1
+# from signpy.transforms.fourier import Fourier1, InverseFourier1
+from signpy.transforms import fourier, ifourier
 
 
 ################################################################################################################
@@ -35,8 +36,8 @@ ax2.legend()
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
 fig.suptitle("Original signals fourier spectra")
-ax1.plot(*abs(Fourier1(signal1).freq_shift()).unpack(), label="Signal 1")
-ax2.plot(*abs(Fourier1(signal2).freq_shift()).unpack(), label="Signal 2")
+ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Signal 1")
+ax2.plot(*abs(fourier.f1(signal2)).unpack(), label="Signal 2")
 ax1.legend()
 ax2.legend()
 
@@ -44,7 +45,7 @@ conv_signal = signal1.convolute(signal2)
 fig, (ax1, ax2) = plt.subplots(2, 1)
 fig.suptitle("Convoluted signal")
 ax1.plot(*conv_signal.unpack(), label="Convoluted signal")
-ax2.plot(*abs(Fourier1(conv_signal).freq_shift()).unpack(), label="Convoluted signal spectrum")
+ax2.plot(*abs(fourier.f1(conv_signal)).unpack(), label="Convoluted signal spectrum")
 ax1.legend()
 ax2.legend()
 
@@ -87,10 +88,10 @@ ax2.legend()
 
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
 fig.suptitle("Fourier spectra")
-ax1.plot(*abs(Fourier1(signal1).freq_shift()).unpack(), label="Signal 1")
-ax2.plot(*abs(Fourier1(sign1_ac).freq_shift()).unpack(), label="Signal 1 auto")
-ax3.plot(*abs(Fourier1(signal2).freq_shift()).unpack(), label="Signal 2")
-ax4.plot(*abs(Fourier1(sign2_ac).freq_shift()).unpack(), label="Signal 2 auto")
+ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Signal 1")
+ax2.plot(*abs(fourier.f1(sign1_ac)).unpack(), label="Signal 1 auto")
+ax3.plot(*abs(fourier.f1(signal2)).unpack(), label="Signal 2")
+ax4.plot(*abs(fourier.f1(sign2_ac)).unpack(), label="Signal 2 auto")
 ax1.legend()
 ax2.legend()
 ax3.legend()
