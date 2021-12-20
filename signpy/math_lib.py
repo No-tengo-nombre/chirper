@@ -74,7 +74,7 @@ def cross_correlation(s1_x: Signal1, s1_y: Signal1, method=CROSS_CORRELATION_MET
         First signal.
     s1_y : Signal1
         Second signal
-    method : {"direct"}, optional
+    method : {"fft", "direct"}, optional
         Desired method to calculate the cross correlation, by default
         CROSS_CORRELATION_METHOD.
 
