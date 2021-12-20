@@ -5,8 +5,13 @@ from signpy.sgn.defaults import SIN
 from signpy.transforms import fourier, ifourier
 from signpy.modulation import am, pm
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
-time = np.linspace(0, 3000, 3000)
+end_time = 2
+sf = 2000
+time = np.linspace(0, end_time, int(sf * end_time))
 
 triangle_built = SIN(time, 5, 10) + SIN(time, 10, 5) + SIN(time, 15, 2.5) + SIN(time, 20, 1.25) + SIN(time, 25, 0.625) + SIN(time, 30, 0.3125)
 
@@ -32,7 +37,7 @@ ax2.grid()
 ax3.grid()
 ax4.grid()
 ax5.grid()
-ax1.set_ylabel("Amplitude")
+ax3.set_ylabel("Amplitude (-)")
 ax5.set_xlabel("Time (s)")
 
 orig_fourier = fourier.f1(triangle_built)
@@ -47,7 +52,7 @@ dsbsc_inv = ifourier.if1(dsbsc_fourier)
 ssbu_inv = ifourier.if1(ssbu_fourier)
 ssbl_inv = ifourier.if1(ssbl_fourier)
 
-fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1)
+fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex=True)
 fig.suptitle("Fourier spectra of different AM modulations")
 ax1.plot(*abs(orig_fourier).unpack(), label="Original")
 ax2.plot(*abs(dsbfc_fourier).unpack(), label="DSBFC")
@@ -59,8 +64,15 @@ ax2.legend()
 ax3.legend()
 ax4.legend()
 ax5.legend()
+ax1.grid()
+ax2.grid()
+ax3.grid()
+ax4.grid()
+ax5.grid()
+ax3.set_ylabel("Amplitude (-)")
+ax5.set_xlabel("Frequency (Hz)")
 
-fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1)
+fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex=True)
 fig.suptitle("Reconstructed modulations")
 ax1.plot(*orig_inv.real_part().unpack(), label="Original (Re)")
 ax1.plot(*orig_inv.imag_part().unpack(), label="Original (Im)")
@@ -77,5 +89,12 @@ ax2.legend()
 ax3.legend()
 ax4.legend()
 ax5.legend()
+ax1.grid()
+ax2.grid()
+ax3.grid()
+ax4.grid()
+ax5.grid()
+ax3.set_ylabel("Amplitude (-)")
+ax5.set_xlabel("Time (s)")
 
 plt.show()

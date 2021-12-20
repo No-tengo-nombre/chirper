@@ -30,13 +30,22 @@ fig, ax = plt.subplots()
 fig.suptitle("Triangular signal fourier spectrum")
 ax.plot(*abs(orig_fourier).unpack(), label="Spectrum")
 ax.legend()
+ax.grid()
+ax.set_xlabel("Frequency (Hz)")
+ax.set_ylabel("Amplitude (-)")
 
-fig, (ax1, ax2) = plt.subplots(2, 1)
+fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 fig.suptitle("Original vs reconstructed signal")
 ax1.plot(*triangle_built.unpack(), label="Original")
 ax2.plot(*triangle_inv.unpack(), label="Reconstructed")
 ax1.legend()
 ax2.legend()
+ax1.grid()
+ax2.grid()
+ax1.set_ylabel("Amplitude (-)")
+ax2.set_ylabel("Amplitude (-)")
+ax2.set_xlabel("Time (s)")
+
 
 ################################################################################################################
 ################################################################################################################
@@ -57,13 +66,21 @@ fig, ax = plt.subplots()
 fig.suptitle("Pulse fourier spectrum")
 ax.plot(*abs(pulse_fourier).unpack(), label="Spectrum")
 ax.legend()
+ax.grid()
+ax.set_xlabel("Frequency (Hz)")
+ax.set_ylabel("Amplitude (-)")
 
-fig, (ax1, ax2) = plt.subplots(2, 1)
+fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 fig.suptitle("Original vs reconstructed signal")
 ax1.plot(*pulse.unpack(), label="Original")
 ax2.plot(*pulse_inv.unpack(), label="Reconstructed")
 ax1.legend()
 ax2.legend()
+ax1.grid()
+ax2.grid()
+ax1.set_ylabel("Amplitude (-)")
+ax2.set_ylabel("Amplitude (-)")
+ax2.set_xlabel("Time (s)")
 
 ################################################################################################################
 ################################################################################################################
