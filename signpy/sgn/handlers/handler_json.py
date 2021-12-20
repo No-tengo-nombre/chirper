@@ -17,11 +17,13 @@ def validate_filename(filename: str) -> None:
     """
     validate_extension(filename, "json")
 
+
 def export_signal1(filename: str, signal1: Signal1) -> None:
     """Exports the given one dimensional signal to the .json file."""
     validate_filename(filename)
     with open(filename, "w+") as file:
         pass
+
 
 def import_signal1(filename: str) -> Signal1:
     """Imports a one dimensional signal from a .json file."""

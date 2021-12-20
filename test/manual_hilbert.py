@@ -9,6 +9,7 @@ from signpy.transforms import fourier, hilbert
 ################################################################################################################
 ################################################################################################################
 
+
 def main(show_fig=False):
     end_time = 10
     sf = 2000
@@ -30,12 +31,13 @@ def main(show_fig=False):
     ax2.set_ylabel("Amplitude (-)")
     ax2.set_xlabel("Time (s)")
 
-
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     fig.suptitle("Fourier spectra (scipy)")
     ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Original")
-    ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())).unpack(), label="Hilbert (Re)")
-    ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())).unpack(), label="Hilbert (Im)")
+    ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())
+                  ).unpack(), label="Hilbert (Re)")
+    ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())
+                  ).unpack(), label="Hilbert (Im)")
     ax1.legend()
     ax2.legend()
     ax1.grid()
@@ -71,8 +73,10 @@ def main(show_fig=False):
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     fig.suptitle("Fourier spectra (prod)")
     ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Original")
-    ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())).unpack(), label="Hilbert (Re)")
-    ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())).unpack(), label="Hilbert (Im)")
+    ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())
+                  ).unpack(), label="Hilbert (Re)")
+    ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())
+                  ).unpack(), label="Hilbert (Im)")
     ax1.legend()
     ax2.legend()
     ax1.grid()
@@ -108,8 +112,10 @@ def main(show_fig=False):
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     fig.suptitle("Fourier spectra (fft)")
     ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Original")
-    ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())).unpack(), label="Hilbert (Re)")
-    ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())).unpack(), label="Hilbert (Im)")
+    ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())
+                  ).unpack(), label="Hilbert (Re)")
+    ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())
+                  ).unpack(), label="Hilbert (Im)")
     ax1.legend()
     ax2.legend()
     ax1.grid()
@@ -122,4 +128,5 @@ def main(show_fig=False):
     ################################################################################################################
     ################################################################################################################
 
-    if show_fig: plt.show()
+    if show_fig:
+        plt.show()

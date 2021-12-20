@@ -8,6 +8,7 @@ from signpy.transforms import fourier, ifourier
 ################################################################################################################
 ################################################################################################################
 
+
 def main(show_fig=False, export=True):
     end_time = 3
     sf = 4410 * 2
@@ -49,8 +50,10 @@ def main(show_fig=False, export=True):
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
     fig.suptitle("Original signals")
     ax1.plot(*signal1.unpack(), label="Signal 1")
-    ax2.plot(*ifourier.if1(manipulated).real_part().unpack(), label="Manipulated (Re)")
-    ax2.plot(*ifourier.if1(manipulated).imag_part().unpack(), label="Manipulated (Im)")
+    ax2.plot(*ifourier.if1(manipulated).real_part().unpack(),
+             label="Manipulated (Re)")
+    ax2.plot(*ifourier.if1(manipulated).imag_part().unpack(),
+             label="Manipulated (Im)")
     ax3.plot(*signal2.unpack(), label="Signal 2")
     ax1.legend()
     ax2.legend()
@@ -78,10 +81,12 @@ def main(show_fig=False, export=True):
     ################################################################################################################
     ################################################################################################################
 
-    if show_fig: plt.show()
+    if show_fig:
+        plt.show()
 
     if export:
         print("Exporting")
         signal1.export_to_file("test/outputs/manual_io_sgn1.wav")
         signal2.export_to_file("test/outputs/manual_io_sgn2.wav")
-        ifourier.if1(manipulated).__abs__().export_to_file("test/outputs/manual_io_sgn3.wav")
+        ifourier.if1(manipulated).__abs__().export_to_file(
+            "test/outputs/manual_io_sgn3.wav")

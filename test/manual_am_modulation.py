@@ -9,12 +9,14 @@ from signpy.modulation import am
 ################################################################################################################
 ################################################################################################################
 
+
 def main(show_fig=False):
     end_time = 2
     sf = 2000
     time = np.linspace(0, end_time, int(sf * end_time))
 
-    triangle_built = SIN(time, 5, 10) + SIN(time, 10, 5) + SIN(time, 15, 2.5) + SIN(time, 20, 1.25) + SIN(time, 25, 0.625) + SIN(time, 30, 0.3125)
+    triangle_built = SIN(time, 5, 10) + SIN(time, 10, 5) + SIN(time, 15, 2.5) + \
+        SIN(time, 20, 1.25) + SIN(time, 25, 0.625) + SIN(time, 30, 0.3125)
 
     dsbfc_t = am.am_modulation(triangle_built, 200, 1, method="dsbfc")
     dsbsc_t = am.am_modulation(triangle_built, 200, 1, method="dsbsc")
@@ -98,4 +100,5 @@ def main(show_fig=False):
     ax3.set_ylabel("Amplitude (-)")
     ax5.set_xlabel("Time (s)")
 
-    if show_fig: plt.show()
+    if show_fig:
+        plt.show()

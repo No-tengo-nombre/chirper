@@ -10,6 +10,7 @@ from . import Signal1
 
 class SQUARE(Signal1):
     """Square signal"""
+
     def __init__(self, axis, freq, amp, rads=False, phase=0):
         """Generates a square signal centered at 0.
 
@@ -37,6 +38,7 @@ class SQUARE(Signal1):
 
 class SIN(Signal1):
     """Sinusoidal signal"""
+
     def __init__(self, axis, freq, amp, hertz=HERTZ, phase=0):
         """Generates a sinusoidal signal centered at 0.
 
@@ -65,6 +67,7 @@ class SIN(Signal1):
 
 class COS(Signal1):
     """Cosine signal"""
+
     def __init__(self, axis, freq, amp, hertz=HERTZ, phase=0):
         """Generates a cosine signal centered at 0.
 
@@ -93,6 +96,7 @@ class COS(Signal1):
 
 class NOISE(Signal1):
     """Noise signal"""
+
     def __init__(self, axis, std, add=True, noise_type=NOISE_TYPE):
         """Generates a noise signal.
 
@@ -108,7 +112,7 @@ class NOISE(Signal1):
             The type of noise to use, by default `NOISE_TYPE` defined in the config file (gaussian).
         """
         self.methods = {
-            "gaussian" : NOISE._generate_gaussian,
+            "gaussian": NOISE._generate_gaussian,
         }
         # if noise_type == "gaussian":
         #     super().__init__(axis, NOISE._generate_gaussian(axis, std, add))
@@ -122,6 +126,7 @@ class NOISE(Signal1):
 
 class HEAVISIDE(Signal1):
     """Heaviside step function centered at a certain point."""
+
     def __init__(self, axis, point=0, inverted=False):
         """Creates a Heaviside step function.
 
@@ -145,6 +150,7 @@ class HEAVISIDE(Signal1):
 
 class IMPULSE(Signal1):
     """Discrete impulse/delta function centered at 0."""
+
     def __init__(self, axis, value=1.0):
         """Creates a discrete impulse centered at 0, with value `value`.
 
@@ -156,7 +162,7 @@ class IMPULSE(Signal1):
             Value for the impulse to take at 0, by default 1.0
         """
         super().__init__(axis, value * self._init_helper(axis))
-        
+
     def _init_helper(self, axis):
         values = []
         for i, t in enumerate(axis):
@@ -169,6 +175,7 @@ class IMPULSE(Signal1):
 
 class CONSTANT(Signal1):
     """Constant signal."""
+
     def __init__(self, axis, value=1.0):
         """Creates a constant signal.
 

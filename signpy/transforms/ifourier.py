@@ -11,13 +11,14 @@ if TYPE_CHECKING:
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
 
+
 def if1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
     """Calculates the one dimensional Inverse Fourier transform of a
     given signal.
 
     In order to perform the calculation, a specific algorithm can be
     given as a parameter.
-    
+
     Parameters
     ----------
     signal1 : Signal1
@@ -40,6 +41,7 @@ def if1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
     output = F1_METHODS[method](output)
     return output
 
+
 def _calculate_dft1(signal1: Signal1) -> Signal1:
     """Calculates the Inverse Fourier Transform :math:`\\mathcal{F}^{-1}\\{X[k]\\} = x[n]` such that
 
@@ -56,10 +58,12 @@ def _calculate_dft1(signal1: Signal1) -> Signal1:
     for n in tqdm(range(signal_len), "Calculating Inverse DFT"):
         temp = 0 + 0j
         for k in range(signal_len):
-            temp += output.values[k] * np.exp(1j * (2 * n * k * np.pi / signal_len))
+            temp += output.values[k] * \
+                np.exp(1j * (2 * n * k * np.pi / signal_len))
         new_values[n] = temp / signal_len
     output.values = new_values
     return output * signal_len
+
 
 def _calculate_fft1(signal1: Signal1) -> Signal1:
     """Calculates the inverse FFT of a given signal.
@@ -79,12 +83,15 @@ def _calculate_fft1(signal1: Signal1) -> Signal1:
     output.values = np.fft.ifft(output.values)
     return output
 
+
 def freq_shift(signal1: Signal1) -> Signal1:
     output = signal1.clone()
     signal_len = len(output)
     output.axis = output.axis + output.span() / 2
-    output.values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
+    output.values = np.array(
+        [*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
     return output
+
 
 F1_METHODS = {
     "dft": _calculate_dft1,

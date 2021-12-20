@@ -9,6 +9,7 @@ from signpy.transforms import fourier
 ################################################################################################################
 ################################################################################################################
 
+
 def main(show_fig=False):
     end_time = 1
     sf = 2000
@@ -21,12 +22,11 @@ def main(show_fig=False):
     # signal1 += NOISE(time, 10)
     # signal1 *= NOISE(time, 2, False)
 
-
-    signal2 = Signal1.from_function(time, lambda t: 10 * np.sinc(2 * np.pi * 0.01 * t))
+    signal2 = Signal1.from_function(
+        time, lambda t: 10 * np.sinc(2 * np.pi * 0.01 * t))
     # signal2 += NOISE(time, 1)
     # signal2 = Signal1(time, [np.sin(0.1 * t) / t if t != 0 else 1 for t in time])
     # signal2 = Signal1(time, [np.log(t) if t != 0 else 1 for t in time])
-
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     fig.suptitle("Original signals")
@@ -56,7 +56,8 @@ def main(show_fig=False):
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle("Convoluted signal")
     ax1.plot(*conv_signal.unpack(), label="Convoluted signal")
-    ax2.plot(*abs(fourier.f1(conv_signal)).unpack(), label="Convoluted signal spectrum")
+    ax2.plot(*abs(fourier.f1(conv_signal)).unpack(),
+             label="Convoluted signal spectrum")
     ax1.legend()
     ax2.legend()
     ax1.grid()
@@ -81,12 +82,11 @@ def main(show_fig=False):
     signal1 += NOISE(time, 2)
     # signal1 *= NOISE(time, 2, False)
 
-
-    signal2 = Signal1.from_function(time, lambda t: 10 * np.sinc(2 * np.pi * 0.01 * t))
+    signal2 = Signal1.from_function(
+        time, lambda t: 10 * np.sinc(2 * np.pi * 0.01 * t))
     signal2 += NOISE(time, 0.5)
     # signal2 = Signal1(time, [np.sin(0.1 * t) / t if t != 0 else 1 for t in time])
     # signal2 = Signal1(time, [np.log(t) if t != 0 else 1 for t in time])
-
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     fig.suptitle("Original signals")
@@ -139,4 +139,5 @@ def main(show_fig=False):
     ################################################################################################################
     ################################################################################################################
 
-    if show_fig: plt.show()
+    if show_fig:
+        plt.show()

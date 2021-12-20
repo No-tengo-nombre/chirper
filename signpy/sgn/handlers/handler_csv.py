@@ -18,12 +18,14 @@ def validate_filename(filename: str) -> None:
     """
     validate_extension(filename, "csv")
 
+
 def export_signal1(filename: str, signal1: Signal1) -> None:
     """Exports the given one dimensional signal to the .csv file."""
     validate_filename(filename)
     with open(filename, "w+") as file:
         writer = csv.writer(file)
         writer.writerows(*signal1.unpack())
+
 
 def import_signal1(filename: str) -> Signal1:
     """Imports a one dimensional signal from a .csv file."""

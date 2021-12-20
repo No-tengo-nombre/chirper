@@ -34,11 +34,13 @@ def am_modulation(signal1: Signal1, *args, method=AM_MODULATION, hertz=HERTZ, **
     """
     return AM_MODULATION_METHODS[method](signal1, *args, hertz, **kwargs)
 
+
 def _dsbfc_modulation(signal1: Signal1, carrier_freq, carrier_amp, hertz=HERTZ) -> Signal1:
     copy = signal1.clone()
     axis = copy.axis
     carrier = COS(axis, carrier_freq, 1, hertz)
     return (carrier_amp + copy) * carrier
+
 
 def _dsbsc_modulation(signal1: Signal1, carrier_freq, carrier_amp, hertz=HERTZ) -> Signal1:
     copy = signal1.clone()
@@ -46,17 +48,21 @@ def _dsbsc_modulation(signal1: Signal1, carrier_freq, carrier_amp, hertz=HERTZ) 
     carrier = COS(axis, carrier_freq, carrier_amp, hertz)
     return carrier * copy
 
+
 def _ssb_modulation(signal1: Signal1, carrier_freq, hertz=HERTZ, upper=SSB_UPPER) -> Signal1:
     x = signal1.clone()
     axis = x.axis
     x_h = hilbert.h1(x)
     return x * COS(axis, carrier_freq, 1, hertz) + ((-1) ** int(upper)) * x_h * SIN(axis, carrier_freq, 1, hertz)
 
+
 def _usb_modulation(signal1: Signal1, carrier_freq, hertz=HERTZ) -> Signal1:
     return _ssb_modulation(signal1, carrier_freq, hertz, True)
 
+
 def _lsb_modulation(signal1: Signal1, carrier_freq, hertz=HERTZ) -> Signal1:
     return _ssb_modulation(signal1, carrier_freq, hertz, False)
+
 
 AM_MODULATION_METHODS = {
     "dsbfc": _dsbfc_modulation,
