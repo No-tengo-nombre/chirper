@@ -1,3 +1,11 @@
+"""
+===================
+Signal manipulation
+===================
+
+This subpackage gives the basic tools needed to create, import and
+export signals of different dimensions.
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
@@ -167,15 +175,24 @@ class Signal1(Signal):
             return Signal1(self.axis, self.values + signal)
         return Signal1(*self._do_bin_operation(signal, operator.add))
 
+    def __rsub__(self, num):
+        return num + self * -1
+
     def __sub__(self, signal):
         if isinstance(signal, float) or isinstance(signal, int):
             return Signal1(self.axis, self.values - signal)
         return Signal1(*self._do_bin_operation(signal, operator.sub))
 
+    def __rmul__(self, num):
+        return self.__mul__(num)
+
     def __mul__(self, signal):
         if isinstance(signal, float) or isinstance(signal, int):
             return Signal1(self.axis, self.values * signal)
         return Signal1(*self._do_bin_operation(signal, operator.mul))
+
+    def __rtruediv__(self, num):
+        return Signal1(self.axis, num / self.values)
 
     def __truediv__(self, signal):
         if isinstance(signal, float) or isinstance(signal, int):
