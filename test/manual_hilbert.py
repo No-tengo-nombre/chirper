@@ -2,31 +2,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from signpy.sgn import Signal1
-from signpy.sgn.defaults import SIN
-from signpy.transforms.fourier import Fourier1
-from signpy.transforms.hilbert import Hilbert
+from signpy.sgn.defaults import COS, SIN
+from signpy.transforms import fourier, hilbert
 
 
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
 
-time = np.linspace(0, 10, 99)
+end_time = 10
+sf = 2000
+time = np.linspace(0.001, end_time, sf * end_time)
 
-signal1 = Signal1.from_function(time, lambda t: 1 / (t ** 2 + 1))
-hilbert_signal1 = Hilbert(signal1, "scipy")
+# signal1 = Signal1.from_function(time, lambda t: 1 / (t ** 2 + 1))
+signal1 = COS(time, 10, 10)
+hilbert_signal1 = hilbert.h1(signal1, "scipy")
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
-fig.suptitle("Original and hilbert transform")
+fig.suptitle("Original and hilbert transform (scipy)")
 ax1.plot(*signal1.unpack(), label="Original")
-ax2.plot(*hilbert_signal1.imag_part().unpack(), label="Hilbert")
+ax2.plot(*hilbert_signal1.real_part().unpack(), label="Hilbert (Re)")
+ax2.plot(*hilbert_signal1.imag_part().unpack(), label="Hilbert (Im)")
 ax1.legend()
 ax2.legend()
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
-fig.suptitle("Fourier spectra")
-ax1.plot(*abs(Fourier1(signal1).freq_shift()).unpack(), label="Original")
-ax2.plot(*abs(Fourier1(hilbert_signal1).freq_shift()).unpack(), label="Hilbert")
+fig.suptitle("Fourier spectra (scipy)")
+ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Original")
+ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())).unpack(), label="Hilbert (Re)")
+ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())).unpack(), label="Hilbert (Im)")
 ax1.legend()
 ax2.legend()
 
@@ -34,22 +38,53 @@ ax2.legend()
 ################################################################################################################
 ################################################################################################################
 
-time = np.linspace(0.001, 100, 100)
+end_time = 10
+sf = 2000
+time = np.linspace(0.001, end_time, sf * end_time)
 
-signal1 = SIN(time, 10, 10)
-hilbert_signal1 = Hilbert(signal1, "prod")
+signal1 = COS(time, 10, 10)
+hilbert_signal1 = hilbert.h1(signal1, "prod")
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
-fig.suptitle("Original and hilbert transform")
+fig.suptitle("Original and hilbert transform (prod)")
 ax1.plot(*signal1.unpack(), label="Original")
-ax2.plot(*hilbert_signal1.imag_part().unpack(), label="Hilbert")
+ax2.plot(*hilbert_signal1.real_part().unpack(), label="Hilbert (Re)")
+ax2.plot(*hilbert_signal1.imag_part().unpack(), label="Hilbert (Im)")
 ax1.legend()
 ax2.legend()
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
-fig.suptitle("Fourier spectra")
-ax1.plot(*abs(Fourier1(signal1).freq_shift()).unpack(), label="Original")
-ax2.plot(*abs(Fourier1(hilbert_signal1).freq_shift()).unpack(), label="Hilbert")
+fig.suptitle("Fourier spectra (prod)")
+ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Original")
+ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())).unpack(), label="Hilbert (Re)")
+ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())).unpack(), label="Hilbert (Im)")
+ax1.legend()
+ax2.legend()
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+end_time = 10
+sf = 2000
+time = np.linspace(0.001, end_time, sf * end_time)
+
+signal1 = COS(time, 10, 10)
+hilbert_signal1 = hilbert.h1(signal1, "fft")
+
+fig, (ax1, ax2) = plt.subplots(2, 1)
+fig.suptitle("Original and hilbert transform (fft)")
+ax1.plot(*signal1.unpack(), label="Original")
+ax2.plot(*hilbert_signal1.real_part().unpack(), label="Hilbert (Re)")
+ax2.plot(*hilbert_signal1.imag_part().unpack(), label="Hilbert (Im)")
+ax1.legend()
+ax2.legend()
+
+fig, (ax1, ax2) = plt.subplots(2, 1)
+fig.suptitle("Fourier spectra (fft)")
+ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Original")
+ax2.plot(*abs(fourier.f1(hilbert_signal1.real_part())).unpack(), label="Hilbert (Re)")
+ax2.plot(*abs(fourier.f1(hilbert_signal1.imag_part())).unpack(), label="Hilbert (Im)")
 ax1.legend()
 ax2.legend()
 
