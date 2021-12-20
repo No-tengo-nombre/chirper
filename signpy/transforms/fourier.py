@@ -34,6 +34,7 @@ def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
         Signal representing the Fourier Transform.
     """
     output = F1_METHODS[method](signal1)
+    output.axis *= output.sampling_freq() / output.span()
     if shift:
         output = freq_shift(output)
     return output

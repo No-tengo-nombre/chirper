@@ -1,17 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
-# from signpy.sgn import Signal1
 
 from signpy.sgn.defaults import IMPULSE, SIN, SQUARE, COS
-# from signpy.transforms.fourier import Fourier1, InverseFourier1
 from signpy.transforms import fourier, ifourier
 
-
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
 
-time = np.linspace(0, 100, 100)
+end_time = 3
+sf = 4410
+time = np.linspace(0, end_time, end_time * sf)
 
 triangle_built = (
     SIN(time, 5, 10)
@@ -23,10 +22,8 @@ triangle_built = (
     + SIN(time, 35, 0.15625)
 )
 
-print(1 / (triangle_built.axis[1] - triangle_built.axis[0]))
-# orig_fourier = Fourier1(triangle_built)
+# print(1 / (triangle_built.axis[1] - triangle_built.axis[0]))
 orig_fourier = fourier.f1(triangle_built)
-# triangle_inv = InverseFourier1(orig_fourier)
 triangle_inv = ifourier.if1(orig_fourier)
 
 fig, ax = plt.subplots()
@@ -45,15 +42,15 @@ ax2.legend()
 ################################################################################################################
 ################################################################################################################
 
-time = np.linspace(0, 100, 1000)
+end_time = 3
+sf = 4410
+time = np.linspace(0, end_time, end_time * sf)
 
 pulse = (
-    SQUARE(time, 0.2, 10)
+    SQUARE(time, 2, 10)
 )
 
-# pulse_fourier = Fourier1(pulse)
 pulse_fourier = fourier.f1(pulse)
-# pulse_inv = InverseFourier1(pulse_fourier)
 pulse_inv = ifourier.if1(pulse_fourier)
 
 fig, ax = plt.subplots()

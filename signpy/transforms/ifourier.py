@@ -36,6 +36,7 @@ def if1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
     """
     if shift:
         output = freq_shift(signal1)
+    output.axis *= output.sampling_freq() / output.span()
     output = F1_METHODS[method](output)
     return output
 
