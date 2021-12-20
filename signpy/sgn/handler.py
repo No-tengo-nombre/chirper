@@ -1,34 +1,32 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import csv
-from scipy.io import wavfile
 import numpy as np
+from scipy.io import wavfile
 
 from signpy.exceptions import InvalidFileExtension
 if TYPE_CHECKING:
     from . import Signal1
 
 
-class Handler:
-    @staticmethod
-    def validate_extension(filename: str, expected: str) -> None:
-        """Validates the extension of the given filename.
+def validate_extension(filename: str, expected: str) -> None:
+    """Validates the extension of the given filename.
 
-        Parameters
-        ----------
-        filename : str
-            Name of the file to check.
-        expected : str
-            Expected file extension.
+    Parameters
+    ----------
+    filename : str
+        Name of the file to check.
+    expected : str
+        Expected file extension.
 
-        Raises
-        ------
-        InvalidFileExtension
-            If the file extension is not valid.
-        """
-        extension = filename.split(".")[-1]
-        if extension != expected:
-            raise InvalidFileExtension(extension=extension, exp_extension=expected)
+    Raises
+    ------
+    InvalidFileExtension
+        If the file extension is not valid.
+    """
+    extension = filename.split(".")[-1]
+    if extension != expected:
+        raise InvalidFileExtension(extension=extension, exp_extension=expected)
 
 
 class HandlerCSV:
@@ -42,7 +40,7 @@ class HandlerCSV:
         filename : str
             Name of the file to check.
         """
-        Handler.validate_extension(filename, "csv")
+        validate_extension(filename, "csv")
 
     @staticmethod
     def export_signal1(filename: str, signal1: Signal1) -> None:
@@ -70,7 +68,7 @@ class HandlerJSON:
         filename : str
             Name of the file to check.
         """
-        Handler.validate_extension(filename, "json")
+        validate_extension(filename, "json")
 
     @staticmethod
     def export_signal1(filename: str, signal1: Signal1) -> None:
@@ -97,7 +95,7 @@ class HandlerWAV:
         filename : str
             Name of the file to check.
         """
-        Handler.validate_extension(filename, "wav")
+        validate_extension(filename, "wav")
 
     @staticmethod
     def export_signal1(filename: str, signal1: Signal1, samp_rate=None) -> None:
