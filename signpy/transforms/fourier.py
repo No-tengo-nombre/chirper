@@ -11,13 +11,14 @@ if TYPE_CHECKING:
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
 
+
 def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
     """Calculates the one dimensional Fourier transform of a given
     signal.
 
     In order to perform the calculation, a specific algorithm can be
     given as a parameter.
-    
+
     Parameters
     ----------
     signal1 : Signal1
@@ -38,6 +39,7 @@ def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
     if shift:
         output = freq_shift(output)
     return output
+
 
 def _calculate_dft1(signal1: Signal1) -> Signal1:
     """Calculates the Discrete Fourier Transform (DFT) of a signal :math:`\\mathcal{F}\\{x[n]\\} = X[k]`, such that
@@ -61,10 +63,12 @@ def _calculate_dft1(signal1: Signal1) -> Signal1:
     for k in tqdm(range(signal_len), "Calculating DFT"):
         temp = 0 + 0j
         for n in range(signal_len):
-            temp += output.values[n] * np.exp(-1j * (2 * n * k * np.pi / signal_len))
+            temp += output.values[n] * \
+                np.exp(-1j * (2 * n * k * np.pi / signal_len))
         new_values[k] = temp
     output.values = new_values
     return output
+
 
 def _calculate_fft1(signal1: Signal1) -> Signal1:
     """Calculates the FFT of a given signal.
@@ -100,8 +104,10 @@ def freq_shift(signal1: Signal1) -> Signal1:
     output = signal1.clone()
     signal_len = len(output)
     output.axis = output.axis - output.span() / 2
-    output.values = np.array([*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
+    output.values = np.array(
+        [*output.values[signal_len // 2:], *output.values[:signal_len // 2]])
     return output
+
 
 F1_METHODS = {
     "dft": _calculate_dft1,

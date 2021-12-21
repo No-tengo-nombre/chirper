@@ -10,6 +10,7 @@ class InvalidModulation(Exception):
 
 class InvalidFileExtension(Exception):
     """Exception for invalid file extensions."""
+
     def __init__(self, message="Invalid file extension", extension=None, exp_extension=None) -> None:
         self.extension = extension
         self.exp_extension = exp_extension

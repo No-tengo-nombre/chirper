@@ -37,10 +37,11 @@ def convolution(s1_x: Signal1, s1_y: Signal1, method=CONVOLUTION_METHOD) -> Sign
         Convoluted signal.
     """
     conv_methods = {
-        "fft" : conv_fft,
-        "direct" : conv_direct,
+        "fft": conv_fft,
+        "direct": conv_direct,
     }
     return conv_methods[method](s1_x, s1_y)
+
 
 def conv_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     """Convolutes using the FFT."""
@@ -48,6 +49,7 @@ def conv_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     x_fourier = fourier.f1(s1_x)
     y_fourier = fourier.f1(s1_y)
     return ifourier.if1(x_fourier * y_fourier)
+
 
 def conv_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     """Convolutes via brute-force."""
@@ -64,6 +66,7 @@ def conv_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     output = s1_x.clone()
     output.values = np.array(vals)
     return output
+
 
 def cross_correlation(s1_x: Signal1, s1_y: Signal1, method=CROSS_CORRELATION_METHOD) -> Signal1:
     """Calculates the cross correlation of two signals.
@@ -84,10 +87,11 @@ def cross_correlation(s1_x: Signal1, s1_y: Signal1, method=CROSS_CORRELATION_MET
         Cross correlated signal
     """
     cc_methods = {
-        "fft" : cc_fft,
-        "direct" : cc_direct,
+        "fft": cc_fft,
+        "direct": cc_direct,
     }
     return cc_methods[method](s1_x, s1_y)
+
 
 def cc_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     x_copy = s1_x.clone()
@@ -98,11 +102,13 @@ def cc_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     for n, _ in enumerate(x_copy.values):
         sum = 0
         for m, _ in enumerate(y_copy.values):
-            sum += np.conjugate(x_copy.values[m]) * y_copy.values[(m + n) % len(x_copy)]
+            sum += np.conjugate(x_copy.values[m]) * \
+                y_copy.values[(m + n) % len(x_copy)]
         vals.append(sum)
     output = s1_x.clone()
     output.values = np.array(vals)
     return output
+
 
 def cc_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     from signpy.transforms import fourier, ifourier

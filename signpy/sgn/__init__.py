@@ -100,7 +100,7 @@ class Signal(abc.ABC):
     @abc.abstractmethod
     def apply_function(self, func, *args, **kwargs):
         """Applies a function to the values of the signal.
-        
+
         Parameters
         ----------
         func : function
@@ -157,8 +157,10 @@ class Signal1(Signal):
     def __getitem__(self, key):
         if isinstance(key, slice):
             # Slices the indices based on the given key, then intersects them to get all the indices
-            indices1 = np.where(key.start <= self.axis if key.start else self.axis)
-            indices2 = np.where(self.axis <= key.stop if key.stop else self.axis)
+            indices1 = np.where(
+                key.start <= self.axis if key.start else self.axis)
+            indices2 = np.where(
+                self.axis <= key.stop if key.stop else self.axis)
             indices = np.intersect1d(indices1, indices2)
             return Signal1(
                 [self.axis[i] for i in indices],
@@ -248,7 +250,8 @@ class Signal1(Signal):
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError()
-        cls(*Signal1.handlers[extension].import_signal1(filename, *args, **kwargs))
+        cls(*
+            Signal1.handlers[extension].import_signal1(filename, *args, **kwargs))
 
     def sampling_freq(self) -> float:
         """Calculates the sampling frequency in hertz, assuming it is constant."""
@@ -316,7 +319,7 @@ class Signal1(Signal):
     def interp(self, element):
         """Interpolates the current values to obtain a new value using the default method given by
         `INTERPOLATION_METHOD` (by default "linear") defined in "src.__init__.py".
-        
+
         Parameters
         ----------
         element : float
@@ -379,7 +382,8 @@ class Signal1(Signal):
             arr = copy.values[n - new_shift:self_len]
             new_values = np.append(new_values, arr.sum() / (2 * new_shift + 1))
 
-        assert self_len == len(new_values), "There was an error during the smoothing."
+        assert self_len == len(
+            new_values), "There was an error during the smoothing."
         copy.values = new_values
         return copy
 
@@ -414,7 +418,8 @@ class Signal1(Signal):
             Modified signal.
         """
         copy = self.clone()
-        copy.values = np.array([func(t, x, *args, **kwargs) for t, x in zip(copy.axis, copy.values)])
+        copy.values = np.array([func(t, x, *args, **kwargs)
+                               for t, x in zip(copy.axis, copy.values)])
         return copy
 
     def convolute(self, signal1: Signal1, method=CONVOLUTION_METHOD) -> Signal1:
@@ -493,7 +498,7 @@ class Signal1(Signal):
         copy.values = copy.values.conjugate()
         return copy
 
-    def export_to_file(self, filename : str, *args, **kwargs):
+    def export_to_file(self, filename: str, *args, **kwargs):
         """Exports the one dimensional signal to the given file.
 
         Parameters
@@ -509,4 +514,5 @@ class Signal1(Signal):
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError
-        Signal1.handlers[extension].export_signal1(filename, self, *args, **kwargs)
+        Signal1.handlers[extension].export_signal1(
+            filename, self, *args, **kwargs)

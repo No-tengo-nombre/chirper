@@ -26,4 +26,5 @@ Z_METHOD = "dzt"
 
 AM_MODULATION = "dsbsc"
 PM_MODULATION = "trad"
+FM_MODULATION = "trad"
 SSB_UPPER = True
