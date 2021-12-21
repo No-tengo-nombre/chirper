@@ -83,6 +83,8 @@ def main(show_fig=False, export=True):
 
     if show_fig:
         plt.show()
+    else:
+        plt.close("all")
 
     if export:
         print("Exporting")
@@ -90,3 +92,7 @@ def main(show_fig=False, export=True):
         signal2.export_to_file("test/outputs/manual_io_sgn2.wav")
         ifourier.if1(manipulated).__abs__().export_to_file(
             "test/outputs/manual_io_sgn3.wav")
+
+
+if __name__ == "__main__":
+    main(True)

@@ -102,3 +102,9 @@ def main(show_fig=False):
 
     if show_fig:
         plt.show()
+    else:
+        plt.close("all")
+
+
+if __name__ == "__main__":
+    main(True)

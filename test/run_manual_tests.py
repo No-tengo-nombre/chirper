@@ -13,7 +13,7 @@ tests = (
     (manual_io, False),
     (manual_hilbert, False),
     (manual_fourier, False),
-    (manual_modulation, False),
+    (manual_modulation, True),
 )
 
 for test, show in tqdm(tests, desc="Running manual tests"):
