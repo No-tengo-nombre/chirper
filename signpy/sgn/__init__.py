@@ -95,7 +95,7 @@ class Signal(abc.ABC):
 
     @abc.abstractmethod
     def unpack(self):
-        """Unpacks the signal into two arrays. If used for its intended purpose, should be unpacked with *."""
+        """Unpacks the signal into arrays. If used for its intended purpose, should be unpacked with *."""
         pass
 
     @abc.abstractmethod
@@ -124,14 +124,13 @@ class Signal(abc.ABC):
         """Makes a copy of this signal."""
         return deepcopy(self)
 
-
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
 
 
 class Signal1(Signal):
-    """Class representing a signal object."""
+    """Class representing a one dimensional signal."""
     handlers = {
         "csv": handler_csv,
         "json": handler_json,
@@ -150,12 +149,18 @@ class Signal1(Signal):
         values : array_like
             List of elements representing the dependent variable for
             each axis element.
+
+        Raises
+        ------
+        DimensionError
+            Raises this when the dimensions of `axis` and `values`
+            don't match each other.
         """
         if len(axis) != len(values):
             raise DimensionError("The dimensions of the values do not match.")
         self.axis = np.array(axis)
         self.values = np.array(values)
-        
+
     @dispatch((np.ndarray, list, tuple), (float, int), (float, int))
     def __init__(self, values: np.ndarray, samp_freq=1, start=0):
         """Creates a signal from a values list and a sampling frequency.
@@ -165,9 +170,9 @@ class Signal1(Signal):
         values : array_like
             List of elements representing the dependent variable for
             each axis element.
-        samp_freq : float
+        samp_freq : float, optional
             Sampling frequency used to create the axis, by default 1.
-        start : float
+        start : float, optional
             Starting point for the axis, by default 0.
         """
         samp_period = 1 / samp_freq
@@ -175,6 +180,9 @@ class Signal1(Signal):
         self.axis = np.arange(len(self.values), samp_period) - start
 
     def __getitem__(self, key):
+        return self.values[key]
+
+    def __call__(self, key):
         if isinstance(key, slice):
             # Slices the indices based on the given key, then intersects them to get all the indices
             indices1 = np.where(
@@ -182,12 +190,9 @@ class Signal1(Signal):
             indices2 = np.where(
                 self.axis <= key.stop if key.stop else self.axis)
             indices = np.intersect1d(indices1, indices2)
-            return Signal1(
-                [self.axis[i] for i in indices],
-                [self.values[i] for i in indices]
-            )
+            return [self.values[i] for i in indices]
         index = np.where(self.axis == key)[0]
-        return self.values[index]
+        return self.interpolate(key)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
@@ -241,8 +246,8 @@ class Signal1(Signal):
         new_values = np.array([])
         for t in axis_list:
             # Interpolates the values
-            y1 = self.interp(t)[2]
-            y2 = signal.interp(t)[2]
+            y1 = self.interpolate(t)[2]
+            y2 = signal.interpolate(t)[2]
             # Operates using the interpolated values
             new_values = np.append(new_values, operation(y1, y2))
         return axis_list, new_values
@@ -278,15 +283,15 @@ class Signal1(Signal):
         sf = 1 / (self.axis[1] - self.axis[0])
         return sf if sf > 0 else 0
 
-    def interpolate(self, element, method: str):
+    def interpolate(self, element, method=INTERPOLATION_METHOD):
         """Interpolates the current values to obtain a new value.
 
         Parameters
         ----------
         element : float
             Element to apply the interpolation to.
-        method : {"linear"}
-            Method used for the interpolation.
+        method : {"linear"}, optional
+            Method used for the interpolation, by default INTERPOLATION_METHOD.
         Returns
         -------
         copy : Signal1
@@ -301,6 +306,7 @@ class Signal1(Signal):
             # Inserts the new element into the axis
             new_index = bisect.bisect(self.axis, element)
             copy.axis = np.insert(copy.axis, new_index, element)
+            copy.values = np.insert(copy.values, new_index, 0)
 
             if method == "linear":
                 ta = copy.axis[new_index - 1]
@@ -316,7 +322,8 @@ class Signal1(Signal):
 
                 # Linearly interpolates
                 new_value = xa + (xb - xa) * (element - ta) / (tb - ta)
-                copy.values = np.insert(copy.values, new_index, new_value)
+                # copy.values = np.insert(copy.values, new_index, new_value)
+                copy.values[new_index] = new_value
                 return copy, new_index, new_value
         else:
             index = bisect.bisect(copy.axis, element) - 1
@@ -335,22 +342,6 @@ class Signal1(Signal):
         New index and value.
         """
         return self.interpolate(element, "linear")
-
-    def interp(self, element):
-        """Interpolates the current values to obtain a new value using the default method given by
-        `INTERPOLATION_METHOD` (by default "linear") defined in "src.__init__.py".
-
-        Parameters
-        ----------
-        element : float
-            Element to apply the interpolation to.
-
-        Returns
-        -------
-        New index and value
-        """
-        method = INTERPOLATION_METHOD
-        return self.interpolate(element, method)
 
     def unpack(self):
         """Unpacks the signal into two arrays. If used for its intended purpose, should be unpacked with *."""
