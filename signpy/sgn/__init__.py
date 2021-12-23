@@ -246,8 +246,8 @@ class Signal1(Signal):
         new_values = np.array([])
         for t in axis_list:
             # Interpolates the values
-            y1 = self.interpolate(t)[2]
-            y2 = signal.interpolate(t)[2]
+            y1 = self(t)
+            y2 = signal(t)
             # Operates using the interpolated values
             new_values = np.append(new_values, operation(y1, y2))
         return axis_list, new_values
@@ -314,15 +314,17 @@ class Signal1(Signal):
                 try:
                     tb = copy.axis[new_index + 1]
                     xb = copy.values[new_index + 1]
+                    # tb = copy.axis[new_index]
+                    # xb = copy.values[new_index]
                 except IndexError:
                     # This code is reached if the program tries to interpolate points out of the range.
-                    # In this case, it simply interpolates using the last value.
+                    # In this case, it simply interpolates using the last value. For `xb` we take the
+                    # element -2 because, if this code is reached, a 0 was added in the last value
                     tb = copy.axis[-1]
-                    xb = copy.values[-1]
+                    xb = copy.values[-2]
 
                 # Linearly interpolates
                 new_value = xa + (xb - xa) * (element - ta) / (tb - ta)
-                # copy.values = np.insert(copy.values, new_index, new_value)
                 copy.values[new_index] = new_value
                 return copy, new_index, new_value
         else:
