@@ -13,6 +13,7 @@ import bisect
 import operator
 import abc
 from copy import deepcopy
+from multipledispatch import dispatch
 
 from signpy.exceptions import DimensionError
 from signpy.config import CONVOLUTION_METHOD, INTERPOLATION_METHOD, CROSS_CORRELATION_METHOD
@@ -137,6 +138,7 @@ class Signal1(Signal):
         "wav": handler_wav,
     }
 
+    @dispatch((np.ndarray, list, tuple), (np.ndarray, list, tuple))
     def __init__(self, axis: np.ndarray, values: np.ndarray):
         """Creates a signal from an independent axis and a values list.
 
@@ -153,6 +155,24 @@ class Signal1(Signal):
             raise DimensionError("The dimensions of the values do not match.")
         self.axis = np.array(axis)
         self.values = np.array(values)
+        
+    @dispatch((np.ndarray, list, tuple), (float, int), (float, int))
+    def __init__(self, values: np.ndarray, samp_freq=1, start=0):
+        """Creates a signal from a values list and a sampling frequency.
+
+        Parameters
+        ----------
+        values : array_like
+            List of elements representing the dependent variable for
+            each axis element.
+        samp_freq : float
+            Sampling frequency used to create the axis, by default 1.
+        start : float
+            Starting point for the axis, by default 0.
+        """
+        samp_period = 1 / samp_freq
+        self.values = np.array(values)
+        self.axis = np.arange(len(self.values), samp_period) - start
 
     def __getitem__(self, key):
         if isinstance(key, slice):
