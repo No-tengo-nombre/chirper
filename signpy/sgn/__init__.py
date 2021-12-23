@@ -12,6 +12,7 @@ import numpy as np
 import bisect
 import operator
 import abc
+from numbers import Number, Real
 from copy import deepcopy
 from multipledispatch import dispatch
 
@@ -161,7 +162,7 @@ class Signal1(Signal):
         self.axis = np.array(axis)
         self.values = np.array(values)
 
-    @dispatch((np.ndarray, list, tuple), (float, int), (float, int))
+    @dispatch((np.ndarray, list, tuple), Real, Real)
     def __init__(self, values: np.ndarray, samp_freq=1, start=0):
         """Creates a signal from a values list and a sampling frequency.
 
@@ -170,9 +171,9 @@ class Signal1(Signal):
         values : array_like
             List of elements representing the dependent variable for
             each axis element.
-        samp_freq : float, optional
+        samp_freq : real number, optional
             Sampling frequency used to create the axis, by default 1.
-        start : float, optional
+        start : real number, optional
             Starting point for the axis, by default 0.
         """
         samp_period = 1 / samp_freq
@@ -182,48 +183,62 @@ class Signal1(Signal):
     def __getitem__(self, key):
         return self.values[key]
 
+    @dispatch(slice)
     def __call__(self, key):
-        if isinstance(key, slice):
-            # Slices the indices based on the given key, then intersects them to get all the indices
-            indices1 = np.where(
-                key.start <= self.axis if key.start else self.axis)
-            indices2 = np.where(
-                self.axis <= key.stop if key.stop else self.axis)
-            indices = np.intersect1d(indices1, indices2)
-            return [self.values[i] for i in indices]
-        index = np.where(self.axis == key)[0]
+        # Slices the indices based on the given key, then intersects them to get all the indices
+        indices1 = np.where(
+            key.start <= self.axis if key.start else self.axis)
+        indices2 = np.where(
+            self.axis <= key.stop if key.stop else self.axis)
+        indices = np.intersect1d(indices1, indices2)
+        return [self.values[i] for i in indices]
+
+    @dispatch(Real)
+    def __call__(self, key):
         return self.interpolate(key)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
 
+    @dispatch(Number)
+    def __add__(self, value):
+        return Signal1(self.axis, self.values + value)
+
+    @dispatch(object)
     def __add__(self, signal):
-        if isinstance(signal, float) or isinstance(signal, int):
-            return Signal1(self.axis, self.values + signal)
         return Signal1(*self._do_bin_operation(signal, operator.add))
 
     def __rsub__(self, num):
         return num + self * -1
 
+    @dispatch(Number)
+    def __sub__(self, value):
+        return Signal1(self.axis, self.values - value)
+
+    @dispatch(object)
     def __sub__(self, signal):
-        if isinstance(signal, float) or isinstance(signal, int):
-            return Signal1(self.axis, self.values - signal)
         return Signal1(*self._do_bin_operation(signal, operator.sub))
 
     def __rmul__(self, num):
         return self.__mul__(num)
 
+    @dispatch(Number)
+    def __mul__(self, value):
+        return Signal1(self.axis, self.values * value)
+
+    @dispatch(object)
     def __mul__(self, signal):
-        if isinstance(signal, float) or isinstance(signal, int):
-            return Signal1(self.axis, self.values * signal)
         return Signal1(*self._do_bin_operation(signal, operator.mul))
 
     def __rtruediv__(self, num):
         return Signal1(self.axis, num / self.values)
 
+    @dispatch(Number)
+    def __truediv__(self, value):
+        return Signal1(self.axis, self.values / value)
+
+    @dispatch(object)
     def __truediv__(self, signal):
-        if isinstance(signal, float) or isinstance(signal, int):
-            return Signal1(self.axis, self.values / signal)
         return Signal1(*self._do_bin_operation(signal, operator.truediv))
 
     def __eq__(self, signal):
