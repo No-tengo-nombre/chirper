@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
-from numpy.core.numeric import outer
+from multipledispatch import dispatch
 from tqdm import tqdm
 
 from signpy.config import F1_METHOD, F2_METHOD
@@ -39,7 +39,7 @@ def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
     output = F1_METHODS[method](signal1)
     output.axis *= output.sampling_freq() / output.span()
     if shift:
-        output = freq_shift(output)
+        output = freq_shift1(output)
     return output
 
 
@@ -90,7 +90,7 @@ def _calculate_fft1(signal1: Signal1) -> Signal1:
     return output
 
 
-def freq_shift(signal1: Signal1) -> Signal1:
+def freq_shift1(signal1: Signal1) -> Signal1:
     """Shift the frequencies of the signal.
 
     Parameters
@@ -123,6 +123,12 @@ F1_METHODS = {
 
 def f2(signal2: Signal2, method=F2_METHOD, shift=True) -> Signal2:
     output = F2_METHODS[method](signal2)
+    # output.ax1 *= output.ax1_sampling_freq() / output.ax1_span()
+    # output.ax2 *= output.ax2_sampling_freq() / output.ax2_span()
+    output.ax1 = output.ax1 * output.ax1_sampling_freq() / output.ax1_span()
+    output.ax2 = output.ax2 * output.ax2_sampling_freq() / output.ax2_span()
+    if shift:
+        output = freq_shift2(output)
     return output
 
 
@@ -146,6 +152,27 @@ def _calculate_dft2(signal2: Signal2) -> Signal2:
 def _calculate_fft2(signal2: Signal2) -> Signal2:
     output = signal2.clone()
     output.values = np.fft.fft2(output.values)
+    return output
+
+
+def freq_shift2(signal2: Signal2) -> Signal2:
+    """Shift the frequencies of the signal.
+
+    Parameters
+    ----------
+    signal2 : Signal2
+        Signal to shift.
+
+    Returns
+    -------
+    Signal2
+        Shifted signal
+    """
+    output = signal2.clone()
+    ax1_len, ax2_len = output.shape()
+    output.ax1 = output.ax1 - output.ax1_span() / 2
+    output.ax2 = output.ax2 - output.ax2_span() / 2
+    output.values = np.fft.fftshift(output.values)
     return output
 
 

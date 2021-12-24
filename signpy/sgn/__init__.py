@@ -828,3 +828,23 @@ class Signal2(Signal):
 
     def shape(self):
         return np.shape(self.values)
+
+    def ax1_sampling_freq(self) -> float:
+        """Calculates the sampling frequency of `ax1` in hertz, assuming
+        it is constant.
+        """
+        sf = 1 / (self.ax1[1] - self.ax1[0])
+        return sf if sf > 0 else 0
+
+    def ax2_sampling_freq(self) -> float:
+        """Calculates the sampling frequency of `ax2` in hertz, assuming
+        it is constant.
+        """
+        sf = 1 / (self.ax2[1] - self.ax2[0])
+        return sf if sf > 0 else 0
+
+    def ax1_span(self) -> float:
+        return self.ax1[-1] - self.ax1[0]
+
+    def ax2_span(self) -> float:
+        return self.ax2[-1] - self.ax2[0]
