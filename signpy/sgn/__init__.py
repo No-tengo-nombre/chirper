@@ -138,6 +138,24 @@ class Signal1(Signal):
         "wav": handler_wav,
     }
 
+    @dispatch((np.ndarray, list, tuple), Real, Real)
+    def __init__(self, values: np.ndarray, samp_freq=1, start=0):
+        """Creates a signal from a values list and a sampling frequency.
+
+        Parameters
+        ----------
+        values : array_like
+            List of elements representing the dependent variable for
+            each axis element.
+        samp_freq : real number, optional
+            Sampling frequency used to create the axis, by default 1.
+        start : real number, optional
+            Starting point for the axis, by default 0.
+        """
+        samp_period = 1 / samp_freq
+        self.values = np.array(values)
+        self.axis = np.arange(len(self.values), samp_period) - start
+
     @dispatch((np.ndarray, list, tuple), (np.ndarray, list, tuple))
     def __init__(self, axis: np.ndarray, values: np.ndarray):
         """Creates a signal from an independent axis and a values list.
@@ -161,24 +179,6 @@ class Signal1(Signal):
             raise DimensionError("The dimensions of the values do not match.")
         self.axis = np.array(axis)
         self.values = np.array(values)
-
-    @dispatch((np.ndarray, list, tuple), Real, Real)
-    def __init__(self, values: np.ndarray, samp_freq=1, start=0):
-        """Creates a signal from a values list and a sampling frequency.
-
-        Parameters
-        ----------
-        values : array_like
-            List of elements representing the dependent variable for
-            each axis element.
-        samp_freq : real number, optional
-            Sampling frequency used to create the axis, by default 1.
-        start : real number, optional
-            Starting point for the axis, by default 0.
-        """
-        samp_period = 1 / samp_freq
-        self.values = np.array(values)
-        self.axis = np.arange(len(self.values), samp_period) - start
 
     def __getitem__(self, key):
         return self.values[key]
@@ -541,6 +541,251 @@ class Signal1(Signal):
         """
         extension = filename.split(".")[-1]
         if extension == filename:
-            raise ValueError
+            raise ValueError()
         Signal1.handlers[extension].export_signal1(
+            filename, self, *args, **kwargs)
+
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
+
+
+class Signal2(Signal):
+    """Class representing a two dimensional signal."""
+    handlers = {
+
+    }
+
+    @dispatch((np.ndarray, list, tuple), Real, Real, Real, Real)
+    def __init__(self, values: np.ndarray, ax1_samp_freq=1, ax2_samp_freq=1, ax1_start=0, ax2_start=0):
+        """Creates a two dimensional signal by giving a values matrix
+        and a frequency for each axis.
+
+        Each axis corresponds to one of the dimensions, where
+        `ax1` indexes the rows of `values`, while `ax2` indexes its
+        columns.
+
+        Parameters
+        ----------
+        values : two-dimensional array_like
+            Matrix that indicates the values of the signal for every
+            point.
+        ax1_samp_freq : float, optional
+            Sampling frequency of the first axis, by default 1.
+        ax2_samp_freq : float, optional
+            Sampling frequency of the second axis, by default 1.
+        ax1_start : float, optional
+            Starting point for the first axis, by default 0.
+        ax2_start : float, optional
+            Starting point for the second axis, by default 0.
+        """
+        ax1_samp_period = 1 / ax1_samp_freq
+        ax2_samp_period = 1 / ax2_samp_freq
+        val_shape = np.shape(values)
+
+        self.values = np.array(values)
+        self.ax1 = np.arange(val_shape[0], ax1_samp_period) - ax1_start
+        self.ax2 = np.arange(val_shape[1], ax2_samp_period) - ax2_start
+
+    @dispatch((np.ndarray, list, tuple), (np.ndarray, list, tuple), (np.ndarray, list, tuple))
+    def __init__(self, ax1: np.ndarray, ax2: np.ndarray, values: np.ndarray):
+        """Creates a two dimensional signal by giving two axes and a
+        matrix.
+
+        Each axis corresponds to one of the dimensions, where
+        `ax1` indexes the rows of `values`, while `ax2` indexes its
+        columns.
+
+        Parameters
+        ----------
+        ax1 : array_like
+            First axis, which indexes the rows of `values`.
+        ax2 : array_like
+            Second axis, which indexes the columns of `values`.
+        values : two-dimensional array_like
+            Matrix that indicates the values of the signal for every
+            point.
+
+        Raises
+        ------
+        DimensionError
+            Raises this when the shape of `values` doesn't match the
+            sizes of `ax1` and `ax2`.
+
+        Example
+        -------
+        Creating the following object
+        >>> ax1 = [1, 2, 3]
+        >>> ax2 = [2, 4, 6]
+        >>> vals = [
+        >>>     [1, 2, 3],
+        >>>     [2, 4, 6],
+        >>>     [3, 6, 9]
+        >>> ]
+        >>> signal = Signal2(ax1, ax2, vals)
+        can be understood as the following plot
+          ax2
+           |
+         6 |  3  6  9
+           |
+         4 |  2  4  6
+           |
+         2 |  1  2  3
+           |
+         0 |--------- ax1
+           0  1  2  3
+        """
+        if np.shape(values) != (len(ax1), len(ax2)):
+            raise DimensionError("The dimensions of the values do not match.")
+        self.ax1 = ax1
+        self.ax2 = ax2
+        self.values = values
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+    @dispatch(Real, Real)
+    def __call__(self, key_x, key_y):
+        return self.interpolate(key_x, axis=0), self.interpolate(key_y, axis=1)
+
+    @dispatch(Real)
+    def __call__(self, key):
+        return self.interpolate(key)[2]
+
+    @dispatch(Number)
+    def __add__(self, value):
+        pass
+
+    @dispatch(Signal1)
+    def __add__(self, signal):
+        pass
+
+    @dispatch(object)
+    def __add__(self, signal):
+        pass
+
+    @dispatch(Number)
+    def __sub__(self, value):
+        pass
+
+    @dispatch(Signal1)
+    def __sub__(self, signal):
+        pass
+
+    @dispatch(object)
+    def __sub__(self, signal):
+        pass
+
+    @dispatch(Number)
+    def __mul__(self, value):
+        pass
+
+    @dispatch(Signal1)
+    def __mul__(self, signal):
+        pass
+
+    @dispatch(object)
+    def __mul__(self, signal):
+        pass
+
+    @dispatch(Number)
+    def __truediv__(self, value):
+        pass
+
+    @dispatch(Signal1)
+    def __truediv__(self, signal):
+        pass
+
+    @dispatch(object)
+    def __truediv__(self, signal):
+        pass
+
+    def __eq__(self, signal):
+        return (
+            np.array_equal(self.ax1, signal.ax1) 
+            and np.array_equal(self.ax2, signal.ax2) 
+            and np.array_equal(self.values, signal.values)
+        )
+
+    def __str__(self):
+        return f"{self.ax1}\n{self.ax2}\n{self.values}"
+
+    def __abs__(self):
+        return Signal2(self.ax1, self.ax2, list(map(operator.abs, self.values)))
+
+    def __len__(self):
+        return np.shape(self.values)
+
+    @classmethod
+    def from_function(cls, ax1, ax2, func, *args, **kwargs):
+        """Creates a signal from two axes and a function.
+
+        The function is applied to each element in the axis, so
+        if the function `f(x, y) = x**2 + y**2` is given as a parameter to
+        the axes `[1, 2, 3]` and `[-1, -2, -3]`, the values would be the
+        matrix `[[2, 5, 10], [5, 8, 13], [10, 13, 18]]`.
+
+        Parameters
+        ----------
+        ax1 : np.ndarray
+            First on which the function is mapped.
+        ax2 : np.ndarray
+            Second on which the function is mapped.
+        func : function
+            Function to map to the axes.
+        """
+        return cls(ax1, ax2, func(np.array(ax1), np.array(ax2), *args, **kwargs))
+
+    @classmethod
+    def from_file(cls, filename: str, *args, **kwargs):
+        """Creates a signal from a file.
+
+        Parameters
+        ----------
+        filename : str
+            File to read the data from.
+        """
+        extension = filename.split(".")[-1]
+        if extension == filename:
+            raise ValueError()
+        cls(*
+            Signal2.handlers[extension].import_signal2(filename, *args, **kwargs))
+
+    def interpolate(self, value, method=INTERPOLATION_METHOD):
+        """Interpolates the current values to obtain a new value."""
+        pass
+
+    def unpack(self):
+        """Unpacks the signal into three arrays. If used for its intended purpose, should be unpacked with *."""
+        return self.ax1, self.ax2, self.values
+
+    def apply_function(self, func, *args, **kwargs):
+        """Applies a function to the values of the signal.
+
+        Parameters
+        ----------
+        func : function
+            Function to apply to the signal.
+        """
+        copy = self.clone()
+        copy.values = np.array([func(x, *args, **kwargs) for x in copy.values])
+        return copy
+
+    def export_to_file(self, filename: str, *args, **kwargs):
+        """Exports the one dimensional signal to the given file.
+
+        Parameters
+        ----------
+        filename : str
+            String corrresponding to the file.
+
+        Raises
+        ------
+        ValueError
+            If the filename is empty (e.g trying to export to the file ".csv").
+        """
+        extension = filename.split(".")[-1]
+        if extension == filename:
+            raise ValueError()
+        Signal2.handlers[extension].export_signal2(
             filename, self, *args, **kwargs)
