@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
+from numpy.core.numeric import outer
 from tqdm import tqdm
 
-from signpy.config import F1_METHOD
+from signpy.config import F1_METHOD, F2_METHOD
+from signpy.sgn import Signal, Signal2
 if TYPE_CHECKING:
     from signpy.sgn import Signal1
 
@@ -112,4 +114,42 @@ def freq_shift(signal1: Signal1) -> Signal1:
 F1_METHODS = {
     "dft": _calculate_dft1,
     "fft": _calculate_fft1,
+}
+
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
+
+
+def f2(signal2: Signal2, method=F2_METHOD, shift=True) -> Signal2:
+    output = F2_METHODS[method](signal2)
+    return output
+
+
+def _calculate_dft2(signal2: Signal2) -> Signal2:
+    output = signal2.clone()
+    ax1_len, ax2_len = output.shape()
+    new_values = np.zeros((ax1_len, ax2_len), dtype=complex)
+    for u in tqdm(range(ax1_len), "Calculating DFT"):
+        for v in range(ax2_len):
+            temp = 0 + 0j
+            for n in range(ax1_len):
+                for m in range(ax2_len):
+                    temp += output.values[n, m] * \
+                        np.exp(-1j * 2 * np.pi *
+                               (u * n / ax1_len + v * m / ax2_len))
+            new_values[u, v] = temp
+    output.values = new_values
+    return output
+
+
+def _calculate_fft2(signal2: Signal2) -> Signal2:
+    output = signal2.clone()
+    output.values = np.fft.fft2(output.values)
+    return output
+
+
+F2_METHODS = {
+    "dft": _calculate_dft2,
+    "fft": _calculate_fft2,
 }

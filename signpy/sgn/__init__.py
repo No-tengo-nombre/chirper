@@ -58,9 +58,9 @@ class Signal(abc.ABC):
     def __abs__(self):
         pass
 
-    @abc.abstractmethod
-    def __len__(self):
-        pass
+    # @abc.abstractmethod
+    # def __len__(self):
+    #     pass
 
     @abc.abstractclassmethod
     def from_function(cls, axis, func, *args, **kwargs):
@@ -653,9 +653,9 @@ class Signal2(Signal):
         """
         if np.shape(values) != (len(ax1), len(ax2)):
             raise DimensionError("The dimensions of the values do not match.")
-        self.ax1 = ax1
-        self.ax2 = ax2
-        self.values = values
+        self.ax1 = np.array(ax1)
+        self.ax2 = np.array(ax2)
+        self.values = np.array(values)
 
     def __getitem__(self, key):
         return self.values[key]
@@ -725,8 +725,9 @@ class Signal2(Signal):
     def __abs__(self):
         return Signal2(self.ax1, self.ax2, list(map(operator.abs, self.values)))
 
-    def __len__(self):
-        return np.shape(self.values)
+    # def __len__(self):
+    #     return np.shape(self.values)
+        # return len(self.ax1), len(self.ax2)
 
     def _do_bin_operation(self, signal, operation):
         # Joins the axes of both signals
@@ -765,7 +766,9 @@ class Signal2(Signal):
         func : function
             Function to map to the axes.
         """
-        return cls(ax1, ax2, func(np.array(ax1), np.array(ax2), *args, **kwargs))
+        values = np.array([[func(x, y, *args, **kwargs) for x in ax1] for y in ax2])
+        # return cls(ax1, ax2, func(np.array(ax1), np.array(ax2), *args, **kwargs))
+        return cls(ax1, ax2, values)
 
     @classmethod
     def from_file(cls, filename: str, *args, **kwargs):
@@ -822,3 +825,6 @@ class Signal2(Signal):
             raise ValueError()
         Signal2.handlers[extension].export_signal2(
             filename, self, *args, **kwargs)
+
+    def shape(self):
+        return np.shape(self.values)
