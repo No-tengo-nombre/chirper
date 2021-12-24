@@ -652,53 +652,49 @@ class Signal2(Signal):
     def __call__(self, key):
         return self.interpolate(key)[2]
 
+    def __radd__(self, num):
+        return self.__add__(num)
+
     @dispatch(Number)
     def __add__(self, value):
-        pass
-
-    @dispatch(Signal1)
-    def __add__(self, signal):
-        pass
+        return Signal2(self.ax1, self.ax2, self.values + value)
 
     @dispatch(object)
     def __add__(self, signal):
-        pass
+        return Signal2(*self._do_bin_operation(signal, operator.add))
+
+    def __rsub__(self, num):
+        return num + self * -1
 
     @dispatch(Number)
     def __sub__(self, value):
-        pass
-
-    @dispatch(Signal1)
-    def __sub__(self, signal):
-        pass
+        return Signal2(self.ax1, self.ax2, self.values - value)
 
     @dispatch(object)
     def __sub__(self, signal):
-        pass
+        return Signal2(*self._do_bin_operation(signal, operator.sub))
+
+    def __rmul__(self, num):
+        return self.__mul__(num)
 
     @dispatch(Number)
     def __mul__(self, value):
-        pass
-
-    @dispatch(Signal1)
-    def __mul__(self, signal):
-        pass
+        return Signal2(self.ax1, self.ax2, self.values * value)
 
     @dispatch(object)
     def __mul__(self, signal):
-        pass
+        return Signal2(*self._do_bin_operation(signal, operator.mul))
+
+    def __rtruediv__(self, num):
+        return Signal2(self.ax1, self.ax2, num / self.values)
 
     @dispatch(Number)
     def __truediv__(self, value):
-        pass
-
-    @dispatch(Signal1)
-    def __truediv__(self, signal):
-        pass
+        return Signal2(self.ax1, self.ax2, self.values / value)
 
     @dispatch(object)
     def __truediv__(self, signal):
-        pass
+        return Signal2(*self._do_bin_operation(signal, operator.truediv))
 
     def __eq__(self, signal):
         return (
@@ -715,6 +711,25 @@ class Signal2(Signal):
 
     def __len__(self):
         return np.shape(self.values)
+
+    def _do_bin_operation(self, signal, operation):
+        # Joins the axes of both signals
+        new_ax1 = np.union1d(self.ax1, signal.ax1)
+        new_ax2 = np.union1d(self.ax2, signal.ax2)
+        new_ax1.sort()
+        new_ax2.sort()
+
+        new_values = new_ax2.copy()
+        for x in new_ax1:
+            row = np.array([])
+            for y in new_ax2:
+                # Interpolates the values
+                val1 = self(x, y)
+                val2 = signal(x, y)
+                # Operates using the interpolated values
+                row = np.append(row, operation(val1, val2))
+            new_values = np.vstack((new_values, row))
+        return new_ax1, new_ax2, new_values
 
     @classmethod
     def from_function(cls, ax1, ax2, func, *args, **kwargs):
