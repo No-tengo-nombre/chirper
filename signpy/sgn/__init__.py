@@ -702,8 +702,8 @@ class Signal2(Signal):
 
     def __eq__(self, signal):
         return (
-            np.array_equal(self.ax1, signal.ax1) 
-            and np.array_equal(self.ax2, signal.ax2) 
+            np.array_equal(self.ax1, signal.ax1)
+            and np.array_equal(self.ax2, signal.ax2)
             and np.array_equal(self.values, signal.values)
         )
 
