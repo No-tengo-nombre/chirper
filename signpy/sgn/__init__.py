@@ -17,7 +17,8 @@ from copy import deepcopy
 from multipledispatch import dispatch
 
 from signpy.exceptions import DimensionError
-from signpy.config import CONVOLUTION_METHOD, INTERPOLATION_METHOD, CROSS_CORRELATION_METHOD
+from signpy.config import (CONVOLUTION_METHOD, INTERPOLATION_METHOD,
+                           CROSS_CORRELATION_METHOD)
 from signpy import math_lib
 from .handlers import handler_csv, handler_json, handler_wav
 
@@ -96,7 +97,9 @@ class Signal(abc.ABC):
 
     @abc.abstractmethod
     def unpack(self):
-        """Unpacks the signal into arrays. If used for its intended purpose, should be unpacked with *."""
+        """Unpacks the signal into arrays. If used for its intended
+        purpose, should be unpacked with *.
+        """
         pass
 
     @abc.abstractmethod
@@ -185,7 +188,8 @@ class Signal1(Signal):
 
     @dispatch(slice)
     def __call__(self, key):
-        # Slices the indices based on the given key, then intersects them to get all the indices
+        # Slices the indices based on the given key, then intersects
+        # them to get all the indices
         indices1 = np.where(
             key.start <= self.axis if key.start else self.axis)
         indices2 = np.where(
@@ -242,7 +246,10 @@ class Signal1(Signal):
         return Signal1(*self._do_bin_operation(signal, operator.truediv))
 
     def __eq__(self, signal):
-        return np.array_equal(self.axis, signal.axis) and np.array_equal(self.values, signal.values)
+        return (
+            np.array_equal(self.axis, signal.axis)
+            and np.array_equal(self.values, signal.values)
+        )
 
     def __str__(self):
         return f"{self.axis}\n{self.values}"
@@ -290,8 +297,9 @@ class Signal1(Signal):
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError()
-        cls(*
-            Signal1.handlers[extension].import_signal1(filename, *args, **kwargs))
+        cls(*Signal1.handlers[extension].import_signal1(
+            filename, *args, **kwargs
+        ))
 
     def sampling_freq(self) -> float:
         """Calculates the sampling frequency in hertz, assuming it is constant."""
@@ -332,9 +340,11 @@ class Signal1(Signal):
                     # tb = copy.axis[new_index]
                     # xb = copy.values[new_index]
                 except IndexError:
-                    # This code is reached if the program tries to interpolate points out of the range.
-                    # In this case, it simply interpolates using the last value. For `xb` we take the
-                    # element -2 because, if this code is reached, a 0 was added in the last value
+                    # This code is reached if the program tries to
+                    # interpolate points out of the range. In this case,
+                    # it simply interpolates using the last value. For
+                    # `xb` we take the element -2 because, if this code
+                    # is reached, a 0 was added in the last value
                     tb = copy.axis[-1]
                     xb = copy.values[-2]
 
@@ -361,7 +371,9 @@ class Signal1(Signal):
         return self.interpolate(element, "linear")
 
     def unpack(self):
-        """Unpacks the signal into two arrays. If used for its intended purpose, should be unpacked with *."""
+        """Unpacks the signal into two arrays. If used for its
+        intended purpose, should be unpacked with *.
+        """
         return self.axis, self.values
 
     def span(self) -> float:
@@ -468,7 +480,8 @@ class Signal1(Signal):
         """
         return math_lib.convolution(self, signal1, method)
 
-    def cross_correlate(self, signal1: Signal1, method=CROSS_CORRELATION_METHOD) -> Signal1:
+    def cross_correlate(self, signal1: Signal1,
+                        method=CROSS_CORRELATION_METHOD) -> Signal1:
         """Cross-correlates this signal with another.
 
         Parameters
@@ -557,7 +570,8 @@ class Signal2(Signal):
     }
 
     @dispatch((np.ndarray, list, tuple), Real, Real, Real, Real)
-    def __init__(self, values: np.ndarray, ax1_samp_freq=1, ax2_samp_freq=1, ax1_start=0, ax2_start=0):
+    def __init__(self, values: np.ndarray, ax1_samp_freq=1,
+                 ax2_samp_freq=1, ax1_start=0, ax2_start=0):
         """Creates a two dimensional signal by giving a values matrix
         and a frequency for each axis.
 
@@ -587,8 +601,10 @@ class Signal2(Signal):
         self.ax1 = np.arange(val_shape[0], ax1_samp_period) - ax1_start
         self.ax2 = np.arange(val_shape[1], ax2_samp_period) - ax2_start
 
-    @dispatch((np.ndarray, list, tuple), (np.ndarray, list, tuple), (np.ndarray, list, tuple))
-    def __init__(self, ax1: np.ndarray, ax2: np.ndarray, values: np.ndarray):
+    @dispatch((np.ndarray, list, tuple), (np.ndarray, list, tuple),
+              (np.ndarray, list, tuple))
+    def __init__(self, ax1: np.ndarray, ax2: np.ndarray,
+                 values: np.ndarray):
         """Creates a two dimensional signal by giving two axes and a
         matrix.
 
@@ -771,7 +787,9 @@ class Signal2(Signal):
         pass
 
     def unpack(self):
-        """Unpacks the signal into three arrays. If used for its intended purpose, should be unpacked with *."""
+        """Unpacks the signal into three arrays. If used for its
+        intended purpose, should be unpacked with *.
+        """
         return self.ax1, self.ax2, self.values
 
     def apply_function(self, func, *args, **kwargs):
