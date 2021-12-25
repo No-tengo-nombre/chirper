@@ -37,10 +37,10 @@ fig.suptitle("Reconstructed Fourier")
 # plt.imshow(y_inv.values, cmap="Greys", origin="lower")
 plt.contourf(*abs(y_inv_fft).unpack(), cmap="Greys")
 
-fig, ax = plt.subplots()
-fig.suptitle("Error")
-# plt.imshow(y_inv.values, cmap="Greys", origin="lower")
-plt.contourf(*(y_inv - Y).unpack(), cmap="Greys")
+# fig, ax = plt.subplots()
+# fig.suptitle("Error")
+# # plt.imshow(y_inv.values, cmap="Greys", origin="lower")
+# plt.contourf(*(y_inv - Y).unpack(), cmap="Greys")
 
 
 plt.show()
