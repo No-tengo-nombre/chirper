@@ -141,25 +141,6 @@ class Signal1(Signal):
         "wav": handler_wav,
     }
 
-    @dispatch((np.ndarray, list, tuple), Real, Real)
-    def __init__(self, values: np.ndarray, samp_freq=1, start=0):
-        """Creates a signal from a values list and a sampling frequency.
-
-        Parameters
-        ----------
-        values : array_like
-            List of elements representing the dependent variable for
-            each axis element.
-        samp_freq : real number, optional
-            Sampling frequency used to create the axis, by default 1.
-        start : real number, optional
-            Starting point for the axis, by default 0.
-        """
-        samp_period = 1 / samp_freq
-        self.values = np.array(values)
-        self.axis = np.arange(len(self.values), samp_period) - start
-
-    @dispatch((np.ndarray, list, tuple), (np.ndarray, list, tuple))
     def __init__(self, axis: np.ndarray, values: np.ndarray):
         """Creates a signal from an independent axis and a values list.
 
@@ -300,6 +281,25 @@ class Signal1(Signal):
         cls(*Signal1.handlers[extension].import_signal1(
             filename, *args, **kwargs
         ))
+
+    @classmethod
+    def from_freq(cls, values: np.ndarray, sf=1, sp=0):
+        """Creates a signal from a values list and a sampling frequency.
+
+        Parameters
+        ----------
+        values : array_like
+            List of elements representing the dependent variable for
+            each axis element.
+        sf : real number, optional
+            Sampling frequency used to create the axis, by default 1.
+        sp : real number, optional
+            Starting point for the axis, by default 0.
+        """
+        samp_period = 1 / sf
+        vals = np.array(values)
+        axis = np.arange(len(values), samp_period) - sp
+        return cls(axis, vals)
 
     def sampling_freq(self) -> float:
         """Calculates the sampling frequency in hertz, assuming it is constant."""
@@ -569,40 +569,6 @@ class Signal2(Signal):
 
     }
 
-    @dispatch((np.ndarray, list, tuple), Real, Real, Real, Real)
-    def __init__(self, values: np.ndarray, ax1_samp_freq=1,
-                 ax2_samp_freq=1, ax1_start=0, ax2_start=0):
-        """Creates a two dimensional signal by giving a values matrix
-        and a frequency for each axis.
-
-        Each axis corresponds to one of the dimensions, where
-        `ax1` indexes the rows of `values`, while `ax2` indexes its
-        columns.
-
-        Parameters
-        ----------
-        values : two-dimensional array_like
-            Matrix that indicates the values of the signal for every
-            point.
-        ax1_samp_freq : float, optional
-            Sampling frequency of the first axis, by default 1.
-        ax2_samp_freq : float, optional
-            Sampling frequency of the second axis, by default 1.
-        ax1_start : float, optional
-            Starting point for the first axis, by default 0.
-        ax2_start : float, optional
-            Starting point for the second axis, by default 0.
-        """
-        ax1_samp_period = 1 / ax1_samp_freq
-        ax2_samp_period = 1 / ax2_samp_freq
-        val_shape = np.shape(values)
-
-        self.values = np.array(values)
-        self.ax1 = np.arange(val_shape[0], ax1_samp_period) - ax1_start
-        self.ax2 = np.arange(val_shape[1], ax2_samp_period) - ax2_start
-
-    @dispatch((np.ndarray, list, tuple), (np.ndarray, list, tuple),
-              (np.ndarray, list, tuple))
     def __init__(self, ax1: np.ndarray, ax2: np.ndarray,
                  values: np.ndarray):
         """Creates a two dimensional signal by giving two axes and a
@@ -773,7 +739,9 @@ class Signal2(Signal):
 
     @classmethod
     def from_file(cls, filename: str, *args, **kwargs):
-        """Creates a signal from a file.
+        """Creates a signal from a file. If the file is an image with
+        an RGB channel, using `channel` you can specify which channel
+        to read from, or the method used to handle them.
 
         Parameters
         ----------
@@ -785,6 +753,38 @@ class Signal2(Signal):
             raise ValueError()
         cls(*
             Signal2.handlers[extension].import_signal2(filename, *args, **kwargs))
+
+    @classmethod
+    def from_freq(cls, values: np.ndarray, sf_ax1=1, sf_ax2=1, sp_ax1=0, sp_ax2=0):
+        """Creates a two dimensional signal by giving a values matrix
+        and a frequency for each axis.
+
+        Each axis corresponds to one of the dimensions, where
+        `ax1` indexes the rows of `values`, while `ax2` indexes its
+        columns.
+
+        Parameters
+        ----------
+        values : two-dimensional array_like
+            Matrix that indicates the values of the signal for every
+            point.
+        sf_ax1 : float, optional
+            Sampling frequency of the first axis, by default 1.
+        sf_ax2 : float, optional
+            Sampling frequency of the second axis, by default 1.
+        sp_ax1 : float, optional
+            Starting point for the first axis, by default 0.
+        sp_ax2 : float, optional
+            Starting point for the second axis, by default 0.
+        """
+        ax1_samp_period = 1 / sf_ax1
+        ax2_samp_period = 1 / sf_ax2
+        val_shape = np.shape(values)
+
+        vals = np.array(values)
+        ax1 = np.arange(val_shape[0], ax1_samp_period) - sp_ax1
+        ax2 = np.arange(val_shape[1], ax2_samp_period) - sp_ax2
+        return cls(ax1, ax2, vals)
 
     def interpolate(self, value, method=INTERPOLATION_METHOD):
         """Interpolates the current values to obtain a new value."""
