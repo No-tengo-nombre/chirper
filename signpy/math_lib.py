@@ -2,13 +2,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
 
-from signpy.config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD
+from signpy.config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD, KERNEL_OOB
 from signpy.exceptions import DimensionError
 if TYPE_CHECKING:
-    from signpy.sgn import Signal1
+    from signpy.sgn import Signal1, Signal2
 
 
-def convolution(s1_x: Signal1, s1_y: Signal1, method=CONVOLUTION_METHOD) -> Signal1:
+def convolution(s1_x: Signal1, s1_y: Signal1,
+                method=CONVOLUTION_METHOD) -> Signal1:
     """Calculates the convolution of two one-dimensional signals.
 
     There are different methods to calculate the convolution of two
@@ -68,7 +69,8 @@ def conv_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     return output
 
 
-def cross_correlation(s1_x: Signal1, s1_y: Signal1, method=CROSS_CORRELATION_METHOD) -> Signal1:
+def cross_correlation(s1_x: Signal1, s1_y: Signal1,
+                      method=CROSS_CORRELATION_METHOD) -> Signal1:
     """Calculates the cross correlation of two signals.
 
     Parameters
@@ -117,3 +119,46 @@ def cc_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     x_fourier = fourier.f1(x_copy)
     y_fourier = fourier.f1(y_copy)
     return ifourier.if1(x_fourier.conjugate() * y_fourier)
+
+
+def _get(signal2: Signal2, row, col, oob=KERNEL_OOB):
+    methods = {
+        "zero": _get_zero,
+    }
+    copy = signal2.clone()
+    row_total, col_total = copy.shape()
+    if (0 <= row < row_total) and (0 <= col < col_total):
+        return signal2[row, col]
+    else:
+        return methods[oob](signal2, row, col)
+
+
+def _get_zero(signal2: Signal2, row, col):
+    return 0
+
+
+def _generate_indices(ker_shape, row, col):
+    ker_rows, ker_cols = ker_shape
+    center = ((ker_rows - 1) // 2, (ker_cols - 1) // 2)
+    return [
+        (row + i, col + j, center[0] + i, center[1] + j)
+        for i in range(-center[0], center[0] + 1)
+        for j in range(-center[1], center[1] + 1)
+    ]
+
+
+def apply_kernel(signal2: Signal2, kernel: np.ndarray, flip=False,
+                 oob=KERNEL_OOB) -> Signal2:
+    copy = signal2.clone()
+    signal_shape = copy.shape()
+    result = np.empty((signal_shape))
+    ker_copy = kernel.copy().T if flip else kernel.copy()
+    ker_shape = np.shape(ker_copy)
+    for i in range(signal_shape[0]):
+        for j in range(signal_shape[1]):
+            sum = 0
+            for row, col, ker_row, ker_col in _generate_indices(ker_shape, i, j):
+                sum += _get(copy, row, col, oob) * ker_copy[ker_row, ker_col]
+            result[i, j] = sum
+    copy.values = result
+    return copy

@@ -18,7 +18,7 @@ from multipledispatch import dispatch
 
 from signpy.exceptions import DimensionError
 from signpy.config import (CONVOLUTION_METHOD, INTERPOLATION_METHOD,
-                           CROSS_CORRELATION_METHOD)
+                           CROSS_CORRELATION_METHOD, KERNEL_OOB)
 from signpy import math_lib
 from .handlers import handler_csv, handler_json, handler_wav
 
@@ -848,3 +848,6 @@ class Signal2(Signal):
 
     def ax2_span(self) -> float:
         return self.ax2[-1] - self.ax2[0]
+
+    def convolute(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB):
+        return math_lib.apply_kernel(self, kernel, flip, oob)
