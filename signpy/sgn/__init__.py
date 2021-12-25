@@ -20,7 +20,8 @@ from signpy.exceptions import DimensionError
 from signpy.config import (CONVOLUTION_METHOD, INTERPOLATION_METHOD,
                            CROSS_CORRELATION_METHOD, KERNEL_OOB)
 from signpy import math_lib
-from .handlers import handler_csv, handler_json, handler_wav
+from .handlers import (handler_csv, handler_json, handler_wav,
+                       handler_img)
 
 
 class Signal(abc.ABC):
@@ -566,7 +567,9 @@ class Signal1(Signal):
 class Signal2(Signal):
     """Class representing a two dimensional signal."""
     handlers = {
-
+        "jpeg": handler_img,
+        "jpg": handler_img,
+        "png": handler_img,
     }
 
     def __init__(self, ax1: np.ndarray, ax2: np.ndarray,
