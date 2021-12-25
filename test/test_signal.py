@@ -44,10 +44,10 @@ class TestSignal(unittest.TestCase):
 
     def test_indexing(self):
         self.assertEqual(
-            45 ** 3, self.signal8[45], "Time signal indexing test failed")
+            45 ** 3, self.signal8(45), "Continous time signal indexing test failed")
         for t in self.signal8.axis:
             self.assertEqual(
-                t ** 3, self.signal8[t], "Time signal indexing test failed")
+                t ** 3, self.signal8(t), "Continous time signal indexing test failed")
 
     def test_addition(self):
         exp_signal = Signal1.from_function(
@@ -90,8 +90,12 @@ class TestSignal(unittest.TestCase):
             [i for i in range(100)],
             lambda x: (x ** 2) / 100
         )
-        real_signal1 = self.signal1[1:] / self.signal2[1:]
-        real_signal2 = (self.signal1 / self.signal2)[1:]
+        sign1_cut = Signal1(self.signal1.axis[1:], self.signal1.values[1:])
+        sign2_cut = Signal1(self.signal2.axis[1:], self.signal2.values[1:])
+        div = (self.signal1 / self.signal2)
+
+        real_signal1 = sign1_cut / sign2_cut
+        real_signal2 = Signal1(div.axis[1:], div.values[1:])
         self.assertEqual(exp_signal1, real_signal1,
                          "Time signal division test failed")
         self.assertEqual(exp_signal1, real_signal2,
