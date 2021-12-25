@@ -7,6 +7,10 @@ from signpy.exceptions import DimensionError
 if TYPE_CHECKING:
     from signpy.sgn import Signal1, Signal2
 
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
+
 
 def convolution(s1_x: Signal1, s1_y: Signal1,
                 method=CONVOLUTION_METHOD) -> Signal1:
@@ -120,6 +124,54 @@ def cc_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     y_fourier = fourier.f1(y_copy)
     return ifourier.if1(x_fourier.conjugate() * y_fourier)
 
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
+
+
+def apply_kernel(signal2: Signal2, kernel: np.ndarray, flip=False,
+                 oob=KERNEL_OOB) -> Signal2:
+    """Applies a given kernel to the two dimensional signal.
+
+    This operation can be often found in the literature as image
+    convolution.
+
+    Predefined kernels can be found within `signpy.kernel`, but a
+    custom one can be given without a problem.
+
+    Parameters
+    ----------
+    signal2 : Signal2
+        Signal to apply the kernel to.
+    kernel : np.ndarray
+        Kernel used for the operation.
+    flip : bool, optional
+        Whether to flip the kernel or not, by default False.
+    oob : {"zero"}, optional
+        Determines how to handle the values out of the signal. For
+        example, when `oob` is `"zero"` then, when trying to get
+        the 6th element of a 5x5 signal you will just get a 0. By
+        default KERNEL_OOB.
+
+    Returns
+    -------
+    Signal2
+        Signal with the kernel applied to it.
+    """
+    copy = signal2.clone()
+    signal_shape = copy.shape()
+    result = np.empty((signal_shape))
+    ker_copy = kernel.copy().T if flip else kernel.copy()
+    ker_shape = np.shape(ker_copy)
+    for i in range(signal_shape[0]):
+        for j in range(signal_shape[1]):
+            sum = 0
+            for row, col, ker_row, ker_col in _generate_indices(ker_shape, i, j):
+                sum += _get(copy, row, col, oob) * ker_copy[ker_row, ker_col]
+            result[i, j] = sum
+    copy.values = result
+    return copy
+
 
 def _get(signal2: Signal2, row, col, oob=KERNEL_OOB):
     methods = {
@@ -146,19 +198,6 @@ def _generate_indices(ker_shape, row, col):
         for j in range(-center[1], center[1] + 1)
     ]
 
-
-def apply_kernel(signal2: Signal2, kernel: np.ndarray, flip=False,
-                 oob=KERNEL_OOB) -> Signal2:
-    copy = signal2.clone()
-    signal_shape = copy.shape()
-    result = np.empty((signal_shape))
-    ker_copy = kernel.copy().T if flip else kernel.copy()
-    ker_shape = np.shape(ker_copy)
-    for i in range(signal_shape[0]):
-        for j in range(signal_shape[1]):
-            sum = 0
-            for row, col, ker_row, ker_col in _generate_indices(ker_shape, i, j):
-                sum += _get(copy, row, col, oob) * ker_copy[ker_row, ker_col]
-            result[i, j] = sum
-    copy.values = result
-    return copy
+########################################################################################################################
+# ||||||||||||||||||||||||||||||||||||||||||||||||| Others ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################

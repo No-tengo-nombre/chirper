@@ -766,7 +766,8 @@ class Signal2(Signal):
         func : function
             Function to map to the axes.
         """
-        values = np.array([[func(x, y, *args, **kwargs) for x in ax1] for y in ax2])
+        values = np.array([[func(x, y, *args, **kwargs)
+                          for x in ax1] for y in ax2])
         # return cls(ax1, ax2, func(np.array(ax1), np.array(ax2), *args, **kwargs))
         return cls(ax1, ax2, values)
 

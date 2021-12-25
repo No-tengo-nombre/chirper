@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from signpy.sgn import Signal2
-from signpy.kernel import ker_mean
+from signpy import kernel
 
 
 def f(x, y):
@@ -17,22 +17,40 @@ fig, ax = plt.subplots()
 fig.suptitle("Original")
 plt.imshow(Y.values, cmap="Greys", origin="lower")
 # plt.contourf(*Y.unpack(), cmap="Greys")
+plt.colorbar()
 
-kernel1 = ker_mean(3)
-kernel2 = ker_mean(5)
+kernel1 = kernel.ker_mean(3)
+kernel2 = kernel.ker_mean(5)
+kernel3 = kernel.ker_edge()
+kernel4 = kernel.ker_sharpen()
 
 Y_mean1 = Y.convolute(kernel1)
 Y_mean2 = Y.convolute(kernel2)
+Y_edge1 = Y.convolute(kernel3)
+Y_sharpen = Y.convolute(kernel4)
 
 fig, ax = plt.subplots()
 fig.suptitle("Convoluted Mean 3x3")
 plt.imshow(Y_mean1.values, cmap="Greys", origin="lower")
 # plt.contourf(*Y_mean.unpack(), cmap="Greys")
+plt.colorbar()
 
 fig, ax = plt.subplots()
 fig.suptitle("Convoluted Mean 5x5")
 plt.imshow(Y_mean2.values, cmap="Greys", origin="lower")
 # plt.contourf(*Y_mean.unpack(), cmap="Greys")
+plt.colorbar()
 
+fig, ax = plt.subplots()
+fig.suptitle("Edge")
+plt.imshow(Y_edge1.values, cmap="Greys", origin="lower")
+# plt.contourf(*Y_mean.unpack(), cmap="Greys")
+plt.colorbar()
+
+fig, ax = plt.subplots()
+fig.suptitle("Sharpen")
+plt.imshow(Y_sharpen.values, cmap="Greys", origin="lower")
+# plt.contourf(*Y_mean.unpack(), cmap="Greys")
+plt.colorbar()
 
 plt.show()
