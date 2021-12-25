@@ -31,7 +31,8 @@ def export_signal2(filename: str, signal2: Signal2) -> None:
     pass
 
 
-def import_signal2(filename: str, channel="mean", norm=False, sf_ax1=1, sf_ax2=1, sp_ax1=0, sp_ax2=0) -> Signal2:
+def import_signal2(filename: str, channel="mean", norm=False, sf_ax1=1,
+                   sf_ax2=1, sp_ax1=0, sp_ax2=0) -> Signal2:
     """Imports a two dimensional signal from a file.
 
     Parameters
@@ -51,19 +52,26 @@ def import_signal2(filename: str, channel="mean", norm=False, sf_ax1=1, sf_ax2=1
     Signal2
         Read image.
     """
+    from .. import Signal2
     validate_filename(filename)
     channels = {
         "mean": _import_s2_mean,
-        "r": lambda vals, norm: _import_s2_channel(vals, 0, norm),
+        "r": lambda vals, norm: _import_s2_channel(vals, 2, norm),
         "g": lambda vals, norm: _import_s2_channel(vals, 1, norm),
-        "b": lambda vals, norm: _import_s2_channel(vals, 2, norm),
+        "b": lambda vals, norm: _import_s2_channel(vals, 0, norm),
         0: lambda vals, norm: _import_s2_channel(vals, 0, norm),
         1: lambda vals, norm: _import_s2_channel(vals, 1, norm),
         2: lambda vals, norm: _import_s2_channel(vals, 2, norm),
     }
     signal = cv2.imread(filename)
     values = channels[channel](signal, norm)
-    return Signal2.from_freq(values, sf_ax1, sf_ax2, sp_ax1, sp_ax2)
+
+    ax1_samp_period = 1 / sf_ax1
+    ax2_samp_period = 1 / sf_ax2
+    val_shape = np.shape(values)
+    ax1 = np.arange(val_shape[0]) * ax1_samp_period - sp_ax1
+    ax2 = np.arange(val_shape[1]) * ax2_samp_period - sp_ax2
+    return ax1, ax2, values
 
 
 def _import_s2_channel(values: np.ndarray, channel: int, norm=False):

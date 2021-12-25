@@ -59,10 +59,6 @@ class Signal(abc.ABC):
     def __abs__(self):
         pass
 
-    # @abc.abstractmethod
-    # def __len__(self):
-    #     pass
-
     @abc.abstractclassmethod
     def from_function(cls, axis, func, *args, **kwargs):
         """Creates a signal from an axis and a function.
@@ -279,7 +275,7 @@ class Signal1(Signal):
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError()
-        cls(*Signal1.handlers[extension].import_signal1(
+        return cls(Signal1.handlers[extension].import_signal1(
             filename, *args, **kwargs
         ))
 
@@ -338,8 +334,6 @@ class Signal1(Signal):
                 try:
                     tb = copy.axis[new_index + 1]
                     xb = copy.values[new_index + 1]
-                    # tb = copy.axis[new_index]
-                    # xb = copy.values[new_index]
                 except IndexError:
                     # This code is reached if the program tries to
                     # interpolate points out of the range. In this case,
@@ -694,10 +688,6 @@ class Signal2(Signal):
     def __abs__(self):
         return Signal2(self.ax1, self.ax2, list(map(operator.abs, self.values)))
 
-    # def __len__(self):
-    #     return np.shape(self.values)
-        # return len(self.ax1), len(self.ax2)
-
     def _do_bin_operation(self, signal, operation):
         # Joins the axes of both signals
         new_ax1 = np.union1d(self.ax1, signal.ax1)
@@ -737,7 +727,6 @@ class Signal2(Signal):
         """
         values = np.array([[func(x, y, *args, **kwargs)
                           for x in ax1] for y in ax2])
-        # return cls(ax1, ax2, func(np.array(ax1), np.array(ax2), *args, **kwargs))
         return cls(ax1, ax2, values)
 
     @classmethod
@@ -754,8 +743,7 @@ class Signal2(Signal):
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError()
-        cls(*
-            Signal2.handlers[extension].import_signal2(filename, *args, **kwargs))
+        return cls(*Signal2.handlers[extension].import_signal2(filename, *args, **kwargs))
 
     @classmethod
     def from_freq(cls, values: np.ndarray, sf_ax1=1, sf_ax2=1, sp_ax1=0, sp_ax2=0):
@@ -782,11 +770,11 @@ class Signal2(Signal):
         """
         ax1_samp_period = 1 / sf_ax1
         ax2_samp_period = 1 / sf_ax2
+        vals = np.array(values)
         val_shape = np.shape(values)
 
-        vals = np.array(values)
-        ax1 = np.arange(val_shape[0], ax1_samp_period) - sp_ax1
-        ax2 = np.arange(val_shape[1], ax2_samp_period) - sp_ax2
+        ax1 = np.arange(val_shape[0]) * ax1_samp_period - sp_ax1
+        ax2 = np.arange(val_shape[1]) * ax2_samp_period - sp_ax2
         return cls(ax1, ax2, vals)
 
     def interpolate(self, value, method=INTERPOLATION_METHOD):
