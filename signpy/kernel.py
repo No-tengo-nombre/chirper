@@ -23,10 +23,7 @@ def ker_mean(size):
     """
     if size % 2 != 1:
         raise ValueError("Size must be an odd integer.")
-    return np.array([
-        [1 / size ** 2 for _ in range(size)]
-        for _ in range(size)
-    ])
+    return np.ones((size, size)) / (size ** 2)
 
 
 def ker_edge(level=2):
