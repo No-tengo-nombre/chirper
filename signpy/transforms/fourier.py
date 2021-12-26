@@ -1,13 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
-from multipledispatch import dispatch
 from tqdm import tqdm
 
 from signpy.config import F1_METHOD, F2_METHOD
-from signpy.sgn import Signal, Signal2
 if TYPE_CHECKING:
-    from signpy.sgn import Signal1
+    from signpy.sgn import Signal1, Signal2
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #

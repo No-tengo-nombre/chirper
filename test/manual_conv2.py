@@ -8,6 +8,7 @@ from signpy import kernel
 def f(x, y):
     return np.sin(x ** 2 + y ** 2)
 
+
 def main(show_fig=False):
     axis = np.linspace(0, 20, 100)
 
@@ -24,10 +25,10 @@ def main(show_fig=False):
     kernel3 = kernel.ker_edge()
     kernel4 = kernel.ker_sharpen()
 
-    Y_mean1 = Y.convolute(kernel1)
-    Y_mean2 = Y.convolute(kernel2)
-    Y_edge1 = Y.convolute(kernel3)
-    Y_sharpen = Y.convolute(kernel4)
+    Y_mean1 = Y.apply_kernel(kernel1)
+    Y_mean2 = Y.apply_kernel(kernel2)
+    Y_edge1 = Y.apply_kernel(kernel3)
+    Y_sharpen = Y.apply_kernel(kernel4)
 
     fig, ax = plt.subplots()
     fig.suptitle("Convoluted Mean 3x3")

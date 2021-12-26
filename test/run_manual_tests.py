@@ -1,12 +1,15 @@
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+from test import manual_interp1
+
 from . import *
 
 SHOW_ALL_FIGS = False
 
 # All these tests are imported with the `from . import *` line
 tests = (
+    (manual_interp1, False),
     (manual_conv1, False),
     (manual_conv2, False),
     (manual_io1, False, False),
