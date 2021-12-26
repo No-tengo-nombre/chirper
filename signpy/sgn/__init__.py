@@ -175,9 +175,9 @@ class Signal1(Signal):
         indices = np.intersect1d(indices1, indices2)
         return [self.values[i] for i in indices]
 
-    @dispatch(Real)
-    def __call__(self, key):
-        return self.interpolate(key)[2]
+    @dispatch(Real, str)
+    def __call__(self, key, inter_method=INTERPOLATION_METHOD):
+        return self.interpolate(key, inter_method)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
@@ -238,7 +238,7 @@ class Signal1(Signal):
     def __len__(self):
         return len(self.axis)
 
-    def _do_bin_operation(self, signal, operation):
+    def _do_bin_operation(self, signal, operation, inter_method=INTERPOLATION_METHOD):
         # Joins the axes of both signals
         axis_list = np.union1d(self.axis, signal.axis)
         axis_list.sort()
@@ -246,8 +246,8 @@ class Signal1(Signal):
         new_values = np.array([])
         for t in axis_list:
             # Interpolates the values
-            y1 = self(t)
-            y2 = signal(t)
+            y1 = self(t, inter_method)
+            y2 = signal(t, inter_method)
             # Operates using the interpolated values
             new_values = np.append(new_values, operation(y1, y2))
         return axis_list, new_values
@@ -297,6 +297,38 @@ class Signal1(Signal):
         vals = np.array(values)
         axis = np.arange(len(values), samp_period) - sp
         return cls(axis, vals)
+
+    @dispatch(Number, str)
+    def add(self, value, method=INTERPOLATION_METHOD):
+        return Signal1(self.axis, self.values + value)
+
+    @dispatch(object, str)
+    def add(self, signal, method=INTERPOLATION_METHOD):
+        return Signal1(*self._do_bin_operation(signal, operator.add, method))
+
+    @dispatch(Number, str)
+    def sub(self, value, method=INTERPOLATION_METHOD):
+        return Signal1(self.axis, self.values - value)
+
+    @dispatch(object, str)
+    def sub(self, signal, method=INTERPOLATION_METHOD):
+        return Signal1(*self._do_bin_operation(signal, operator.sub, method))
+
+    @dispatch(Number, str)
+    def mul(self, value, method=INTERPOLATION_METHOD):
+        return Signal1(self.axis, self.values * value)
+
+    @dispatch(object, str)
+    def mul(self, signal, method=INTERPOLATION_METHOD):
+        return Signal1(*self._do_bin_operation(signal, operator.mul, method))
+
+    @dispatch(Number, str)
+    def div(self, value, method=INTERPOLATION_METHOD):
+        return Signal1(self.axis, self.values / value)
+
+    @dispatch(object, str)
+    def div(self, signal, method=INTERPOLATION_METHOD):
+        return Signal1(*self._do_bin_operation(signal, operator.truediv, method))
 
     def sampling_freq(self) -> float:
         """Calculates the sampling frequency in hertz, assuming it is constant."""
@@ -584,6 +616,21 @@ class Signal1(Signal):
             raise ValueError()
         Signal1.handlers[extension].export_signal1(
             filename, self, *args, **kwargs)
+
+    def psd(self) -> Signal1:
+        """Generates the PSD (Power Spectral Density) of the signal.
+
+        Returns
+        -------
+        Signal1
+            Signal representing the PSD.
+        """
+        copy = self.clone()
+        copy.values = np.conjugate(copy.values) * copy.values
+        return copy
+
+    def apply_window(self, window: Signal1, center: Real, interp_method=INTERPOLATION_METHOD):
+        return self.clone().mul(window.clone().shift(center), interp_method)
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
