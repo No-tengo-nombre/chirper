@@ -6,10 +6,11 @@ from signpy.sgn import Signal2
 
 
 def main(show_fig=False, export=True):
-    signal = Signal2.from_file("test/img/cat.png")
-    signal_r = Signal2.from_file("test/img/cat.png", "r")
-    signal_g = Signal2.from_file("test/img/cat.png", "g")
-    signal_b = Signal2.from_file("test/img/cat.png", "b")
+    filename = "test/img/cat.png"
+    signal = Signal2.from_file(filename)
+    signal_r = Signal2.from_file(filename, "r")
+    signal_g = Signal2.from_file(filename, "g")
+    signal_b = Signal2.from_file(filename, "b")
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Original")
@@ -37,6 +38,7 @@ def main(show_fig=False, export=True):
     plt.colorbar(im3, ax=ax3)
     plt.colorbar(im4, ax=ax4)
 
+    # signal = Signal2.from_freq(signal[150:250, 150:250])
     signal = Signal2.from_freq(signal[100:200, 100:200])
     signal_mean = signal.apply_kernel(kernel.ker_mean(3))
     signal_edge = signal.apply_kernel(kernel.ker_edge())
@@ -49,7 +51,7 @@ def main(show_fig=False, export=True):
 
     fig, ax = plt.subplots()
     fig.suptitle("Edge")
-    plt.imshow(signal_edge[1:-1, 1:-1], cmap="gray")
+    plt.imshow(abs(signal_edge[1:-1, 1:-1]), cmap="gray")
     plt.colorbar()
 
     fig, ax = plt.subplots()
