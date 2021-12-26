@@ -119,12 +119,6 @@ class TestSignal(unittest.TestCase):
         self.assertEqual(exp_signal, abs(self.signal7),
                          "Time signal absolute value test failed")
 
-    def test_interpolation(self):
-        self.assertEqual(self.signal6, self.signal3 + self.signal4,
-                         "Time signal interpolation test failed")
-        self.assertEqual(self.signal6, self.signal3 + self.signal5,
-                         "Time signal interpolation test failed")
-
 
 if __name__ == '__main__':
     unittest.main()

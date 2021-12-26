@@ -303,6 +303,26 @@ class Signal1(Signal):
         sf = 1 / (self.axis[1] - self.axis[0])
         return sf if sf > 0 else 0
 
+    def interpolate_list(self, elements: list, method=INTERPOLATION_METHOD):
+        """Interpolates the current values to obtain new ones.
+
+        Parameters
+        ----------
+        elements : list
+            List of elements to interpolate.
+        method : {"linear", "sinc"}, optional
+            Method used for the interpolation, by default INTERPOLATION_METHOD.
+
+        Returns
+        -------
+        copy : Signal1
+            Copy of the signal with the new values interpolated.
+        """
+        copy = self.clone()
+        for t in elements:
+            copy, _, _ = copy.interpolate(t, method)
+        return copy
+
     def interpolate(self, element, method=INTERPOLATION_METHOD):
         """Interpolates the current values to obtain a new value.
 
@@ -310,7 +330,7 @@ class Signal1(Signal):
         ----------
         element : float
             Element to apply the interpolation to.
-        method : {"linear"}, optional
+        method : {"linear", "sinc"}, optional
             Method used for the interpolation, by default INTERPOLATION_METHOD.
         Returns
         -------
@@ -321,49 +341,56 @@ class Signal1(Signal):
         new_value : float
             Value of the interpolated value.
         """
+        methods = {
+            "linear": self._linear_interp,
+            "sinc": self._sinc_interp,
+        }
         copy = self.clone()
+
         if element not in self.axis:
-            # Inserts the new element into the axis
-            new_index = bisect.bisect(self.axis, element)
-            copy.axis = np.insert(copy.axis, new_index, element)
-            copy.values = np.insert(copy.values, new_index, 0)
-
-            if method == "linear":
-                ta = copy.axis[new_index - 1]
-                xa = copy.values[new_index - 1]
-                try:
-                    tb = copy.axis[new_index + 1]
-                    xb = copy.values[new_index + 1]
-                except IndexError:
-                    # This code is reached if the program tries to
-                    # interpolate points out of the range. In this case,
-                    # it simply interpolates using the last value. For
-                    # `xb` we take the element -2 because, if this code
-                    # is reached, a 0 was added in the last value
-                    tb = copy.axis[-1]
-                    xb = copy.values[-2]
-
-                # Linearly interpolates
-                new_value = xa + (xb - xa) * (element - ta) / (tb - ta)
-                copy.values[new_index] = new_value
-                return copy, new_index, new_value
+            return methods[method](element)
         else:
             index = bisect.bisect(copy.axis, element) - 1
-            return copy, index, self.values[index]
+            return copy, index, self[index]
 
-    def interpl(self, element):
-        """Applies a linear interpolation to obtain a new value.
+    def _linear_interp(self, element):
+        copy = self.clone()
+        new_index = bisect.bisect(self.axis, element)
+        copy.axis = np.insert(copy.axis, new_index, element)
+        copy.values = np.insert(copy.values, new_index, 0)
 
-        Parameters
-        ----------
-        element : float
-            Element to apply the interpolation to.
+        ta = copy.axis[new_index - 1]
+        xa = copy.values[new_index - 1]
+        try:
+            tb = copy.axis[new_index + 1]
+            xb = copy.values[new_index + 1]
+        except IndexError:
+            # This code is reached if the program tries to
+            # interpolate points out of the range. In this case,
+            # it simply interpolates using the last value. For
+            # `xb` we take the element -2 because, if this code
+            # is reached, a 0 was added in the last value
+            tb = copy.axis[-1]
+            xb = copy.values[-2]
 
-        Returns
-        -------
-        New index and value.
-        """
-        return self.interpolate(element, "linear")
+        # Linearly interpolates
+        new_value = xa + (xb - xa) * (element - ta) / (tb - ta)
+        copy.values[new_index] = new_value
+        return copy, new_index, new_value
+
+    def _sinc_interp(self, element):
+        copy = self.clone()
+        new_index = bisect.bisect(self.axis, element)
+        copy.axis = np.insert(copy.axis, new_index, element)
+        copy.values = np.insert(copy.values, new_index, 0)
+
+        fs = copy.sampling_freq()
+        result = 0
+        for t, x in zip(*self.unpack()):
+            result += x * np.sinc(fs * (element - t))
+
+        copy.values[new_index] = result
+        return copy, new_index, result
 
     def unpack(self):
         """Unpacks the signal into two arrays. If used for its
@@ -454,7 +481,7 @@ class Signal1(Signal):
         """
         copy = self.clone()
         copy.values = np.array([func(t, x, *args, **kwargs)
-                               for t, x in zip(copy.axis, copy.values)])
+                                for t, x in zip(copy.axis, copy.values)])
         return copy
 
     def convolute(self, signal1: Signal1, method=CONVOLUTION_METHOD) -> Signal1:
@@ -623,55 +650,55 @@ class Signal2(Signal):
     def __getitem__(self, key):
         return self.values[key]
 
-    @dispatch(Real, Real)
+    @ dispatch(Real, Real)
     def __call__(self, key_x, key_y):
         return self.interpolate(key_x, axis=0), self.interpolate(key_y, axis=1)
 
-    @dispatch(Real)
+    @ dispatch(Real)
     def __call__(self, key):
         return self.interpolate(key)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
 
-    @dispatch(Number)
+    @ dispatch(Number)
     def __add__(self, value):
         return Signal2(self.ax1, self.ax2, self.values + value)
 
-    @dispatch(object)
+    @ dispatch(object)
     def __add__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.add))
 
     def __rsub__(self, num):
         return num + self * -1
 
-    @dispatch(Number)
+    @ dispatch(Number)
     def __sub__(self, value):
         return Signal2(self.ax1, self.ax2, self.values - value)
 
-    @dispatch(object)
+    @ dispatch(object)
     def __sub__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.sub))
 
     def __rmul__(self, num):
         return self.__mul__(num)
 
-    @dispatch(Number)
+    @ dispatch(Number)
     def __mul__(self, value):
         return Signal2(self.ax1, self.ax2, self.values * value)
 
-    @dispatch(object)
+    @ dispatch(object)
     def __mul__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.mul))
 
     def __rtruediv__(self, num):
         return Signal2(self.ax1, self.ax2, num / self.values)
 
-    @dispatch(Number)
+    @ dispatch(Number)
     def __truediv__(self, value):
         return Signal2(self.ax1, self.ax2, self.values / value)
 
-    @dispatch(object)
+    @ dispatch(object)
     def __truediv__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.truediv))
 
@@ -707,7 +734,7 @@ class Signal2(Signal):
             new_values = np.vstack((new_values, row))
         return new_ax1, new_ax2, new_values
 
-    @classmethod
+    @ classmethod
     def from_function(cls, ax1, ax2, func, *args, **kwargs):
         """Creates a signal from two axes and a function.
 
@@ -729,7 +756,7 @@ class Signal2(Signal):
                           for x in ax1] for y in ax2])
         return cls(ax1, ax2, values)
 
-    @classmethod
+    @ classmethod
     def from_file(cls, filename: str, *args, **kwargs):
         """Creates a signal from a file. If the file is an image with
         an RGB channel, using `channel` you can specify which channel
@@ -745,7 +772,7 @@ class Signal2(Signal):
             raise ValueError()
         return cls(*Signal2.handlers[extension].import_signal2(filename, *args, **kwargs))
 
-    @classmethod
+    @ classmethod
     def from_freq(cls, values: np.ndarray, sf_ax1=1, sf_ax2=1, sp_ax1=0, sp_ax2=0):
         """Creates a two dimensional signal by giving a values matrix
         and a frequency for each axis.
@@ -841,5 +868,5 @@ class Signal2(Signal):
     def ax2_span(self) -> float:
         return self.ax2[-1] - self.ax2[0]
 
-    def convolute(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB):
+    def apply_kernel(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB):
         return math_lib.apply_kernel(self, kernel, flip, oob)

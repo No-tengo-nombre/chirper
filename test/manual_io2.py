@@ -38,9 +38,9 @@ def main(show_fig=False, export=True):
     plt.colorbar(im4, ax=ax4)
 
     signal = Signal2.from_freq(signal[100:200, 100:200])
-    signal_mean = signal.convolute(kernel.ker_mean(3))
-    signal_edge = signal.convolute(kernel.ker_edge())
-    signal_sharpen = signal.convolute(kernel.ker_sharpen())
+    signal_mean = signal.apply_kernel(kernel.ker_mean(3))
+    signal_edge = signal.apply_kernel(kernel.ker_edge())
+    signal_sharpen = signal.apply_kernel(kernel.ker_sharpen())
 
     fig, ax = plt.subplots()
     fig.suptitle("Mean 3x3")
