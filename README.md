@@ -5,11 +5,13 @@
 ## Contained subpackages
 Currently, the implemented subpackages are:
 - `modulation` - Contains methods used for signal modulation. Right now, it allows for AM and PM, but FM is in the works.
-- `sgn` - Contains the code that allows the user to create signals in different ways, as well as importing and exporting them from files. As of now, only one dimensional signals (such as audio signals) are implemented with the object `Signal1`, but there are plans to allow for two dimensional signals (e.g images) and even three dimensional signals (e.g videos, which consist of two spatial dimensions and a time dimension).
-- `transforms` - Contains different integral transforms which can be applied to signals. The ones currently implemented are:
-  - `fourier`: Fourier transform.
-  - `ifourier`: Inverse Fourier transform.
-  - `hilbert`: Hilbert transform.
+- `sgn` - Contains the code that allows the user to create signals in different ways, as well as importing and exporting them from files. As of now, both one dimensional signals (such as audio signals) and two dimensional signals (such as images) are implemented, and there are plans to implement three dimensional signals (such as videos).
+- `transforms` - Contains different integral transforms which can be applied to signals. The ones currently implemented and the signals they can be applied to are:
+  - `fourier`: Fourier transform (1D, 2D).
+  - `ifourier`: Inverse Fourier transform (1D, 2D).
+  - `hilbert`: Hilbert transform (1D).
+  - `cosine`: Cosine transform (1D, 2D).
+  - `sine`: Sine transform (1D, 2D).
 
 ## Changing default methods
 Within the `signpy`, there is a file `config.py`. It contains the default configurations used for the code, such as the default method used to calculate a Fourier transform, or the default method for convoluting two signals.
