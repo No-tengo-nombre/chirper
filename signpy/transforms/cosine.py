@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 from signpy.config import C1_METHOD, C2_METHOD
+from signpy.transforms import fourier
 if TYPE_CHECKING:
     from signpy.sgn import Signal1, Signal2
 
@@ -32,7 +33,7 @@ def c1(signal1: Signal1, method=C1_METHOD) -> Signal1:
         Signal representing the Cosine transform.
     """
     output = C1_METHODS[method](signal1)
-    output.axis *= output.sampling_freq() / output.span()
+    output.axis *= output.sampling_freq() / (2 * output.span())
     return output
 
 
@@ -89,6 +90,10 @@ def _calculate_iv_1(signal1: Signal1) -> Signal1:
     return output
 
 
+def _calculate_fft1(signal1: Signal1) -> Signal1:
+    pass
+
+
 C1_METHODS = {
     1: _calculate_i_1,
     2: _calculate_ii_1,
@@ -98,6 +103,7 @@ C1_METHODS = {
     "ii": _calculate_ii_1,
     "iii": _calculate_iii_1,
     "iv": _calculate_iv_1,
+    "fft": _calculate_fft1,
 }
 
 ########################################################################################################################

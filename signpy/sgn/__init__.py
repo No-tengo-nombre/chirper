@@ -404,7 +404,12 @@ class Signal1(Signal):
 
     def half(self, first=True):
         """Gets half of the signal"""
-        return self[:self.span() / 2] * 2 if first else self[self.span() / 2:] * 2
+        half_span = int(len(self) / 2)
+        if first:
+            return Signal1(self.axis[:half_span], self.values[:half_span])
+        else:
+            return Signal1(self.axis[half_span:], self.values[half_span:])
+        # return self[:int(self.span() / 2)] * 2 if first else self[int(self.span() / 2):] * 2
 
     def rect_smooth(self, factor: int) -> Signal1:
         """Directly applies a rectangular smoothing to the signal.
@@ -650,55 +655,55 @@ class Signal2(Signal):
     def __getitem__(self, key):
         return self.values[key]
 
-    @ dispatch(Real, Real)
+    @dispatch(Real, Real)
     def __call__(self, key_x, key_y):
         return self.interpolate(key_x, axis=0), self.interpolate(key_y, axis=1)
 
-    @ dispatch(Real)
+    @dispatch(Real)
     def __call__(self, key):
         return self.interpolate(key)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __add__(self, value):
         return Signal2(self.ax1, self.ax2, self.values + value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __add__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.add))
 
     def __rsub__(self, num):
         return num + self * -1
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __sub__(self, value):
         return Signal2(self.ax1, self.ax2, self.values - value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __sub__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.sub))
 
     def __rmul__(self, num):
         return self.__mul__(num)
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __mul__(self, value):
         return Signal2(self.ax1, self.ax2, self.values * value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __mul__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.mul))
 
     def __rtruediv__(self, num):
         return Signal2(self.ax1, self.ax2, num / self.values)
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __truediv__(self, value):
         return Signal2(self.ax1, self.ax2, self.values / value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __truediv__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.truediv))
 
@@ -734,7 +739,7 @@ class Signal2(Signal):
             new_values = np.vstack((new_values, row))
         return new_ax1, new_ax2, new_values
 
-    @ classmethod
+    @classmethod
     def from_function(cls, ax1, ax2, func, *args, **kwargs):
         """Creates a signal from two axes and a function.
 
@@ -756,7 +761,7 @@ class Signal2(Signal):
                           for x in ax1] for y in ax2])
         return cls(ax1, ax2, values)
 
-    @ classmethod
+    @classmethod
     def from_file(cls, filename: str, *args, **kwargs):
         """Creates a signal from a file. If the file is an image with
         an RGB channel, using `channel` you can specify which channel
@@ -772,7 +777,7 @@ class Signal2(Signal):
             raise ValueError()
         return cls(*Signal2.handlers[extension].import_signal2(filename, *args, **kwargs))
 
-    @ classmethod
+    @classmethod
     def from_freq(cls, values: np.ndarray, sf_ax1=1, sf_ax2=1, sp_ax1=0, sp_ax2=0):
         """Creates a two dimensional signal by giving a values matrix
         and a frequency for each axis.

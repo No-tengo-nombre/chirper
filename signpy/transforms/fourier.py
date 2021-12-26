@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 ########################################################################################################################
 
 
-def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
+def f1(signal1: Signal1, method=F1_METHOD, shift=True, scale=True) -> Signal1:
     """Calculates the one dimensional Fourier transform of a given
     signal.
 
@@ -25,8 +25,11 @@ def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
         One dimensional signal to calculate the Fourier transform.
     method : {"dft", "fft"}, optional
         Method used to calculate the transform, by default F1_METHOD
-    shift : bool
+    shift : bool, optional
         Whether to shift the frequencies or not after applying the
+        transform, by default True.
+    scale : bool, optional
+        Whether to scale the frequencies or not after applying the
         transform, by default True.
 
     Returns
@@ -35,7 +38,8 @@ def f1(signal1: Signal1, method=F1_METHOD, shift=True) -> Signal1:
         Signal representing the Fourier Transform.
     """
     output = F1_METHODS[method](signal1)
-    output.axis *= output.sampling_freq() / output.span()
+    if scale:
+        output.axis *= output.sampling_freq() / output.span()
     if shift:
         output = freq_shift1(output)
     return output
@@ -119,12 +123,13 @@ F1_METHODS = {
 ########################################################################################################################
 
 
-def f2(signal2: Signal2, method=F2_METHOD, shift=True) -> Signal2:
+def f2(signal2: Signal2, method=F2_METHOD, shift=True, scale=True) -> Signal2:
     output = F2_METHODS[method](signal2)
-    # output.ax1 *= output.ax1_sampling_freq() / output.ax1_span()
-    # output.ax2 *= output.ax2_sampling_freq() / output.ax2_span()
-    output.ax1 = output.ax1 * output.ax1_sampling_freq() / output.ax1_span()
-    output.ax2 = output.ax2 * output.ax2_sampling_freq() / output.ax2_span()
+    if scale:
+        output.ax1 *= output.ax1_sampling_freq() / output.ax1_span()
+        output.ax2 *= output.ax2_sampling_freq() / output.ax2_span()
+        # output.ax1 = output.ax1 * output.ax1_sampling_freq() / output.ax1_span()
+        # output.ax2 = output.ax2 * output.ax2_sampling_freq() / output.ax2_span()
     if shift:
         output = freq_shift2(output)
     return output

@@ -104,6 +104,25 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
+    # cfft = cosine.c1(triangle_built, "fft")
+    # cfft_inv = cosine.c1(c4, 4)
+
+    # fig, ax = plt.subplots()
+    # fig.suptitle("Triangular signal DCT-FFT transform")
+    # ax.plot(*cfft.unpack(), label="Spectrum")
+    # ax.legend()
+    # ax.grid()
+    # ax.set_xlabel("Frequency (Hz)")
+    # ax.set_ylabel("Amplitude (-)")
+
+    # fig, ax = plt.subplots()
+    # fig.suptitle("DCT-IV Reconstructed")
+    # ax.plot(*c4_inv.unpack(), label="Reconstructed")
+    # ax.legend()
+    # ax.grid()
+    # ax.set_xlabel("Time (s)")
+    # ax.set_ylabel("Amplitude (-)")
+
     ################################################################################################################
     ################################################################################################################
     ################################################################################################################
