@@ -13,6 +13,24 @@ if TYPE_CHECKING:
 
 
 def c1(signal1: Signal1, method=C1_METHOD) -> Signal1:
+    """Calculates the one dimensional Cosine transform of a given
+    signal.
+
+    In order to perform the calculation, a specific algorithm can be
+    given as a parameter.
+
+    Parameters
+    ----------
+    signal1 : Signal1
+        One dimensional signal to calculate the Cosine transform.
+    method : {"i", "ii", "iii", "iv", 1, 2, 3, 4}, optional
+        Cosine transform to calculate, by default F1_METHOD
+
+    Returns
+    -------
+    Signal1
+        Signal representing the Cosine transform.
+    """
     output = C1_METHODS[method](signal1)
     output.axis *= output.sampling_freq() / output.span()
     return output
@@ -88,6 +106,24 @@ C1_METHODS = {
 
 
 def c2(signal2: Signal2, method=C2_METHOD) -> Signal2:
+    """Calculates the two dimensional Cosine transform of a given
+    signal.
+
+    In order to perform the calculation, a specific algorithm can be
+    given as a parameter.
+
+    Parameters
+    ----------
+    signal2 : Signal2
+        Two dimensional signal to calculate the Cosine transform.
+    method : {"ii", "iv", 2, 4}, optional
+        Cosine transform to calculate, by default F1_METHOD
+
+    Returns
+    -------
+    Signal2
+        Signal representing the Cosine transform.
+    """
     output = C2_METHODS[method](signal2)
     output.ax1 *= output.ax1_sampling_freq() / output.ax1_span()
     output.ax2 *= output.ax2_sampling_freq() / output.ax2_span()

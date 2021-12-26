@@ -13,6 +13,24 @@ if TYPE_CHECKING:
 
 
 def s1(signal1: Signal1, method=S1_METHOD) -> Signal1:
+    """Calculates the one dimensional Sine transform of a given
+    signal.
+
+    In order to perform the calculation, a specific algorithm can be
+    given as a parameter.
+
+    Parameters
+    ----------
+    signal1 : Signal1
+        One dimensional signal to calculate the Sine transform.
+    method : {"i", "ii", "iii", "iv", 1, 2, 3, 4}, optional
+        Sine transform to calculate, by default F1_METHOD
+
+    Returns
+    -------
+    Signal1
+        Signal representing the Sine transform.
+    """
     output = S1_METHODS[method](signal1)
     output.axis *= output.sampling_freq() / output.span()
     return output
@@ -89,6 +107,24 @@ S1_METHODS = {
 
 
 def s2(signal2: Signal2, method=S2_METHOD) -> Signal2:
+    """Calculates the two dimensional Sine transform of a given
+    signal.
+
+    In order to perform the calculation, a specific algorithm can be
+    given as a parameter.
+
+    Parameters
+    ----------
+    signal2 : Signal2
+        Two dimensional signal to calculate the Sine transform.
+    method : {"ii", "iv", 2, 4}, optional
+        Sine transform to calculate, by default F1_METHOD
+
+    Returns
+    -------
+    Signal2
+        Signal representing the Sine transform.
+    """
     output = S2_METHODS[method](signal2)
     output.ax1 *= output.ax1_sampling_freq() / output.ax1_span()
     output.ax2 *= output.ax2_sampling_freq() / output.ax2_span()
