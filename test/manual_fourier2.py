@@ -16,8 +16,9 @@ def main(show_fig=False):
 
     fig, ax = plt.subplots()
     fig.suptitle("Original")
-    # plt.imshow(Y.values, cmap="Greys", origin="lower")
-    plt.contourf(*Y.unpack(), cmap="Greys")
+    plt.imshow(Y.values, cmap="gray", origin="lower")
+    # plt.contourf(*Y.unpack(), cmap="gray")
+    plt.colorbar()
 
     y_fft = fourier.f2(Y)
     y_inv = ifourier.if2(y_fft)
@@ -25,23 +26,28 @@ def main(show_fig=False):
 
     fig, ax = plt.subplots()
     fig.suptitle("FFT")
-    # plt.imshow(abs(y_fft).values, cmap="Greys", origin="lower")
-    plt.contourf(*abs(y_fft).unpack(), cmap="Greys")
+    plt.imshow(y_fft.psd().values, cmap="gray", origin="lower")
+    # plt.contourf(*y_fft.psd().unpack(), cmap="gray")
+    plt.colorbar()
 
     fig, ax = plt.subplots()
     fig.suptitle("Reconstructed")
-    # plt.imshow(y_inv.values, cmap="Greys", origin="lower")
-    plt.contourf(*y_inv.unpack(), cmap="Greys")
+    plt.imshow(y_inv.real_part().values, cmap="gray", origin="lower")
+    # plt.contourf(*y_inv.real_part().unpack(), cmap="gray")
+    plt.colorbar()
 
     fig, ax = plt.subplots()
     fig.suptitle("Reconstructed Fourier")
-    # plt.imshow(y_inv.values, cmap="Greys", origin="lower")
-    plt.contourf(*abs(y_inv_fft).unpack(), cmap="Greys")
+    plt.imshow(y_inv_fft.psd().values, cmap="gray", origin="lower")
+    # plt.contourf(*y_inv_fft.psd().unpack(), cmap="gray")
+    plt.colorbar()
 
     # fig, ax = plt.subplots()
     # fig.suptitle("Error")
-    # # plt.imshow(y_inv.values, cmap="Greys", origin="lower")
-    # plt.contourf(*(y_inv - Y).unpack(), cmap="Greys")
+    # # plt.imshow((y_inv - Y).values, cmap="gray", origin="lower")
+    # plt.contourf(*(y_inv - Y).unpack(), cmap="gray")
+    # plt.colorbar()
+    # print("A")
 
     ################################################################################################################
     ################################################################################################################
