@@ -12,6 +12,7 @@ import numpy as np
 import bisect
 import operator
 import abc
+from tqdm import tqdm
 from numbers import Number, Real
 from copy import deepcopy
 from multipledispatch import dispatch
@@ -124,6 +125,18 @@ class Signal(abc.ABC):
     def clone(self):
         """Makes a copy of this signal."""
         return deepcopy(self)
+
+    def psd(self) -> Signal:
+        """Generates the PSD (Power Spectral Density) of the signal.
+
+        Returns
+        -------
+        Signal
+            Signal representing the PSD.
+        """
+        copy = self.clone()
+        copy.values = np.conjugate(copy.values) * copy.values
+        return copy
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -238,13 +251,15 @@ class Signal1(Signal):
     def __len__(self):
         return len(self.axis)
 
-    def _do_bin_operation(self, signal, operation, inter_method=INTERPOLATION_METHOD):
+    def _do_bin_operation(self, signal, operation, inter_method=INTERPOLATION_METHOD, debug=False):
         # Joins the axes of both signals
         axis_list = np.union1d(self.axis, signal.axis)
-        axis_list.sort()
+        # axis_list.sort()
 
         new_values = np.array([])
-        for t in axis_list:
+        iterable = tqdm(
+            axis_list, "Applying operation") if debug else axis_list
+        for t in iterable:
             # Interpolates the values
             y1 = self(t, inter_method)
             y2 = signal(t, inter_method)
@@ -275,7 +290,7 @@ class Signal1(Signal):
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError()
-        return cls(Signal1.handlers[extension].import_signal1(
+        return cls(*Signal1.handlers[extension].import_signal1(
             filename, *args, **kwargs
         ))
 
@@ -299,7 +314,7 @@ class Signal1(Signal):
         return cls(axis, vals)
 
     @dispatch(Number, str)
-    def add(self, value, method=INTERPOLATION_METHOD):
+    def add(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
         return Signal1(self.axis, self.values + value)
 
     @dispatch(object, str)
@@ -311,24 +326,24 @@ class Signal1(Signal):
         return Signal1(self.axis, self.values - value)
 
     @dispatch(object, str)
-    def sub(self, signal, method=INTERPOLATION_METHOD):
-        return Signal1(*self._do_bin_operation(signal, operator.sub, method))
+    def sub(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        return Signal1(*self._do_bin_operation(signal, operator.sub, method, *args, **kwargs))
 
     @dispatch(Number, str)
-    def mul(self, value, method=INTERPOLATION_METHOD):
+    def mul(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
         return Signal1(self.axis, self.values * value)
 
     @dispatch(object, str)
-    def mul(self, signal, method=INTERPOLATION_METHOD):
-        return Signal1(*self._do_bin_operation(signal, operator.mul, method))
+    def mul(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        return Signal1(*self._do_bin_operation(signal, operator.mul, method, *args, **kwargs))
 
     @dispatch(Number, str)
-    def div(self, value, method=INTERPOLATION_METHOD):
+    def div(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
         return Signal1(self.axis, self.values / value)
 
     @dispatch(object, str)
-    def div(self, signal, method=INTERPOLATION_METHOD):
-        return Signal1(*self._do_bin_operation(signal, operator.truediv, method))
+    def div(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        return Signal1(*self._do_bin_operation(signal, operator.truediv, method, *args, **kwargs))
 
     def sampling_freq(self) -> float:
         """Calculates the sampling frequency in hertz, assuming it is constant."""
@@ -617,20 +632,82 @@ class Signal1(Signal):
         Signal1.handlers[extension].export_signal1(
             filename, self, *args, **kwargs)
 
-    def psd(self) -> Signal1:
-        """Generates the PSD (Power Spectral Density) of the signal.
+    def apply_window(self, window: Signal1, center: Real,
+                     interp_method=INTERPOLATION_METHOD, *args,
+                     **kwargs) -> Signal1:
+        """Applies a window function to the signal.
+
+        For this implementation it is assumed that the window function
+        is zero outside of its given axis.
+
+        Parameters
+        ----------
+        window : Signal1
+            Window signal.
+        center : Real
+            Center point where the window is applied.
+        interp_method : string, optional
+            Method used for the interpolation, by default INTERPOLATION_METHOD
 
         Returns
         -------
         Signal1
-            Signal representing the PSD.
+            Signal after applying the window.
+        """
+        w_span = window.span()
+        copy = self.clone()
+
+        # Divides the signals into the three relevant parts
+        l_signal = copy.get(stop=center - w_span / 2)
+        c_signal = copy.get(center - w_span / 2, center + w_span / 2)
+        r_signal = copy.get(start=center + w_span / 2)
+
+        # We assume the signals are zero outside of their specified range
+        l_signal.values = np.zeros(len(l_signal))
+        r_signal.values = np.zeros(len(r_signal))
+
+        # We apply the window to the center part
+        c_signal = c_signal.mul(window.clone().shift(
+            center), interp_method, *args, **kwargs)
+
+        return l_signal.concatenate(c_signal, r_signal)
+
+    def get(self, start=None, stop=None) -> Signal1:
+        """Gets a portion of the signal.
+
+        Parameters
+        ----------
+        start : float, optional
+            Starting point, by default the first point.
+        stop : float, optional
+            Stopping point, by default the last point.
+
+        Returns
+        -------
+        Signal1
+            The cut signal.
         """
         copy = self.clone()
-        copy.values = np.conjugate(copy.values) * copy.values
+        if start is None:
+            start_index = 0
+        else:
+            start_index = bisect.bisect(copy.axis, start)
+
+        if stop is None:
+            stop_index = -1
+        else:
+            stop_index = bisect.bisect(copy.axis, stop)
+
+        copy.axis, copy.values = (copy.axis[start_index:stop_index],
+                                  copy.values[start_index:stop_index])
         return copy
 
-    def apply_window(self, window: Signal1, center: Real, interp_method=INTERPOLATION_METHOD):
-        return self.clone().mul(window.clone().shift(center), interp_method)
+    def concatenate(self, *signals) -> Signal1:
+        copy = self.clone()
+        s_axis, s_values = ((sign.axis for sign in signals),
+                            (sign.values for sign in signals))
+        return Signal1(np.concatenate((copy.axis, *s_axis)),
+                       np.concatenate((copy.values, *s_values)))
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -920,5 +997,13 @@ class Signal2(Signal):
     def ax2_span(self) -> float:
         return self.ax2[-1] - self.ax2[0]
 
-    def apply_kernel(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB):
+    def apply_kernel(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB) -> Signal2:
         return math_lib.apply_kernel(self, kernel, flip, oob)
+
+    def transpose(self) -> Signal2:
+        copy = self.clone()
+        copy.ax1, copy.ax2 = copy.ax2, copy.ax1
+        copy.values = copy.values.T
+        assert np.shape(copy.values) == (
+            len(copy.ax1), len(copy.ax2)), "Something went wrong."
+        return copy
