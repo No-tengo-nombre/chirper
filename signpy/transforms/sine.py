@@ -126,8 +126,8 @@ def s2(signal2: Signal2, method=S2_METHOD) -> Signal2:
         Signal representing the Sine transform.
     """
     output = S2_METHODS[method](signal2)
+    output.ax0 *= output.ax0_sampling_freq() / output.ax0_span()
     output.ax1 *= output.ax1_sampling_freq() / output.ax1_span()
-    output.ax2 *= output.ax2_sampling_freq() / output.ax2_span()
     return output
 
 

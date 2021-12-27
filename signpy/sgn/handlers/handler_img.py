@@ -31,8 +31,8 @@ def export_signal2(filename: str, signal2: Signal2) -> None:
     pass
 
 
-def import_signal2(filename: str, channel="mean", norm=False, sf_ax1=1,
-                   sf_ax2=1, sp_ax1=0, sp_ax2=0) -> Signal2:
+def import_signal2(filename: str, channel="mean", norm=False, sf_ax0=1,
+                   sf_ax1=1, sp_ax0=0, sp_ax1=0) -> Signal2:
     """Imports a two dimensional signal from a file.
 
     Parameters
@@ -42,9 +42,9 @@ def import_signal2(filename: str, channel="mean", norm=False, sf_ax1=1,
     channel : {"mean", "r", "g", "b", 0, 1, 2}, optional
         How to handle images with multiple channels, by default "mean",
         which means it takes the mean of every channel.
-    sf_ax1, sf_ax2 : float, optional
+    sf_ax0, sf_ax1 : float, optional
         Sampling frequency for each axis, by default 1.
-    sp_ax1, sp_ax2 : float, optional
+    sp_ax0, sp_ax1 : float, optional
         Starting point for each axis, by default 0.
 
     Returns
@@ -66,12 +66,12 @@ def import_signal2(filename: str, channel="mean", norm=False, sf_ax1=1,
     signal = cv2.imread(filename)
     values = channels[channel](signal, norm)
 
+    ax0_samp_period = 1 / sf_ax0
     ax1_samp_period = 1 / sf_ax1
-    ax2_samp_period = 1 / sf_ax2
     val_shape = np.shape(values)
-    ax1 = np.arange(val_shape[0]) * ax1_samp_period - sp_ax1
-    ax2 = np.arange(val_shape[1]) * ax2_samp_period - sp_ax2
-    return ax1, ax2, values
+    ax0 = np.arange(val_shape[0]) * ax0_samp_period - sp_ax0
+    ax1 = np.arange(val_shape[1]) * ax1_samp_period - sp_ax1
+    return ax0, ax1, values
 
 
 def _import_s2_channel(values: np.ndarray, channel: int, norm=False):

@@ -126,10 +126,10 @@ F1_METHODS = {
 def f2(signal2: Signal2, method=F2_METHOD, shift=True, scale=True) -> Signal2:
     output = F2_METHODS[method](signal2)
     if scale:
+        output.ax0 *= output.ax0_sampling_freq() / output.ax0_span()
         output.ax1 *= output.ax1_sampling_freq() / output.ax1_span()
-        output.ax2 *= output.ax2_sampling_freq() / output.ax2_span()
+        # output.ax0 = output.ax0 * output.ax0_sampling_freq() / output.ax0_span()
         # output.ax1 = output.ax1 * output.ax1_sampling_freq() / output.ax1_span()
-        # output.ax2 = output.ax2 * output.ax2_sampling_freq() / output.ax2_span()
     if shift:
         output = freq_shift2(output)
     return output
@@ -137,16 +137,16 @@ def f2(signal2: Signal2, method=F2_METHOD, shift=True, scale=True) -> Signal2:
 
 def _calculate_dft2(signal2: Signal2) -> Signal2:
     output = signal2.clone()
-    ax1_len, ax2_len = output.shape()
-    new_values = np.zeros((ax1_len, ax2_len), dtype=complex)
-    for u in tqdm(range(ax1_len), "Calculating DFT"):
-        for v in range(ax2_len):
+    ax0_len, ax1_len = output.shape()
+    new_values = np.zeros((ax0_len, ax1_len), dtype=complex)
+    for u in tqdm(range(ax0_len), "Calculating DFT"):
+        for v in range(ax1_len):
             temp = 0 + 0j
-            for n in range(ax1_len):
-                for m in range(ax2_len):
+            for n in range(ax0_len):
+                for m in range(ax1_len):
                     temp += output.values[n, m] * \
                         np.exp(-1j * 2 * np.pi *
-                               (u * n / ax1_len + v * m / ax2_len))
+                               (u * n / ax0_len + v * m / ax1_len))
             new_values[u, v] = temp
     output.values = new_values
     return output
@@ -172,9 +172,9 @@ def freq_shift2(signal2: Signal2) -> Signal2:
         Shifted signal
     """
     output = signal2.clone()
-    ax1_len, ax2_len = output.shape()
+    ax0_len, ax1_len = output.shape()
+    output.ax0 = output.ax0 - output.ax0_span() / 2
     output.ax1 = output.ax1 - output.ax1_span() / 2
-    output.ax2 = output.ax2 - output.ax2_span() / 2
     output.values = np.fft.fftshift(output.values)
     return output
 
