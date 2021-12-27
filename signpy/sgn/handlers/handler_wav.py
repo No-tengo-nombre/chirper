@@ -28,19 +28,25 @@ def export_signal1(filename: str, signal1: Signal1, samp_rate=None) -> None:
     wavfile.write(filename, samp_rate, signal1.values.astype(np.float32))
 
 
-def import_signal1(filename: str, channels_handle="mean") -> Signal1:
+def import_signal1(filename: str, amplification=1/200, channels="mean", *args, **kwargs) -> Signal1:
     """Imports a one dimensional signal from a .wav file."""
     channel_handler = {
         "mean": _mean,
+        "get": _get,
     }
     validate_filename(filename)
     sf, values = wavfile.read(filename)
     axis = np.arange(values.shape[0]) / sf
-    print(f"Axis : {axis}\nValues : {values}")
-    return axis, values / 200
+    values = channel_handler[channels](values, *args, **kwargs)
+    return axis, amplification * values
+
 
 def _mean(values: np.ndarray):
     if len(values.shape) != 1:
         return values.mean(axis=1)
     else:
         return values
+
+
+def _get(values: np.ndarray, channel=0):
+    return values[:, :, channel]
