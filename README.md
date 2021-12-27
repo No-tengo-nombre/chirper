@@ -12,6 +12,7 @@ Currently, the implemented subpackages are:
   - `hilbert`: Hilbert transform (1D).
   - `cosine`: Cosine transform (1D, 2D).
   - `sine`: Sine transform (1D, 2D).
+  - `stft`: Short-time Fourier transform (1D).
 
 ## Changing default methods
 Within the `signpy`, there is a file `config.py`. It contains the default configurations used for the code, such as the default method used to calculate a Fourier transform, or the default method for convoluting two signals.

@@ -139,6 +139,7 @@ class Signal(abc.ABC):
         return copy
 
     def abs(self) -> Signal:
+        """Takes the absolute value of the values."""
         return self.__abs__()
 
     def real_part(self) -> Signal:
@@ -160,6 +161,7 @@ class Signal(abc.ABC):
         return copy
 
     def shape(self) -> tuple:
+        """Gets the shape of this signal."""
         return np.shape(self.values)
 
 ########################################################################################################################
@@ -213,7 +215,6 @@ class Signal1(Signal):
         indices = np.intersect1d(indices1, indices2)
         return [self.values[i] for i in indices]
 
-    @dispatch(Real, str)
     def __call__(self, key, inter_method=INTERPOLATION_METHOD):
         return self.interpolate(key, inter_method)[2]
 
@@ -312,6 +313,23 @@ class Signal1(Signal):
 
     @classmethod
     def from_file(cls, filename: str, *args, **kwargs):
+        """Creates a signal from a file.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file, including its path.
+
+        Returns
+        -------
+        Signal1
+            Signal after being read.
+
+        Raises
+        ------
+        ValueError
+            [description]
+        """
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError()
@@ -340,34 +358,42 @@ class Signal1(Signal):
 
     @dispatch(Number, str)
     def add(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Adds this signal with another value."""
         return Signal1(self.axis, self.values + value)
 
     @dispatch(object, str)
     def add(self, signal, method=INTERPOLATION_METHOD):
+        """Adds this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.add, method))
 
     @dispatch(Number, str)
     def sub(self, value, method=INTERPOLATION_METHOD):
+        """Subtracts this signal with another value."""
         return Signal1(self.axis, self.values - value)
 
     @dispatch(object, str)
     def sub(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Subtracts this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.sub, method, *args, **kwargs))
 
     @dispatch(Number, str)
     def mul(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Multiplies this signal with another value."""
         return Signal1(self.axis, self.values * value)
 
     @dispatch(object, str)
     def mul(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Multiplies this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.mul, method, *args, **kwargs))
 
     @dispatch(Number, str)
     def div(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Divides this signal with another value."""
         return Signal1(self.axis, self.values / value)
 
     @dispatch(object, str)
     def div(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Divides this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.truediv, method, *args, **kwargs))
 
     def sampling_freq(self) -> float:
@@ -710,6 +736,7 @@ class Signal1(Signal):
         return copy
 
     def concatenate(self, *signals) -> Signal1:
+        """Concatenates this signal with others."""
         copy = self.clone()
         s_axis, s_values = ((sign.axis for sign in signals),
                             (sign.values for sign in signals))
@@ -999,15 +1026,43 @@ class Signal2(Signal):
         return sf if sf > 0 else 0
 
     def ax0_span(self) -> float:
+        """Gets the span of the first axis."""
         return self.ax0[-1] - self.ax0[0]
 
     def ax1_span(self) -> float:
+        """Gets the span of the second axis."""
         return self.ax1[-1] - self.ax1[0]
 
     def apply_kernel(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB) -> Signal2:
+        """Applies a kernel over the signal. This process is also known
+        as image convolution.
+
+        Parameters
+        ----------
+        kernel : np.ndarray
+            Matrix of the kernel to apply to the signal.
+        flip : bool, optional
+            Wheter to flip the kernel or not, by default False.
+        oob : str, optional
+            Specifier for how to handle values outside of the bounds of
+            the signal, by default KERNEL_OOB.
+
+        Returns
+        -------
+        Signal2
+            Signal after applying the kernel.
+        """
         return math_lib.apply_kernel(self, kernel, flip, oob)
 
     def transpose(self) -> Signal2:
+        """Transposes the signal by interchanging `ax0` and `ax1`, and
+        taking the transpose of `values`.
+
+        Returns
+        -------
+        Signal2
+            Transposed signal.
+        """
         copy = self.clone()
         copy.ax0, copy.ax1 = copy.ax1, copy.ax0
         copy.values = copy.values.T
@@ -1016,9 +1071,44 @@ class Signal2(Signal):
         return copy
 
     def contourf(self):
+        """Unpacks the signal in a way that the function `contourf`
+        within the module `matplotlib.pyplot` can easily understand.
+        If used for this purpose, should be called with * (e.g, if
+        you want to plot the signal `sign`, then you would call
+        `plt.contourf(*sign.contourf())`).
+
+        For this, it returns both axes and the values (like the
+        `unpack` method), except that the values are transposed.
+
+        Returns
+        -------
+        np.ndarray, np.ndarray, np.ndarray
+            Attributes `ax0`, `ax1` and `values` (this last one is
+            transposed).
+        """
         return self.ax0, self.ax1, self.values.T
 
     def half(self, axis=1, first=False):
+        """Gets half of the signal.
+
+        Which half to take can be specified using the `axis` and `first`
+        parameters. `axis` tells the program in which direction to make
+        the cut (axis 0 is row-wise, and axis 1 is column-wise), while
+        `first` indicates whether to take the first half or second half.
+
+        Parameters
+        ----------
+        axis : int, optional
+            Direction in which to make the cut, by default 1. `0` is
+            row-wise, `1` is column-wise.
+        first : bool, optional
+            Whether to take the first or second half, by default False.
+
+        Returns
+        -------
+        Signal2
+            Signal cut in half.
+        """
         ax_handlers = {
             0: self._half_0,
             1: self._half_1,
