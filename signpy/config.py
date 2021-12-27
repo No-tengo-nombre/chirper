@@ -6,7 +6,8 @@ Default parameters for this package.
 # |||||||||||||||||||||||||||||||||||||||||||||||# SIGNALS #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
 
-INTERPOLATION_METHOD = "sinc"
+INTERP1_METHOD = "sinc"
+INTERP2_METHOD = "bilinear"
 NOISE_TYPE = "gaussian"
 HERTZ = True
 CONVOLUTION_METHOD = "fft"

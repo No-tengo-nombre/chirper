@@ -18,8 +18,9 @@ from copy import deepcopy
 from multipledispatch import dispatch
 
 from signpy.exceptions import DimensionError
-from signpy.config import (CONVOLUTION_METHOD, INTERPOLATION_METHOD,
-                           CROSS_CORRELATION_METHOD, KERNEL_OOB)
+from signpy.config import (CONVOLUTION_METHOD, INTERP1_METHOD,
+                           INTERP2_METHOD, CROSS_CORRELATION_METHOD,
+                           KERNEL_OOB)
 from signpy import math_lib
 from .handlers import (handler_csv, handler_json, handler_wav,
                        handler_img)
@@ -215,7 +216,7 @@ class Signal1(Signal):
         indices = np.intersect1d(indices1, indices2)
         return [self.values[i] for i in indices]
 
-    def __call__(self, key, inter_method=INTERPOLATION_METHOD):
+    def __call__(self, key, inter_method=INTERP1_METHOD):
         return self.interpolate(key, inter_method)[2]
 
     def __radd__(self, num):
@@ -277,7 +278,7 @@ class Signal1(Signal):
     def __len__(self):
         return len(self.axis)
 
-    def _do_bin_operation(self, signal, operation, inter_method=INTERPOLATION_METHOD, debug=False):
+    def _do_bin_operation(self, signal, operation, inter_method=INTERP1_METHOD, debug=False):
         # Joins the axes of both signals
         axis_list = np.union1d(self.axis, signal.axis)
         # axis_list.sort()
@@ -357,42 +358,42 @@ class Signal1(Signal):
         return cls(axis, vals)
 
     @dispatch(Number, str)
-    def add(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+    def add(self, value, method=INTERP1_METHOD, *args, **kwargs):
         """Adds this signal with another value."""
         return Signal1(self.axis, self.values + value)
 
     @dispatch(object, str)
-    def add(self, signal, method=INTERPOLATION_METHOD):
+    def add(self, signal, method=INTERP1_METHOD):
         """Adds this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.add, method))
 
     @dispatch(Number, str)
-    def sub(self, value, method=INTERPOLATION_METHOD):
+    def sub(self, value, method=INTERP1_METHOD):
         """Subtracts this signal with another value."""
         return Signal1(self.axis, self.values - value)
 
     @dispatch(object, str)
-    def sub(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+    def sub(self, signal, method=INTERP1_METHOD, *args, **kwargs):
         """Subtracts this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.sub, method, *args, **kwargs))
 
     @dispatch(Number, str)
-    def mul(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+    def mul(self, value, method=INTERP1_METHOD, *args, **kwargs):
         """Multiplies this signal with another value."""
         return Signal1(self.axis, self.values * value)
 
     @dispatch(object, str)
-    def mul(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+    def mul(self, signal, method=INTERP1_METHOD, *args, **kwargs):
         """Multiplies this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.mul, method, *args, **kwargs))
 
     @dispatch(Number, str)
-    def div(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+    def div(self, value, method=INTERP1_METHOD, *args, **kwargs):
         """Divides this signal with another value."""
         return Signal1(self.axis, self.values / value)
 
     @dispatch(object, str)
-    def div(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+    def div(self, signal, method=INTERP1_METHOD, *args, **kwargs):
         """Divides this signal with another value."""
         return Signal1(*self._do_bin_operation(signal, operator.truediv, method, *args, **kwargs))
 
@@ -401,7 +402,7 @@ class Signal1(Signal):
         sf = 1 / (self.axis[1] - self.axis[0])
         return sf if sf > 0 else 0
 
-    def interpolate_list(self, elements: list, method=INTERPOLATION_METHOD):
+    def interpolate_list(self, elements: list, method=INTERP1_METHOD):
         """Interpolates the current values to obtain new ones.
 
         Parameters
@@ -409,7 +410,7 @@ class Signal1(Signal):
         elements : list
             List of elements to interpolate.
         method : {"linear", "sinc"}, optional
-            Method used for the interpolation, by default INTERPOLATION_METHOD.
+            Method used for the interpolation, by default INTERP1_METHOD.
 
         Returns
         -------
@@ -421,7 +422,7 @@ class Signal1(Signal):
             copy, _, _ = copy.interpolate(t, method)
         return copy
 
-    def interpolate(self, element, method=INTERPOLATION_METHOD):
+    def interpolate(self, element, method=INTERP1_METHOD):
         """Interpolates the current values to obtain a new value.
 
         Parameters
@@ -429,7 +430,7 @@ class Signal1(Signal):
         element : float
             Element to apply the interpolation to.
         method : {"linear", "sinc"}, optional
-            Method used for the interpolation, by default INTERPOLATION_METHOD.
+            Method used for the interpolation, by default INTERP1_METHOD.
         Returns
         -------
         copy : Signal1
@@ -666,7 +667,7 @@ class Signal1(Signal):
             filename, self, *args, **kwargs)
 
     def apply_window(self, window: Signal1, center: Real,
-                     interp_method=INTERPOLATION_METHOD, *args,
+                     interp_method=INTERP1_METHOD, *args,
                      **kwargs) -> Signal1:
         """Applies a window function to the signal.
 
@@ -680,7 +681,7 @@ class Signal1(Signal):
         center : Real
             Center point where the window is applied.
         interp_method : string, optional
-            Method used for the interpolation, by default INTERPOLATION_METHOD
+            Method used for the interpolation, by default INTERP1_METHOD
 
         Returns
         -------
@@ -816,11 +817,11 @@ class Signal2(Signal):
 
     @dispatch(Real, Real)
     def __call__(self, key_x, key_y):
-        return self.interpolate(key_x, axis=0), self.interpolate(key_y, axis=1)
+        return self.interpolate(key_x, key_y)
 
-    @dispatch(Real)
-    def __call__(self, key):
-        return self.interpolate(key)[2]
+    @dispatch(Real, Real, str)
+    def __call__(self, key_x, key_y, interp_method=INTERP2_METHOD):
+        return self.interpolate(key_x, key_y, method=interp_method)
 
     def __radd__(self, num):
         return self.__add__(num)
@@ -970,9 +971,100 @@ class Signal2(Signal):
         ax1 = np.arange(val_shape[1]) * ax1_samp_period - sp_ax1
         return cls(ax0, ax1, vals)
 
-    def interpolate(self, value, method=INTERPOLATION_METHOD):
+    @dispatch(Real, Real)
+    def interpolate(self, val0, val1):
         """Interpolates the current values to obtain a new value."""
-        pass
+        return self._interpolate(val0, val1)
+
+    @dispatch(Real, Real, str)
+    def interpolate(self, val0, val1, method=INTERP2_METHOD):
+        """Interpolates the current values to obtain a new value."""
+        return self._interpolate(val0, val1, method)
+
+    def _interpolate(self, val0, val1, method=INTERP2_METHOD):
+        methods = {
+            "bilinear": self._bilinear_interp,
+        }
+        copy = self.clone()
+
+        if val0 not in self.ax0 and val1 not in self.ax1:
+            return methods[method](val0, val1)
+        else:
+            ind0 = bisect.bisect(copy.ax0, val0) - 1
+            ind1 = bisect.bisect(copy.ax1, val1) - 1
+            return copy, (ind0, ind1), self[ind0, ind1]
+
+    def _bilinear_interp(self, val0, val1):
+        copy = self.clone()
+        new_ind0 = bisect.bisect(self.ax0, val0)
+        new_ind1 = bisect.bisect(self.ax1, val1)
+        copy.ax0 = np.insert(copy.ax0, new_ind0, val0)
+        copy.ax1 = np.insert(copy.ax1, new_ind1, val1)
+        copy.values = np.insert(
+            np.insert(copy.values, new_ind0, 0, 0), new_ind1, 0, 1)
+        val_shape = copy.values.shape
+
+        for i in range(val_shape[0]):
+            copy.values[i, new_ind1] = self._bilinear_interp_point(copy, i, new_ind1, copy.ax0[i], val1)
+
+        for j in range(new_ind1):
+            copy.values[new_ind0, j] = self._bilinear_interp_point(copy, new_ind0, j, val0, copy.ax1[j])
+        for j in range(new_ind1 + 1, val_shape[1]):
+            copy.values[new_ind0, j] = self._bilinear_interp_point(copy, new_ind0, j, val0, copy.ax1[j])
+            
+        return copy, (new_ind0, new_ind1), copy[new_ind0, new_ind1]
+
+    def _bilinear_interp_point(self, copy, new_ind0, new_ind1, val0, val1):
+        # We calculate all the required indices
+        x0_error = False
+        x1_error = False
+        y0_error = False
+        y1_error = False
+
+        try:
+            x0 = copy.ax0[new_ind0 - 1]
+        except IndexError:
+            x0_error = True
+            x0 = copy.ax0[0]
+        try:
+            y0 = copy.ax1[new_ind1 - 1]
+        except IndexError:
+            y0_error = True
+            y0 = copy.ax1[0]
+
+        try:
+            x1 = copy.ax0[new_ind0 + 1]
+        except IndexError:
+            x1_error = True
+            x1 = copy.ax0[-1]
+        try:
+            y1 = copy.ax1[new_ind1 + 1]
+        except IndexError:
+            y1_error = True
+            y1 = copy.ax1[-1]
+
+        ind0 = 1 if x0_error else new_ind0 - 1
+        ind1 = 1 if y0_error else new_ind1 - 1
+        f00 = copy.values[ind0, ind1]
+
+        ind0 = 1 if x0_error else new_ind0 - 1
+        ind1 = -2 if y1_error else new_ind1 - 1
+        f01 = copy.values[ind0, ind1]
+
+        ind0 = -2 if x1_error else new_ind0 - 1
+        ind1 = 1 if y0_error else new_ind1 - 1
+        f10 = copy.values[ind0, ind1]
+
+        ind0 = -2 if x1_error else new_ind0 - 1
+        ind1 = -2 if y1_error else new_ind1 - 1
+        f11 = copy.values[ind0, ind1]
+
+        # With them, we interpolate in the x direction
+        fx0 = f00 * (x1 - val0) / (x1 - x0) + f10 * (val0 - x0) / (x1 - x0)
+        fx1 = f01 * (x1 - val0) / (x1 - x0) + f11 * (val0 - x0) / (x1 - x0)
+
+        # Now we interpolate in the y direction
+        return fx0 * (y1 - val1) / (y1 - y0) + fx1 * (val1 - y0) / (y1 - y0)
 
     def unpack(self):
         """Unpacks the signal into three arrays. If used for its
