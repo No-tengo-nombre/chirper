@@ -817,11 +817,11 @@ class Signal2(Signal):
 
     @dispatch(Real, Real)
     def __call__(self, key_x, key_y):
-        return self.interpolate(key_x, key_y)
+        return self.interpolate(key_x, key_y)[2]
 
     @dispatch(Real, Real, str)
     def __call__(self, key_x, key_y, interp_method=INTERP2_METHOD):
-        return self.interpolate(key_x, key_y, method=interp_method)
+        return self.interpolate(key_x, key_y, method=interp_method)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
