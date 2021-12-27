@@ -170,7 +170,7 @@ class Signal1(Signal):
             don't match each other.
         """
         if len(axis) != len(values):
-            raise DimensionError("The dimensions of the values do not match.")
+            raise DimensionError("The dimensions of the values do not match.", len(values), len(axis))
         self.axis = np.array(axis)
         self.values = np.array(values)
 
@@ -771,7 +771,7 @@ class Signal2(Signal):
            0  1  2  3
         """
         if np.shape(values) != (len(ax1), len(ax2)):
-            raise DimensionError("The dimensions of the values do not match.")
+            raise DimensionError("The dimensions of the values do not match.", np.shape(values), (len(ax1), len(ax2)))
         self.ax1 = np.array(ax1)
         self.ax2 = np.array(ax2)
         self.values = np.array(values)
