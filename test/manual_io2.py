@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 from signpy import kernel
 from signpy.sgn import Signal2
+from signpy.transforms import cosine, sine, fourier
 
 
 def main(show_fig=False, export=True):
@@ -37,6 +39,25 @@ def main(show_fig=False, export=True):
     plt.colorbar(im2, ax=ax2)
     plt.colorbar(im3, ax=ax3)
     plt.colorbar(im4, ax=ax4)
+
+    signal_fourier = fourier.f2(signal)
+    # signal_cos = cosine.c2(signal)
+    # signal_sine = sine.s2(signal)
+
+    fig, ax = plt.subplots()
+    fig.suptitle("Fourier transform")
+    im = ax.imshow(abs(signal_fourier).values, cmap="gray", norm=LogNorm(0.01, 1e6))
+    fig.colorbar(im)
+
+    # fig, ax = plt.subplots()
+    # fig.suptitle("Cosine transform")
+    # plt.imshow(signal_cos.values, cmap="gray")
+    # plt.colorbar()
+
+    # fig, ax = plt.subplots()
+    # fig.suptitle("Sine transform")
+    # plt.imshow(signal_sine.values, cmap="gray")
+    # plt.colorbar()
 
     # signal = Signal2.from_freq(signal[150:250, 150:250])
     signal = Signal2.from_freq(signal[100:200, 100:200])

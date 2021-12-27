@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -15,13 +15,13 @@ def main(show_fig=False):
     sgn_line, _, _ = sgn.interpolate(2.3, "linear")
     sgn_line_values = sgn.interpolate_list(values, "linear")
     tf = datetime.now()
-    print(f"Line : {tf - t0}")
+    print(f" Line : {tf - t0}")
 
     t0 = datetime.now()
     sgn_sinc, _, _ = sgn.interpolate(2.3, "sinc")
     sgn_sinc_values = sgn.interpolate_list(values, "sinc")
     tf = datetime.now()
-    print(f"Sinc : {tf - t0}")
+    print(f" Sinc : {tf - t0}")
 
     fig, ax = plt.subplots()
     fig.suptitle("Line interpolated")

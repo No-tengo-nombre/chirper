@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from signpy.sgn import Signal1
 
+from signpy.config import INTERPOLATION_METHOD
 from signpy.sgn.defaults import IMPULSE, SIN, SQUARE, COS
 from signpy.transforms import fourier, ifourier
 
@@ -30,11 +32,13 @@ def main(show_fig=False):
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal fourier spectrum")
-    ax.plot(*abs(orig_fourier).unpack(), label="Spectrum")
+    # ax.plot(*abs(orig_fourier).unpack(), label="Spectrum")
+    ax.plot(*orig_fourier.psd().unpack(), label="Spectrum")
     ax.legend()
     ax.grid()
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("Amplitude (-)")
+    ax.set_yscale("log")
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     fig.suptitle("Original vs reconstructed signal")
@@ -48,40 +52,56 @@ def main(show_fig=False):
     ax2.set_ylabel("Amplitude (-)")
     ax2.set_xlabel("Time (s)")
 
-    ################################################################################################################
-    ################################################################################################################
-    ################################################################################################################
-
-    end_time = 3
-    sf = 4410
-    time = np.linspace(0, end_time, end_time * sf)
-
-    pulse = (
-        SQUARE(time, 2, 10)
-    )
-
-    pulse_fourier = fourier.f1(pulse)
-    pulse_inv = ifourier.if1(pulse_fourier)
-
-    fig, ax = plt.subplots()
-    fig.suptitle("Pulse fourier spectrum")
-    ax.plot(*abs(pulse_fourier).unpack(), label="Spectrum")
-    ax.legend()
-    ax.grid()
-    ax.set_xlabel("Frequency (Hz)")
-    ax.set_ylabel("Amplitude (-)")
-
-    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
-    fig.suptitle("Original vs reconstructed signal")
-    ax1.plot(*pulse.unpack(), label="Original")
-    ax2.plot(*pulse_inv.unpack(), label="Reconstructed")
+    RECTANGULAR = Signal1([-0.3, -0.26, -0.25, 0, 0.25, 0.26, 0.3], [0, 0, 1, 1, 1, 0, 0])
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
+    fig.suptitle("Original vs windowed signal")
+    ax1.plot(*triangle_built.unpack(), label="Original")
+    ax2.plot(*RECTANGULAR.unpack(), label="Window")
+    ax3.plot(*triangle_built.apply_window(RECTANGULAR, 1.5, "linear").unpack(), label="Windowed")
     ax1.legend()
     ax2.legend()
+    ax3.legend()
     ax1.grid()
     ax2.grid()
-    ax1.set_ylabel("Amplitude (-)")
+    ax3.grid()
     ax2.set_ylabel("Amplitude (-)")
-    ax2.set_xlabel("Time (s)")
+    ax3.set_xlabel("Time (s)")
+
+    ################################################################################################################
+    ################################################################################################################
+    ################################################################################################################
+
+    # end_time = 3
+    # sf = 4410
+    # time = np.linspace(0, end_time, end_time * sf)
+
+    # pulse = (
+    #     SQUARE(time, 2, 10)
+    # )
+
+    # pulse_fourier = fourier.f1(pulse)
+    # pulse_inv = ifourier.if1(pulse_fourier)
+
+    # fig, ax = plt.subplots()
+    # fig.suptitle("Pulse fourier spectrum")
+    # ax.plot(*pulse_fourier.psd().unpack(), label="Spectrum")
+    # ax.legend()
+    # ax.grid()
+    # ax.set_xlabel("Frequency (Hz)")
+    # ax.set_ylabel("Amplitude (-)")
+    # ax.set_yscale("log")
+
+    # fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+    # fig.suptitle("Original vs reconstructed signal")
+    # ax1.plot(*pulse.unpack(), label="Original")
+    # ax2.plot(*pulse_inv.unpack(), label="Reconstructed")
+    # ax1.legend()
+    # ax2.legend()
+    # ax1.grid()
+    # ax2.grid()
+    # ax1.set_ylabel("Amplitude (-)")
+    # ax2.set_ylabel("Amplitude (-)")
+    # ax2.set_xlabel("Time (s)")
 
     ################################################################################################################
     ################################################################################################################

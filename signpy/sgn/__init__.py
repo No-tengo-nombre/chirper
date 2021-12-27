@@ -12,6 +12,7 @@ import numpy as np
 import bisect
 import operator
 import abc
+from tqdm import tqdm
 from numbers import Number, Real
 from copy import deepcopy
 from multipledispatch import dispatch
@@ -125,6 +126,44 @@ class Signal(abc.ABC):
         """Makes a copy of this signal."""
         return deepcopy(self)
 
+    def psd(self) -> Signal:
+        """Generates the PSD (Power Spectral Density) of the signal.
+
+        Returns
+        -------
+        Signal
+            Signal representing the PSD.
+        """
+        copy = self.clone()
+        copy.values = (copy.values.conjugate() * copy.values).real
+        return copy
+
+    def abs(self) -> Signal:
+        """Takes the absolute value of the values."""
+        return self.__abs__()
+
+    def real_part(self) -> Signal:
+        """Takes the real part of the values."""
+        copy = self.clone()
+        copy.values = np.real(copy.values)
+        return copy
+
+    def imag_part(self) -> Signal:
+        """Takes the imaginary part of the values."""
+        copy = self.clone()
+        copy.values = np.imag(copy.values)
+        return copy
+
+    def conjugate(self) -> Signal:
+        """Takes the conjugate of the values."""
+        copy = self.clone()
+        copy.values = copy.values.conjugate()
+        return copy
+
+    def shape(self) -> tuple:
+        """Gets the shape of this signal."""
+        return np.shape(self.values)
+
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
@@ -157,7 +196,8 @@ class Signal1(Signal):
             don't match each other.
         """
         if len(axis) != len(values):
-            raise DimensionError("The dimensions of the values do not match.")
+            raise DimensionError(
+                "The dimensions of the values do not match.", len(values), len(axis))
         self.axis = np.array(axis)
         self.values = np.array(values)
 
@@ -175,9 +215,8 @@ class Signal1(Signal):
         indices = np.intersect1d(indices1, indices2)
         return [self.values[i] for i in indices]
 
-    @dispatch(Real)
-    def __call__(self, key):
-        return self.interpolate(key)[2]
+    def __call__(self, key, inter_method=INTERPOLATION_METHOD):
+        return self.interpolate(key, inter_method)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
@@ -238,16 +277,18 @@ class Signal1(Signal):
     def __len__(self):
         return len(self.axis)
 
-    def _do_bin_operation(self, signal, operation):
+    def _do_bin_operation(self, signal, operation, inter_method=INTERPOLATION_METHOD, debug=False):
         # Joins the axes of both signals
         axis_list = np.union1d(self.axis, signal.axis)
-        axis_list.sort()
+        # axis_list.sort()
 
         new_values = np.array([])
-        for t in axis_list:
+        iterable = tqdm(
+            axis_list, "Applying operation") if debug else axis_list
+        for t in iterable:
             # Interpolates the values
-            y1 = self(t)
-            y2 = signal(t)
+            y1 = self(t, inter_method)
+            y2 = signal(t, inter_method)
             # Operates using the interpolated values
             new_values = np.append(new_values, operation(y1, y2))
         return axis_list, new_values
@@ -272,10 +313,27 @@ class Signal1(Signal):
 
     @classmethod
     def from_file(cls, filename: str, *args, **kwargs):
+        """Creates a signal from a file.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file, including its path.
+
+        Returns
+        -------
+        Signal1
+            Signal after being read.
+
+        Raises
+        ------
+        ValueError
+            [description]
+        """
         extension = filename.split(".")[-1]
         if extension == filename:
             raise ValueError()
-        return cls(Signal1.handlers[extension].import_signal1(
+        return cls(*Signal1.handlers[extension].import_signal1(
             filename, *args, **kwargs
         ))
 
@@ -297,6 +355,46 @@ class Signal1(Signal):
         vals = np.array(values)
         axis = np.arange(len(values), samp_period) - sp
         return cls(axis, vals)
+
+    @dispatch(Number, str)
+    def add(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Adds this signal with another value."""
+        return Signal1(self.axis, self.values + value)
+
+    @dispatch(object, str)
+    def add(self, signal, method=INTERPOLATION_METHOD):
+        """Adds this signal with another value."""
+        return Signal1(*self._do_bin_operation(signal, operator.add, method))
+
+    @dispatch(Number, str)
+    def sub(self, value, method=INTERPOLATION_METHOD):
+        """Subtracts this signal with another value."""
+        return Signal1(self.axis, self.values - value)
+
+    @dispatch(object, str)
+    def sub(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Subtracts this signal with another value."""
+        return Signal1(*self._do_bin_operation(signal, operator.sub, method, *args, **kwargs))
+
+    @dispatch(Number, str)
+    def mul(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Multiplies this signal with another value."""
+        return Signal1(self.axis, self.values * value)
+
+    @dispatch(object, str)
+    def mul(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Multiplies this signal with another value."""
+        return Signal1(*self._do_bin_operation(signal, operator.mul, method, *args, **kwargs))
+
+    @dispatch(Number, str)
+    def div(self, value, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Divides this signal with another value."""
+        return Signal1(self.axis, self.values / value)
+
+    @dispatch(object, str)
+    def div(self, signal, method=INTERPOLATION_METHOD, *args, **kwargs):
+        """Divides this signal with another value."""
+        return Signal1(*self._do_bin_operation(signal, operator.truediv, method, *args, **kwargs))
 
     def sampling_freq(self) -> float:
         """Calculates the sampling frequency in hertz, assuming it is constant."""
@@ -404,7 +502,12 @@ class Signal1(Signal):
 
     def half(self, first=True):
         """Gets half of the signal"""
-        return self[:self.span() / 2] * 2 if first else self[self.span() / 2:] * 2
+        half_span = int(len(self) / 2)
+        if first:
+            return Signal1(self.axis[:half_span], self.values[:half_span])
+        else:
+            return Signal1(self.axis[half_span:], self.values[half_span:])
+        # return self[:int(self.span() / 2)] * 2 if first else self[int(self.span() / 2):] * 2
 
     def rect_smooth(self, factor: int) -> Signal1:
         """Directly applies a rectangular smoothing to the signal.
@@ -543,24 +646,6 @@ class Signal1(Signal):
         copy.axis += value
         return copy
 
-    def real_part(self) -> Signal1:
-        """Takes the real part of the values."""
-        copy = self.clone()
-        copy.values = np.real(copy.values)
-        return copy
-
-    def imag_part(self) -> Signal1:
-        """Takes the imaginary part of the values."""
-        copy = self.clone()
-        copy.values = np.imag(copy.values)
-        return copy
-
-    def conjugate(self) -> Signal1:
-        """Takes the conjugate of the values."""
-        copy = self.clone()
-        copy.values = copy.values.conjugate()
-        return copy
-
     def export_to_file(self, filename: str, *args, **kwargs):
         """Exports the one dimensional signal to the given file.
 
@@ -580,6 +665,84 @@ class Signal1(Signal):
         Signal1.handlers[extension].export_signal1(
             filename, self, *args, **kwargs)
 
+    def apply_window(self, window: Signal1, center: Real,
+                     interp_method=INTERPOLATION_METHOD, *args,
+                     **kwargs) -> Signal1:
+        """Applies a window function to the signal.
+
+        For this implementation it is assumed that the window function
+        is zero outside of its given axis.
+
+        Parameters
+        ----------
+        window : Signal1
+            Window signal.
+        center : Real
+            Center point where the window is applied.
+        interp_method : string, optional
+            Method used for the interpolation, by default INTERPOLATION_METHOD
+
+        Returns
+        -------
+        Signal1
+            Signal after applying the window.
+        """
+        w_span = window.span()
+        copy = self.clone()
+
+        # Divides the signals into the three relevant parts
+        l_signal = copy.get(stop=center - w_span / 2)
+        c_signal = copy.get(center - w_span / 2, center + w_span / 2)
+        r_signal = copy.get(start=center + w_span / 2)
+
+        # We assume the signals are zero outside of their specified range
+        l_signal.values = np.zeros(len(l_signal))
+        r_signal.values = np.zeros(len(r_signal))
+
+        # We apply the window to the center part
+        c_signal = c_signal.mul(window.clone().shift(
+            center), interp_method, *args, **kwargs)
+
+        return l_signal.concatenate(c_signal, r_signal)
+
+    def get(self, start=None, stop=None) -> Signal1:
+        """Gets a portion of the signal.
+
+        Parameters
+        ----------
+        start : float, optional
+            Starting point, by default the first point.
+        stop : float, optional
+            Stopping point, by default the last point.
+
+        Returns
+        -------
+        Signal1
+            The cut signal.
+        """
+        copy = self.clone()
+        if start is None:
+            start_index = 0
+        else:
+            start_index = bisect.bisect(copy.axis, start)
+
+        if stop is None:
+            stop_index = -1
+        else:
+            stop_index = bisect.bisect(copy.axis, stop)
+
+        copy.axis, copy.values = (copy.axis[start_index:stop_index],
+                                  copy.values[start_index:stop_index])
+        return copy
+
+    def concatenate(self, *signals) -> Signal1:
+        """Concatenates this signal with others."""
+        copy = self.clone()
+        s_axis, s_values = ((sign.axis for sign in signals),
+                            (sign.values for sign in signals))
+        return Signal1(np.concatenate((copy.axis, *s_axis)),
+                       np.concatenate((copy.values, *s_values)))
+
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
@@ -593,20 +756,20 @@ class Signal2(Signal):
         "png": handler_img,
     }
 
-    def __init__(self, ax1: np.ndarray, ax2: np.ndarray,
+    def __init__(self, ax0: np.ndarray, ax1: np.ndarray,
                  values: np.ndarray):
         """Creates a two dimensional signal by giving two axes and a
         matrix.
 
         Each axis corresponds to one of the dimensions, where
-        `ax1` indexes the rows of `values`, while `ax2` indexes its
+        `ax0` indexes the rows of `values`, while `ax1` indexes its
         columns.
 
         Parameters
         ----------
-        ax1 : array_like
+        ax0 : array_like
             First axis, which indexes the rows of `values`.
-        ax2 : array_like
+        ax1 : array_like
             Second axis, which indexes the columns of `values`.
         values : two-dimensional array_like
             Matrix that indicates the values of the signal for every
@@ -616,21 +779,21 @@ class Signal2(Signal):
         ------
         DimensionError
             Raises this when the shape of `values` doesn't match the
-            sizes of `ax1` and `ax2`.
+            sizes of `ax0` and `ax1`.
 
         Example
         -------
         Creating the following object
-        >>> ax1 = [1, 2, 3]
-        >>> ax2 = [2, 4, 6]
+        >>> ax0 = [1, 2, 3]
+        >>> ax1 = [2, 4, 6]
         >>> vals = [
         >>>     [1, 2, 3],
         >>>     [2, 4, 6],
         >>>     [3, 6, 9]
         >>> ]
-        >>> signal = Signal2(ax1, ax2, vals)
+        >>> signal = Signal2(ax0, ax1, vals)
         can be understood as the following plot
-          ax2
+          ax1
            |
          6 |  3  6  9
            |
@@ -638,104 +801,107 @@ class Signal2(Signal):
            |
          2 |  1  2  3
            |
-         0 |--------- ax1
+         0 |--------- ax0
            0  1  2  3
         """
-        if np.shape(values) != (len(ax1), len(ax2)):
-            raise DimensionError("The dimensions of the values do not match.")
+        if np.shape(values) != (len(ax0), len(ax1)):
+            raise DimensionError("The dimensions of the values do not match.", np.shape(
+                values), (len(ax0), len(ax1)))
+        self.ax0 = np.array(ax0)
         self.ax1 = np.array(ax1)
-        self.ax2 = np.array(ax2)
         self.values = np.array(values)
 
     def __getitem__(self, key):
         return self.values[key]
 
-    @ dispatch(Real, Real)
+    @dispatch(Real, Real)
     def __call__(self, key_x, key_y):
         return self.interpolate(key_x, axis=0), self.interpolate(key_y, axis=1)
 
-    @ dispatch(Real)
+    @dispatch(Real)
     def __call__(self, key):
         return self.interpolate(key)[2]
 
     def __radd__(self, num):
         return self.__add__(num)
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __add__(self, value):
-        return Signal2(self.ax1, self.ax2, self.values + value)
+        return Signal2(self.ax0, self.ax1, self.values + value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __add__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.add))
 
     def __rsub__(self, num):
         return num + self * -1
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __sub__(self, value):
-        return Signal2(self.ax1, self.ax2, self.values - value)
+        return Signal2(self.ax0, self.ax1, self.values - value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __sub__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.sub))
 
     def __rmul__(self, num):
         return self.__mul__(num)
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __mul__(self, value):
-        return Signal2(self.ax1, self.ax2, self.values * value)
+        return Signal2(self.ax0, self.ax1, self.values * value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __mul__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.mul))
 
     def __rtruediv__(self, num):
-        return Signal2(self.ax1, self.ax2, num / self.values)
+        return Signal2(self.ax0, self.ax1, num / self.values)
 
-    @ dispatch(Number)
+    @dispatch(Number)
     def __truediv__(self, value):
-        return Signal2(self.ax1, self.ax2, self.values / value)
+        return Signal2(self.ax0, self.ax1, self.values / value)
 
-    @ dispatch(object)
+    @dispatch(object)
     def __truediv__(self, signal):
         return Signal2(*self._do_bin_operation(signal, operator.truediv))
 
     def __eq__(self, signal):
         return (
-            np.array_equal(self.ax1, signal.ax1)
-            and np.array_equal(self.ax2, signal.ax2)
+            np.array_equal(self.ax0, signal.ax0)
+            and np.array_equal(self.ax1, signal.ax1)
             and np.array_equal(self.values, signal.values)
         )
 
     def __str__(self):
-        return f"{self.ax1}\n{self.ax2}\n{self.values}"
+        return f"{self.ax0}\n{self.ax1}\n{self.values}"
 
     def __abs__(self):
-        return Signal2(self.ax1, self.ax2, list(map(operator.abs, self.values)))
+        copy = self.clone()
+        copy.values = abs(copy.values)
+        return copy
 
     def _do_bin_operation(self, signal, operation):
         # Joins the axes of both signals
+        new_ax0 = np.union1d(self.ax0, signal.ax0)
         new_ax1 = np.union1d(self.ax1, signal.ax1)
-        new_ax2 = np.union1d(self.ax2, signal.ax2)
+        new_ax0.sort()
         new_ax1.sort()
-        new_ax2.sort()
 
-        new_values = new_ax2.copy()
-        for x in new_ax1:
+        new_values = new_ax1.copy()
+        for x in new_ax0:
             row = np.array([])
-            for y in new_ax2:
+            for y in new_ax1:
                 # Interpolates the values
                 val1 = self(x, y)
                 val2 = signal(x, y)
                 # Operates using the interpolated values
                 row = np.append(row, operation(val1, val2))
             new_values = np.vstack((new_values, row))
-        return new_ax1, new_ax2, new_values
+        return new_ax0, new_ax1, new_values
 
-    @ classmethod
-    def from_function(cls, ax1, ax2, func, *args, **kwargs):
+    @classmethod
+    def from_function(cls, ax0, ax1, func, *args, **kwargs):
         """Creates a signal from two axes and a function.
 
         The function is applied to each element in the axis, so
@@ -745,18 +911,18 @@ class Signal2(Signal):
 
         Parameters
         ----------
-        ax1 : np.ndarray
+        ax0 : np.ndarray
             First on which the function is mapped.
-        ax2 : np.ndarray
+        ax1 : np.ndarray
             Second on which the function is mapped.
         func : function
             Function to map to the axes.
         """
         values = np.array([[func(x, y, *args, **kwargs)
-                          for x in ax1] for y in ax2])
-        return cls(ax1, ax2, values)
+                          for x in ax0] for y in ax1])
+        return cls(ax0, ax1, values)
 
-    @ classmethod
+    @classmethod
     def from_file(cls, filename: str, *args, **kwargs):
         """Creates a signal from a file. If the file is an image with
         an RGB channel, using `channel` you can specify which channel
@@ -772,13 +938,13 @@ class Signal2(Signal):
             raise ValueError()
         return cls(*Signal2.handlers[extension].import_signal2(filename, *args, **kwargs))
 
-    @ classmethod
-    def from_freq(cls, values: np.ndarray, sf_ax1=1, sf_ax2=1, sp_ax1=0, sp_ax2=0):
+    @classmethod
+    def from_freq(cls, values: np.ndarray, sf_ax0=1, sf_ax1=1, sp_ax0=0, sp_ax1=0):
         """Creates a two dimensional signal by giving a values matrix
         and a frequency for each axis.
 
         Each axis corresponds to one of the dimensions, where
-        `ax1` indexes the rows of `values`, while `ax2` indexes its
+        `ax0` indexes the rows of `values`, while `ax1` indexes its
         columns.
 
         Parameters
@@ -786,23 +952,23 @@ class Signal2(Signal):
         values : two-dimensional array_like
             Matrix that indicates the values of the signal for every
             point.
-        sf_ax1 : float, optional
+        sf_ax0 : float, optional
             Sampling frequency of the first axis, by default 1.
-        sf_ax2 : float, optional
+        sf_ax1 : float, optional
             Sampling frequency of the second axis, by default 1.
-        sp_ax1 : float, optional
+        sp_ax0 : float, optional
             Starting point for the first axis, by default 0.
-        sp_ax2 : float, optional
+        sp_ax1 : float, optional
             Starting point for the second axis, by default 0.
         """
+        ax0_samp_period = 1 / sf_ax0
         ax1_samp_period = 1 / sf_ax1
-        ax2_samp_period = 1 / sf_ax2
         vals = np.array(values)
         val_shape = np.shape(values)
 
-        ax1 = np.arange(val_shape[0]) * ax1_samp_period - sp_ax1
-        ax2 = np.arange(val_shape[1]) * ax2_samp_period - sp_ax2
-        return cls(ax1, ax2, vals)
+        ax0 = np.arange(val_shape[0]) * ax0_samp_period - sp_ax0
+        ax1 = np.arange(val_shape[1]) * ax1_samp_period - sp_ax1
+        return cls(ax0, ax1, vals)
 
     def interpolate(self, value, method=INTERPOLATION_METHOD):
         """Interpolates the current values to obtain a new value."""
@@ -812,7 +978,7 @@ class Signal2(Signal):
         """Unpacks the signal into three arrays. If used for its
         intended purpose, should be unpacked with *.
         """
-        return self.ax1, self.ax2, self.values
+        return self.ax0, self.ax1, self.values
 
     def apply_function(self, func, *args, **kwargs):
         """Applies a function to the values of the signal.
@@ -845,8 +1011,12 @@ class Signal2(Signal):
         Signal2.handlers[extension].export_signal2(
             filename, self, *args, **kwargs)
 
-    def shape(self):
-        return np.shape(self.values)
+    def ax0_sampling_freq(self) -> float:
+        """Calculates the sampling frequency of `ax0` in hertz, assuming
+        it is constant.
+        """
+        sf = 1 / (self.ax0[1] - self.ax0[0])
+        return sf if sf > 0 else 0
 
     def ax1_sampling_freq(self) -> float:
         """Calculates the sampling frequency of `ax1` in hertz, assuming
@@ -855,18 +1025,116 @@ class Signal2(Signal):
         sf = 1 / (self.ax1[1] - self.ax1[0])
         return sf if sf > 0 else 0
 
-    def ax2_sampling_freq(self) -> float:
-        """Calculates the sampling frequency of `ax2` in hertz, assuming
-        it is constant.
-        """
-        sf = 1 / (self.ax2[1] - self.ax2[0])
-        return sf if sf > 0 else 0
+    def ax0_span(self) -> float:
+        """Gets the span of the first axis."""
+        return self.ax0[-1] - self.ax0[0]
 
     def ax1_span(self) -> float:
+        """Gets the span of the second axis."""
         return self.ax1[-1] - self.ax1[0]
 
-    def ax2_span(self) -> float:
-        return self.ax2[-1] - self.ax2[0]
+    def apply_kernel(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB) -> Signal2:
+        """Applies a kernel over the signal. This process is also known
+        as image convolution.
 
-    def apply_kernel(self, kernel: np.ndarray, flip=False, oob=KERNEL_OOB):
+        Parameters
+        ----------
+        kernel : np.ndarray
+            Matrix of the kernel to apply to the signal.
+        flip : bool, optional
+            Wheter to flip the kernel or not, by default False.
+        oob : str, optional
+            Specifier for how to handle values outside of the bounds of
+            the signal, by default KERNEL_OOB.
+
+        Returns
+        -------
+        Signal2
+            Signal after applying the kernel.
+        """
         return math_lib.apply_kernel(self, kernel, flip, oob)
+
+    def transpose(self) -> Signal2:
+        """Transposes the signal by interchanging `ax0` and `ax1`, and
+        taking the transpose of `values`.
+
+        Returns
+        -------
+        Signal2
+            Transposed signal.
+        """
+        copy = self.clone()
+        copy.ax0, copy.ax1 = copy.ax1, copy.ax0
+        copy.values = copy.values.T
+        assert np.shape(copy.values) == (
+            len(copy.ax0), len(copy.ax1)), "Something went wrong."
+        return copy
+
+    def contourf(self):
+        """Unpacks the signal in a way that the function `contourf`
+        within the module `matplotlib.pyplot` can easily understand.
+        If used for this purpose, should be called with * (e.g, if
+        you want to plot the signal `sign`, then you would call
+        `plt.contourf(*sign.contourf())`).
+
+        For this, it returns both axes and the values (like the
+        `unpack` method), except that the values are transposed.
+
+        Returns
+        -------
+        np.ndarray, np.ndarray, np.ndarray
+            Attributes `ax0`, `ax1` and `values` (this last one is
+            transposed).
+        """
+        return self.ax0, self.ax1, self.values.T
+
+    def half(self, axis=1, first=False):
+        """Gets half of the signal.
+
+        Which half to take can be specified using the `axis` and `first`
+        parameters. `axis` tells the program in which direction to make
+        the cut (axis 0 is row-wise, and axis 1 is column-wise), while
+        `first` indicates whether to take the first half or second half.
+
+        Parameters
+        ----------
+        axis : int, optional
+            Direction in which to make the cut, by default 1. `0` is
+            row-wise, `1` is column-wise.
+        first : bool, optional
+            Whether to take the first or second half, by default False.
+
+        Returns
+        -------
+        Signal2
+            Signal cut in half.
+        """
+        ax_handlers = {
+            0: self._half_0,
+            1: self._half_1,
+        }
+        return ax_handlers[axis](first)
+
+    def _half_0(self, first=False):
+        copy = self.clone()
+        c_shape = copy.shape()
+        half_val = int(c_shape[0] / 2)
+        if first:
+            copy.ax0 = copy.ax0[:half_val]
+            copy.values = copy.values[:half_val, :]
+        else:
+            copy.ax0 = copy.ax0[half_val:]
+            copy.values = copy.values[half_val:, :]
+        return copy
+
+    def _half_1(self, first=False):
+        copy = self.clone()
+        c_shape = copy.shape()
+        half_val = int(c_shape[1] / 2)
+        if first:
+            copy.ax1 = copy.ax1[:half_val]
+            copy.values = copy.values[:, :half_val]
+        else:
+            copy.ax1 = copy.ax1[half_val:]
+            copy.values = copy.values[:, half_val:]
+        return copy
