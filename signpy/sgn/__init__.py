@@ -1004,14 +1004,23 @@ class Signal2(Signal):
             np.insert(copy.values, new_ind0, 0, 0), new_ind1, 0, 1)
         val_shape = copy.values.shape
 
-        for i in range(val_shape[0]):
-            copy.values[i, new_ind1] = self._bilinear_interp_point(copy, i, new_ind1, copy.ax0[i], val1)
+        copy.values[new_ind0, new_ind1] = self._bilinear_interp_point(
+            copy, new_ind0, new_ind1, val0, val1)
+
+        for i in range(new_ind0):
+            copy.values[i, new_ind1] = self._interp_side_neighbors(
+                copy, i, new_ind1, copy.ax0[i], val1, axis=1)
+        for i in range(new_ind1 + 1, val_shape[0]):
+            copy.values[i, new_ind1] = self._interp_side_neighbors(
+                copy, i, new_ind1, copy.ax0[i], val1, axis=1)
 
         for j in range(new_ind1):
-            copy.values[new_ind0, j] = self._bilinear_interp_point(copy, new_ind0, j, val0, copy.ax1[j])
+            copy.values[new_ind0, j] = self._interp_side_neighbors(
+                copy, new_ind0, j, val0, copy.ax1[j], axis=0)
         for j in range(new_ind1 + 1, val_shape[1]):
-            copy.values[new_ind0, j] = self._bilinear_interp_point(copy, new_ind0, j, val0, copy.ax1[j])
-            
+            copy.values[new_ind0, j] = self._interp_side_neighbors(
+                copy, new_ind0, j, val0, copy.ax1[j], axis=0)
+
         return copy, (new_ind0, new_ind1), copy[new_ind0, new_ind1]
 
     def _bilinear_interp_point(self, copy, new_ind0, new_ind1, val0, val1):
@@ -1065,6 +1074,56 @@ class Signal2(Signal):
 
         # Now we interpolate in the y direction
         return fx0 * (y1 - val1) / (y1 - y0) + fx1 * (val1 - y0) / (y1 - y0)
+
+    def _interp_side_neighbors(self, copy, new_ind0, new_ind1, val0, val1, axis=0):
+        if axis == 0:
+            x0_error = False
+            x1_error = False
+
+            try:
+                x0 = copy.ax0[new_ind0 - 1]
+            except IndexError:
+                x0_error = True
+                x0 = copy.ax0[0]
+
+            try:
+                x1 = copy.ax0[new_ind0 + 1]
+            except IndexError:
+                x1_error = True
+                x1 = copy.ax0[-1]
+
+            ind0 = 1 if x0_error else new_ind0 - 1
+            f0 = copy.values[ind0, new_ind1]
+
+            ind0 = -2 if x1_error else new_ind0 + 1
+            f1 = copy.values[ind0, new_ind1]
+            
+            # Linearly interpolates
+            return f0 + (f1 - f0) * (val0 - x0) / (x1 - x0)
+        elif axis == 1:
+            y0_error = False
+            y1_error = False
+
+            try:
+                y0 = copy.ax1[new_ind1 - 1]
+            except IndexError:
+                y0_error = True
+                y0 = copy.ax1[0]
+
+            try:
+                y1 = copy.ax1[new_ind1 + 1]
+            except IndexError:
+                y1_error = True
+                y1 = copy.ax0[-1]
+
+            ind1 = 1 if y0_error else new_ind1 - 1
+            f0 = copy.values[new_ind0, ind1]
+
+            ind1 = -2 if y1_error else new_ind1 + 1
+            f1 = copy.values[new_ind0, ind1]
+            
+            # Linearly interpolates
+            return f0 + (f1 - f0) * (val1 - y0) / (y1 - y0)
 
     def unpack(self):
         """Unpacks the signal into three arrays. If used for its
