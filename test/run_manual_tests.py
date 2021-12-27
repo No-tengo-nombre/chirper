@@ -19,6 +19,7 @@ tests = (
     (manual_sin1, False),
     (manual_fourier1, False),
     (manual_fourier2, False),
+    (manual_spectr, False),
     (manual_modulation, False),
     (manual_am_modulation, False),
 )

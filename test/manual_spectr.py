@@ -1,22 +1,41 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 from signpy.sgn import Signal1
-from signpy.transforms import stft, fourier
+from signpy.transforms import stft
 
 
-audio = Signal1.from_file("test/audio/audio_1.wav")
-spect = stft.stft1(audio, time_interval=(0, 4), samp_time=0.05, window_method="gaussian").psd()
-spect.values = spect.values.T
+def main(show_fig=False):
+    audio = Signal1.from_file("test/audio/audio_1.wav")
+    spect = stft.stft1(audio, time_interval=(0, 5), samp_time=0.05,
+                       window_method="gaussian").half()
 
-fig, ax = plt.subplots()
-fig.suptitle("Imshow")
-plt.imshow(spect.values, aspect="auto", cmap="jet")
+    fig, ax = plt.subplots()
+    fig.suptitle("Imshow abs")
+    plt.imshow(spect.abs().values.T, aspect="auto", cmap="jet", origin="lower")
 
-fig, ax = plt.subplots()
-fig.suptitle("Contourf")
-plt.contourf(*spect.unpack(), cmap="jet")
+    fig, ax = plt.subplots()
+    fig.suptitle("Imshow PSD")
+    plt.imshow(spect.psd().values.T, aspect="auto", cmap="jet", origin="lower")
 
-# audio.export_to_file("test/outputs/test.wav")
+    fig, ax = plt.subplots()
+    fig.suptitle("Contourf abs")
+    plt.contourf(*spect.abs().contourf(), cmap="jet")
+    ax.set_ylim(0, 2500)
 
-plt.show()
+    fig, ax = plt.subplots()
+    fig.suptitle("Contourf PSD")
+    plt.contourf(*spect.psd().contourf(), cmap="jet")
+    ax.set_ylim(0, 2500)
+
+    ################################################################################################################
+    ################################################################################################################
+    ################################################################################################################
+
+    if show_fig:
+        plt.show()
+    else:
+        plt.close("all")
+
+
+if __name__ == "__main__":
+    main(True)
