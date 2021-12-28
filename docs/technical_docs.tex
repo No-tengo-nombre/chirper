@@ -1,0 +1,204 @@
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{empheq}
+\usepackage{esint}
+
+\usepackage{graphicx, caption}
+\usepackage{wrapfig}
+\usepackage[a4paper, total={6.5in, 8.5in}]{geometry}
+\usepackage{listings, chngcntr}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+\usepackage{booktabs}
+\usepackage{breqn}
+\usepackage{float}
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{siunitx}
+
+\graphicspath{ {./img/} }
+\captionsetup{width=.9\textwidth}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{purple},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\pagestyle{fancy}
+\setlength{\headheight}{15pt}
+\fancyhf{}
+\lhead{Chirper - Technical documentation}
+\cfoot{\thepage}
+
+\renewcommand{\footrulewidth}{1pt}
+\renewcommand{\figurename}{Figure}
+\renewcommand{\tablename}{Table}
+\renewcommand{\lstlistingname}{Code}
+\renewcommand{\proofname}{Proof}
+\renewcommand{\contentsname}{Table of contents}
+\renewcommand{\listfigurename}{Table of figures}
+\renewcommand{\listtablename}{Table of tables}
+\renewcommand{\lstlistlistingname}{Table of codes}
+
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{definition}{Definition}[subsection]
+\newtheorem{lemma}{Lemma}[subsection]
+\newtheorem{proposition}{Proposition}[subsection]
+
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\Tr}{\operatorname{Tr}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\counterwithin{equation}{subsection}
+\counterwithin{figure}{subsection}
+\counterwithin{table}{subsection}
+\counterwithin{lstlisting}{subsection}
+
+\pagenumbering{roman}
+\begin{titlepage}
+	\raggedleft
+
+	\rule{1pt}{\textheight}
+	\hspace{0.05\textwidth}
+	\parbox[b]{0.75\textwidth}{
+		{\Huge\bfseries Chirper\\[2\baselineskip]
+		{\large Technical documentation}}\\[\baselineskip]
+		{\Large\textsc{Cristóbal Allendes}}\\[\baselineskip] 
+		
+		\vspace{0.6\textheight}
+	}
+
+\end{titlepage}
+
+\section*{Preface}
+This document contains the technical details of the theory behind the implementation of the different tools contained in the software, such as mathematical definitions of integral transforms, or theorems that may be related to the topic.
+
+Reading this document will not necesarilly help you understand the software, and it is not a complete description of the included topics, nor does it aim to be, so if you want to go truly in depth into some topic I recommend searching the internet for better bibliography. This is just a tool for the curious user and myself, so that I can go back and remember the theory behind something I might have forgotten about.
+
+Another important point is that, throughout this document, I will be using the same notation as the one used in electrical engineering, but I will try to be specific in situations where it might prove confusing.
+
+\newpage
+\tableofcontents
+%\listoffigures
+%\listoftables
+%\lstlistoflistings
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\pagenumbering{arabic}
+\rhead{Section \nouppercase{\leftmark}}
+
+\section{Basic definitions of signals}
+We can define a signal $f(u)$ as a function
+\begin{equation}
+f(u): \mathbb{R}^d\rightarrow\mathbb{K}
+\end{equation}
+where $\mathbb{K} = \mathbb{R}$ or $\mathbb{C}$. We are often interested in the particular cases of $d = 1$ (one dimensional signals) and $d = 2$ (two dimensional signals), in which cases we will use the notation $x(t)$ and $f(x, y)$, respectively. The one dimensional case can be thought of as an audio signal, where we have a time axis and an amplitude as a function of the tiem, whereas the two dimensional case can be understood as an image.
+
+Here, we will denote $S\left (\mathbb{R}^d, \mathbb{K}\right )$ the space of $d$-dimensional signals with codomain $\mathbb{K}$ (more generally, $S\left (U, V\right )$ would correspond to the space of signals with domain $U$ and codomain $V$).
+
+However, in practice it is impossible to work with signals that have a continous domain, so we have to represent them as discrete signals. When dealing with a discrete signal we use square brackets to index the values, so an audio signal would be represented as $x[n]\in S\left (\mathbb{Z}, \mathbb{R}\right )$ while an image would be represented as $f[n, m]\in S\left (\mathbb{Z}^2, \mathbb{R}\right )$. In this software, calling a signal (i.e, saying \texttt{signal(t)}) visualizes it as a continous signal, while indexing it (i.e, saying \texttt{signal[t]}) visualizes it as a discrete signal. This way, the best of both worlds can be had depending on the situation.
+
+\subsection{Fundamental frequencies}
+For this subsection we are going to limit ourselves to discrete one dimensional signals. In general, one of the most important functions for signal processing is the sinusoid $x_f[n]$, given by
+\begin{equation}
+x_f[n] = A\cos\left (2\pi fn + \theta\right )
+\end{equation}
+
+However, limitations appear when we are working with this function in a discrete domain. Consider an arbitrary frequency $f\in\mathbb{R}$, and let $k\in\mathbb{Z}$. Then, notice that
+\begin{equation}
+x_{f + k}[n] = A\cos\left (2\pi(f + k)n + \theta\right ) = A\cos\left (2\pi fn + \theta + 2\pi k\right )
+\end{equation}
+
+Since the cosine function is $2\pi$-periodic, this allows us to see that $x_{f + k}[n] = x_f[n]$, meaning that the only important interval of frequencies is $\left (-1/2, 1/2\right ]$, since frequencies outside of this interval are equivalent to ones inside of it\footnote{You can also consider the interval $\left (0, 1\right ]$.}.
+
+\subsection{Mathematical tools useful for signals}
+\subsubsection{Inner product and norm}
+For two signals $f, g\in S\left (\mathbb{R}, \mathbb{C}\right )$ their inner product is
+\begin{equation}
+\left <f, g\right > = \int_{\mathbb{R}}f(t)g^*(t)\dd t
+\end{equation}
+where $g^*$ denotes the complex conjugate of $g$. This way, the 2-norm of a signal is
+\begin{equation}
+\left \Vert f(t)\right \Vert = \sqrt{\left <f, f\right >} = \int_{\mathbb{R}}\left |f(t)\right |^2\dd t
+\end{equation}
+
+\subsubsection{Power and energy}
+For a continous one dimensional signal $x(t)$, its energy $E$ and power $P$ are given by
+\begin{gather}
+E := \int_{\mathbb{R}}\left |x(t)\right |^2\dd t \\
+P := \lim_{T\rightarrow\infty}\frac{1}{2T}\int_{-T}^T\left |x(t)\right |^2\dd t
+\end{gather}
+
+On the other hand, for a discrete one dimensional signal $x[n]$ these are
+\begin{gather}
+E := \sum_{\mathbb{Z}}\left |x[n]\right |^2 \\
+P := \lim_{N\rightarrow\infty}\frac{1}{2N + 1}\sum_{n=-N}^N\left |x[n]\right |^2
+\end{gather}
+
+If a signal $x(t)$ or $x[n]$ is such that its energy is finite, we say $x(t)\in L^2\left (\mathbb{R}\right )$ or $x[n]\in L^2\left (\mathbb{Z}\right )$ depending on the continouity of the signal.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section{Integral transforms}
+In this section, we will define and discuss different integral transforms that can prove useful when analyzing signals.
+
+\subsection{Fourier Transform}
+Perhaps the most well known integral transform, it is defined as an operator $\mathcal{F}: S\left (\mathbb{R}^d, \mathbb{C}\right )\rightarrow S\left (\mathbb{R}^d, \mathbb{C}\right )$ given by
+\begin{equation}
+\mathcal{F}\left \{f(u)\right \} = F(\omega) = \int_{\mathbb{R}^d}f(u)e^{-j\left <\omega, u\right >}\dd u
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
