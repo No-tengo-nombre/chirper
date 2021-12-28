@@ -826,6 +826,7 @@ class Signal2(Signal):
     def __radd__(self, num):
         return self.__add__(num)
 
+    # TODO: Fix the REALLY slow speed when operating signals
     @dispatch(Number)
     def __add__(self, value):
         return Signal2(self.ax0, self.ax1, self.values + value)

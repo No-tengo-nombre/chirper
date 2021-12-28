@@ -6,6 +6,8 @@ from . import *
 
 SHOW_ALL_FIGS = False
 
+# TODO: Fix the way manual tests are implemented
+
 # All these tests are imported with the `from . import *` line
 tests = (
     (manual_interp1, False),
