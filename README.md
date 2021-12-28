@@ -3,7 +3,7 @@
 *Chirper* is a Python package used for Digital Signal Processing. It implements different tools to create, import and export signals, as well as integral transforms and different modulation methods, useful when using signals to carry information.
 
 ## How to install
-In order to install *SignPy*, simply import it from *PyPi* by running
+In order to install *Chirper*, simply import it from *PyPi* by running
 
     py -m pip install chirper-py
 
