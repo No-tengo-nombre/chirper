@@ -4,7 +4,7 @@ with open("README.md", "r") as file:
     long_description = file.read()
 
 setuptools.setup(
-    name="SignPy",
+    name="signpy",
     version="1.0",
     author="Cristobal Allendes",
     author_email="callendes.molina@gmail.com",
