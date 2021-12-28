@@ -1,0 +1,12 @@
+[build-system]
+requires = [
+    "setuptools",
+    "numpy",
+    "matplotlib",
+    "multipledispatch",
+    "typing",
+    "opencv-python",
+    "scipy",
+    "tqdm",
+    "wheel",
+]
