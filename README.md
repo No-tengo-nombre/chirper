@@ -2,6 +2,11 @@
 ## Introduction
 *SignPy* is a Python package used for Digital Signal Processing. It implements different tools to create, import and export signals, as well as integral transforms and different modulation methods, useful when using signals to carry information.
 
+## How to install
+In order to install *SignPy*, simply import it from *PyPi* by running
+
+    py -m pip install signal-py
+
 ## Contained subpackages
 Currently, the implemented subpackages are:
 - `modulation` - Contains methods used for signal modulation. Right now, it allows for AM, FM and PM.
