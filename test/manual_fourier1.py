@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from signpy.sgn import Signal1
 
-from signpy.config import INTERPOLATION_METHOD
 from signpy.sgn.defaults import IMPULSE, SIN, SQUARE, COS
 from signpy.transforms import fourier, ifourier
 

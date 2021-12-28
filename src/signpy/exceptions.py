@@ -1,6 +1,3 @@
-from numpy import exp
-
-
 class DimensionError(Exception):
     """Exception for innapropriate object dimensions."""
     def __init__(self, message, result, expected) -> None:
