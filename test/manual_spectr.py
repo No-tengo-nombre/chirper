@@ -5,13 +5,15 @@ from src.chirper.transforms import stft
 
 
 def main(show_fig=False):
-    audio = Signal1.from_file("test/audio/audio_1.wav")
-    spect = stft.stft1(audio, time_interval=(0, 5), samp_time=0.05,
+    audio = Signal1.from_file("test/audio/flute_a4.wav")
+    spect = stft.stft1(audio, time_interval=(0, 1), samp_time=0.05,
                        window_method="gaussian").half()
 
+    print(spect.imshow())
     fig, ax = plt.subplots()
     fig.suptitle("Imshow abs")
-    plt.imshow(spect.abs().values.T, aspect="auto", cmap="jet", origin="lower")
+    # plt.imshow(spect.abs().values.T, aspect="auto", cmap="jet", origin="lower", extent=())
+    plt.imshow(**spect.imshow(), aspect="auto", cmap="jet", origin="lower")
 
     fig, ax = plt.subplots()
     fig.suptitle("Imshow PSD")

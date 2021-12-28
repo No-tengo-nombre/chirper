@@ -2,10 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
 
-from chirper.config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD, KERNEL_OOB
-from chirper.exceptions import DimensionError
+from .config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD, KERNEL_OOB
+from .exceptions import DimensionError
 if TYPE_CHECKING:
-    from chirper.sgn import Signal1, Signal2
+    from .sgn import Signal1, Signal2
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -50,7 +50,7 @@ def convolution(s1_x: Signal1, s1_y: Signal1,
 
 def conv_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
     """Convolutes using the FFT."""
-    from chirper.transforms import fourier, ifourier
+    from .transforms import fourier, ifourier
     x_fourier = fourier.f1(s1_x)
     y_fourier = fourier.f1(s1_y)
     return ifourier.if1(x_fourier * y_fourier)
@@ -117,7 +117,7 @@ def cc_direct(s1_x: Signal1, s1_y: Signal1) -> Signal1:
 
 
 def cc_fft(s1_x: Signal1, s1_y: Signal1) -> Signal1:
-    from chirper.transforms import fourier, ifourier
+    from .transforms import fourier, ifourier
     x_copy = s1_x.clone()
     y_copy = s1_y.clone()
     x_fourier = fourier.f1(x_copy)

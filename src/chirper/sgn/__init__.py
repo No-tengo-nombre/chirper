@@ -17,11 +17,11 @@ from numbers import Number, Real
 from copy import deepcopy
 from multipledispatch import dispatch
 
-from chirper.exceptions import DimensionError
-from chirper.config import (CONVOLUTION_METHOD, INTERP1_METHOD,
+from ..exceptions import DimensionError
+from ..config import (CONVOLUTION_METHOD, INTERP1_METHOD,
                            INTERP2_METHOD, CROSS_CORRELATION_METHOD,
                            KERNEL_OOB)
-from chirper import math_lib
+from .. import math_lib
 from .handlers import (handler_csv, handler_json, handler_wav,
                        handler_img)
 
@@ -1238,6 +1238,12 @@ class Signal2(Signal):
             transposed).
         """
         return self.ax0, self.ax1, self.values.T
+
+    def imshow(self):
+        copy = self.clone()
+        xmin, xmax = copy.ax0[0], copy.ax0[-1]
+        ymin, ymax = copy.ax1[0], copy.ax1[-1]
+        return {"X": copy.values.T, "extent": [xmin, xmax, ymin, ymax]}
 
     def half(self, axis=1, first=False):
         """Gets half of the signal.

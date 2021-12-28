@@ -52,7 +52,6 @@ def import_signal2(filename: str, channel="mean", norm=False, sf_ax0=1,
     Signal2
         Read image.
     """
-    from .. import Signal2
     validate_filename(filename)
     channels = {
         "mean": _import_s2_mean,

@@ -1,6 +1,6 @@
 import numpy as np
 
-from chirper.sgn import Signal1
+from .sgn import Signal1
 
 
 def w_rectangular(samp_time):
