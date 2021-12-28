@@ -1224,9 +1224,11 @@ class Signal2(Signal):
     def contourf(self):
         """Unpacks the signal in a way that the function `contourf`
         within the module `matplotlib.pyplot` can easily understand.
-        If used for this purpose, should be called with * (e.g, if
-        you want to plot the signal `sign`, then you would call
-        `plt.contourf(*sign.contourf())`).
+        If used for this purpose, should be called with *. 
+        
+        For example, if you want to plot the signal `sign`, then you
+        would call
+        >>> plt.contourf(*sign.contourf())
 
         For this, it returns both axes and the values (like the
         `unpack` method), except that the values are transposed.
@@ -1240,6 +1242,21 @@ class Signal2(Signal):
         return self.ax0, self.ax1, self.values.T
 
     def imshow(self):
+        """Unpacks the signal in a way that the function `imshow` within
+        the module `matplotlib.pyplot` can easily understand, in such a
+        way that the axes are automatically reshaped to fit the real
+        axes of the signal. If used for this purpose, should be
+        called with **.
+        
+        For example, if you want to plot the signal `sign`, then
+        you would call
+        >>> plt.imshow(**sign.imshow())
+
+        Returns
+        -------
+        dict
+            Dictionary with the appropiate keywords for `plt.imshow`.
+        """
         copy = self.clone()
         xmin, xmax = copy.ax0[0], copy.ax0[-1]
         ymin, ymax = copy.ax1[0], copy.ax1[-1]
