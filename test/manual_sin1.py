@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from signpy.sgn.defaults import SIN
-from signpy.transforms import sine
+from src.chirper.sgn.defaults import SIN
+from src.chirper.transforms import sine
 
 
 def main(show_fig=False):

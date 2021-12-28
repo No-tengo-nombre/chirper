@@ -17,11 +17,11 @@ from numbers import Number, Real
 from copy import deepcopy
 from multipledispatch import dispatch
 
-from signpy.exceptions import DimensionError
-from signpy.config import (CONVOLUTION_METHOD, INTERP1_METHOD,
+from chirper.exceptions import DimensionError
+from chirper.config import (CONVOLUTION_METHOD, INTERP1_METHOD,
                            INTERP2_METHOD, CROSS_CORRELATION_METHOD,
                            KERNEL_OOB)
-from signpy import math_lib
+from chirper import math_lib
 from .handlers import (handler_csv, handler_json, handler_wav,
                        handler_img)
 

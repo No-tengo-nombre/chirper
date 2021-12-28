@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from signpy.sgn import Signal2
-from signpy.transforms import fourier, ifourier
+from src.chirper.sgn import Signal2
+from src.chirper.transforms import fourier, ifourier
 
 
 def f(x, y):

@@ -1,5 +1,5 @@
-# from signpy.transforms import Transform
-# from signpy.config import Z_METHOD
+# from chirper.transforms import Transform
+# from chirper.config import Z_METHOD
 
 # import numpy as np
 # from tqdm import tqdm

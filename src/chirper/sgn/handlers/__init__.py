@@ -9,7 +9,7 @@ Currently, there is support for the following formats:
 """
 from multipledispatch import dispatch
 
-from signpy.exceptions import InvalidFileExtension
+from chirper.exceptions import InvalidFileExtension
 
 
 @dispatch(str, str)

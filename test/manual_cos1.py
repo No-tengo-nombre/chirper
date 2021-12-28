@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from signpy.sgn.defaults import SIN, COS
-from signpy.transforms import cosine
+from src.chirper.sgn.defaults import SIN, COS
+from src.chirper.transforms import cosine
 
 
 def main(show_fig=False):

@@ -1,6 +1,6 @@
 import numpy as np
 
-from signpy.config import HERTZ, NOISE_TYPE
+from chirper.config import HERTZ, NOISE_TYPE
 from . import Signal1
 
 

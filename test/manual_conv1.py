@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from signpy.sgn import Signal1
+from src.chirper.sgn import Signal1
 
-from signpy.sgn.defaults import NOISE, SIN
-from signpy.transforms import fourier
+from src.chirper.sgn.defaults import NOISE, SIN
+from src.chirper.transforms import fourier
 
 ################################################################################################################
 ################################################################################################################

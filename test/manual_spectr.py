@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from signpy.sgn import Signal1
-from signpy.transforms import stft
+from src.chirper.sgn import Signal1
+from src.chirper.transforms import stft
 
 
 def main(show_fig=False):

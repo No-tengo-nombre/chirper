@@ -1,9 +1,9 @@
 """
 ======
-SignPy
+Chirper
 ======
 
-SignPy is a package that aims to provide different tools and functionalities for analyzing and processing
+Chirper is a package that aims to provide different tools and functionalities for analyzing and processing
 signals.
 
 Subpackages

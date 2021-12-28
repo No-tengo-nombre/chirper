@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from signpy.sgn import Signal1
+from src.chirper.sgn import Signal1
 
-from signpy.sgn.defaults import IMPULSE, SIN, SQUARE, COS
-from signpy.transforms import fourier, ifourier
+from src.chirper.sgn.defaults import IMPULSE, SIN, SQUARE, COS
+from src.chirper.transforms import fourier, ifourier
 
 ################################################################################################################
 ################################################################################################################
