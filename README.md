@@ -5,7 +5,7 @@
 ## How to install
 In order to install *SignPy*, simply import it from *PyPi* by running
 
-    py -m pip install signal-py
+    py -m pip install signpy2
 
 ## Contained subpackages
 Currently, the implemented subpackages are:
