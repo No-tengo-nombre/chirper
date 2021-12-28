@@ -4,7 +4,7 @@
 
 ## Contained subpackages
 Currently, the implemented subpackages are:
-- `modulation` - Contains methods used for signal modulation. Right now, it allows for AM and PM, but FM is in the works.
+- `modulation` - Contains methods used for signal modulation. Right now, it allows for AM, FM and PM.
 - `sgn` - Contains the code that allows the user to create signals in different ways, as well as importing and exporting them from files. As of now, both one dimensional signals (such as audio signals) and two dimensional signals (such as images) are implemented, and there are plans to implement three dimensional signals (such as videos).
 - `transforms` - Contains different integral transforms which can be applied to signals. The ones currently implemented and the signals they can be applied to are:
   - `fourier`: Fourier transform (1D, 2D).
@@ -19,7 +19,11 @@ Within the `signpy`, there is a file `config.py`. It contains the default config
 
 I want to eventually redesign this system, as it probably is very limiting. However, right now it gets the job done, so it isn't in the top of my priorities.
 
-# License
+## Relevant links
+- [Source code](https://github.com/No-tengo-nombre/signpy)
+- [PyPi package](https://pypi.org/project/signpy/)
+
+## License
 MIT License
 
 Copyright (c) 2021 Cristóbal Allendes
