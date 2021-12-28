@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from signpy.config import C1_METHOD, C2_METHOD
-from signpy.transforms import fourier
+from chirper.config import C1_METHOD, C2_METHOD
+from chirper.transforms import fourier
 if TYPE_CHECKING:
-    from signpy.sgn import Signal1, Signal2
+    from chirper.sgn import Signal1, Signal2
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #

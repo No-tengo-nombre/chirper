@@ -1,9 +1,9 @@
 import numpy as np
 from scipy import signal
 
-from signpy.sgn import Signal1
-from signpy.transforms import fourier, ifourier
-from signpy.config import H1_METHOD
+from chirper.sgn import Signal1
+from chirper.transforms import fourier, ifourier
+from chirper.config import H1_METHOD
 
 
 def _char_function(t) -> float:

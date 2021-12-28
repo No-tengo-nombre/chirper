@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from signpy import window
+from chirper import window
 from . import fourier
-from signpy.sgn import Signal1, Signal2
+from chirper.sgn import Signal1, Signal2
 
 
 def stft1(signal1: Signal1, time_interval=None,

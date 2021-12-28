@@ -1,7 +1,7 @@
-from signpy.sgn import Signal1
-from signpy.sgn.defaults import COS, SIN
-from signpy.config import AM_MODULATION, HERTZ, SSB_UPPER
-from signpy.transforms import hilbert
+from chirper.sgn import Signal1
+from chirper.sgn.defaults import COS, SIN
+from chirper.config import AM_MODULATION, HERTZ, SSB_UPPER
+from chirper.transforms import hilbert
 
 
 def am_modulation(signal1: Signal1, *args, method=AM_MODULATION, hertz=HERTZ, **kwargs) -> Signal1:

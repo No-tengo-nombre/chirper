@@ -1,11 +1,11 @@
-# SignPy
+# Chirper
 ## Introduction
-*SignPy* is a Python package used for Digital Signal Processing. It implements different tools to create, import and export signals, as well as integral transforms and different modulation methods, useful when using signals to carry information.
+*Chirper* is a Python package used for Digital Signal Processing. It implements different tools to create, import and export signals, as well as integral transforms and different modulation methods, useful when using signals to carry information.
 
 ## How to install
 In order to install *SignPy*, simply import it from *PyPi* by running
 
-    py -m pip install signpy2
+    py -m pip install chirper-py
 
 ## Contained subpackages
 Currently, the implemented subpackages are:
@@ -20,13 +20,13 @@ Currently, the implemented subpackages are:
   - `stft`: Short-time Fourier transform (1D).
 
 ## Changing default methods
-Within the `signpy`, there is a file `config.py`. It contains the default configurations used for the code, such as the default method used to calculate a Fourier transform, or the default method for convoluting two signals.
+Within the `chirper` folder, there is a file `config.py`. It contains the default configurations used for the code, such as the default method used to calculate a Fourier transform, or the default method for convoluting two signals.
 
 I want to eventually redesign this system, as it probably is very limiting. However, right now it gets the job done, so it isn't in the top of my priorities.
 
 ## Relevant links
-- [Source code](https://github.com/No-tengo-nombre/signpy)
-- [PyPi package](https://pypi.org/project/signpy/)
+- [Source code](https://github.com/No-tengo-nombre/chirper)
+- [PyPi package](https://pypi.org/project/chirper-py/)
 
 ## License
 MIT License

@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from signpy.sgn.defaults import NOISE, SIN, SQUARE, COS
-from signpy.transforms import fourier, ifourier
+from src.chirper.sgn.defaults import NOISE, SIN, SQUARE, COS
+from src.chirper.transforms import fourier, ifourier
 
 ################################################################################################################
 ################################################################################################################

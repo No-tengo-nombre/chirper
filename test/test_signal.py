@@ -1,6 +1,6 @@
 import unittest
 
-from signpy.sgn import Signal1
+from src.chirper.sgn import Signal1
 
 
 class TestSignal(unittest.TestCase):

@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from signpy.sgn import Signal2
-from signpy import kernel
+from src.chirper.sgn import Signal2
+from src.chirper import kernel
 
 
 def f(x, y):

@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
-from signpy import kernel
-from signpy.sgn import Signal2
-from signpy.transforms import cosine, sine, fourier
+from src.chirper import kernel
+from src.chirper.sgn import Signal2
+from src.chirper.transforms import cosine, sine, fourier
 
 
 def main(show_fig=False, export=True):

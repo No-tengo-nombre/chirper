@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from signpy.sgn import Signal1
-from signpy.sgn.defaults import COS, SIN
-from signpy.transforms import fourier, hilbert
+from src.chirper.sgn import Signal1
+from src.chirper.sgn.defaults import COS, SIN
+from src.chirper.transforms import fourier, hilbert
 
 ################################################################################################################
 ################################################################################################################

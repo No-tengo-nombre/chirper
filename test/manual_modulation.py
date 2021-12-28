@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from signpy.sgn.defaults import SIN
-from signpy.transforms import fourier, ifourier
-from signpy.modulation import am, fm, pm
+from src.chirper.sgn.defaults import SIN
+from src.chirper.transforms import fourier, ifourier
+from src.chirper.modulation import am, fm, pm
 
 ################################################################################################################
 ################################################################################################################
