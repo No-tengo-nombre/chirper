@@ -19,8 +19,8 @@ from multipledispatch import dispatch
 
 from ..exceptions import DimensionError
 from ..config import (CONVOLUTION_METHOD, INTERP1_METHOD,
-                           INTERP2_METHOD, CROSS_CORRELATION_METHOD,
-                           KERNEL_OOB)
+                      INTERP2_METHOD, CROSS_CORRELATION_METHOD,
+                      KERNEL_OOB)
 from .. import math_lib
 from .handlers import (handler_csv, handler_json, handler_wav,
                        handler_img)
@@ -1098,7 +1098,7 @@ class Signal2(Signal):
 
             ind0 = -2 if x1_error else new_ind0 + 1
             f1 = copy.values[ind0, new_ind1]
-            
+
             # Linearly interpolates
             return f0 + (f1 - f0) * (val0 - x0) / (x1 - x0)
         elif axis == 1:
@@ -1122,7 +1122,7 @@ class Signal2(Signal):
 
             ind1 = -2 if y1_error else new_ind1 + 1
             f1 = copy.values[new_ind0, ind1]
-            
+
             # Linearly interpolates
             return f0 + (f1 - f0) * (val1 - y0) / (y1 - y0)
 
@@ -1226,7 +1226,7 @@ class Signal2(Signal):
         """Unpacks the signal in a way that the function `contourf`
         within the module `matplotlib.pyplot` can easily understand.
         If used for this purpose, should be called with *. 
-        
+
         For example, if you want to plot the signal `sign`, then you
         would call
         >>> plt.contourf(*sign.contourf())
@@ -1248,7 +1248,7 @@ class Signal2(Signal):
         way that the axes are automatically reshaped to fit the real
         axes of the signal. If used for this purpose, should be
         called with **.
-        
+
         For example, if you want to plot the signal `sign`, then
         you would call
         >>> plt.imshow(**sign.imshow())

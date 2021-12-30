@@ -5,7 +5,8 @@ from .sgn import Signal1
 
 def w_rectangular(samp_time):
     epsilon = 0.01
-    axis = [-samp_time / 2 - epsilon, -samp_time / 2, samp_time / 2, samp_time / 2 + epsilon]
+    axis = [-samp_time / 2 - epsilon, -samp_time /
+            2, samp_time / 2, samp_time / 2 + epsilon]
     values = [0, 1, 1, 0]
     return Signal1(axis, values)
 
