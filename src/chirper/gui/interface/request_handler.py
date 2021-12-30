@@ -12,19 +12,19 @@ class RequestHandler:
     def __init__(self, api: GuiInterface) -> None:
         self.api = api
 
-    def take_request(self, request: Chirp):
+    def take_request(self, request: Chirp, **kwargs):
         request_type = request.request_type
         source = request.source
 
-        data = self.send_to_source(source)
-        signal = self.send_to_process(data, request_type)
-        return self.send_to_handler(signal, request_type)
+        data = self.send_to_source(source, **kwargs)
+        signal = self.send_to_process(data, request_type, **kwargs)
+        return self.send_to_handler(signal, request_type, **kwargs)
 
-    def send_to_source(self, source: ChirpSource):
-        return self.api.input_source.fetch(source)
+    def send_to_source(self, source: ChirpSource, **kwargs):
+        return self.api.input_source.fetch(source, **kwargs)
 
-    def send_to_process(self, data, request_type: ChirpType):
-        return self.api.data_process.process(data, request_type)
+    def send_to_process(self, data, request_type: ChirpType, **kwargs):
+        return self.api.data_process.process(data, request_type, **kwargs)
 
-    def send_to_handler(self, signal, request_type: ChirpType):
-        return self.api.data_handler.handle(signal, request_type)
+    def send_to_handler(self, signal, request_type: ChirpType, **kwargs):
+        return self.api.data_handler.handle(signal, request_type, **kwargs)
