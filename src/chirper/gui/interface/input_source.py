@@ -17,12 +17,15 @@ class InputSource:
 
     def fetch_microphone(self, blocksize=4410, **kwargs):
         output = self.source.read(blocksize)
+        self.api.blocksize = blocksize
         if output[1]:
             print("Overflow detected")
         return output[0]
 
     def start_microphone(self, samplerate=44100, channels=1, **kwargs):
         self.source = sd.InputStream(samplerate, channels)
+        self.api.samplerate = samplerate
+        self.api.channels = channels
         self.source.start()
 
     def stop_microphone(self, **kwargs):

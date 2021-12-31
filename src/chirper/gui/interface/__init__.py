@@ -82,7 +82,8 @@ class GuiInterface:
 
     def make_request(self, request_data):
         request, kwargs = self.parse_request_data(request_data)
-        return self.request_handler.take_request(request, **kwargs)
+        result = self.request_handler.take_request(request, **kwargs)
+        return result
 
     def parse_request_data(self, request_data: dict) -> Chirp:
         copy_data = deepcopy(request_data)
