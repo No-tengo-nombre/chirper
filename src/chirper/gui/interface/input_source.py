@@ -4,29 +4,26 @@ import sounddevice as sd
 
 if TYPE_CHECKING:
     from . import GuiInterface
-    from .chirp import ChirpSource
-
-
-def _get_kwarg(kwargs_dict, key, alt_val):
-    try:
-        return kwargs_dict[key]
-    except KeyError:
-        return alt_val
-
-    
-def parse_stream_data(indata, outdata, frames, time, status):
-    return time.currentTime, indata
+    from .chirp import Chirp
 
 
 class InputSource:
     def __init__(self, api: GuiInterface) -> None:
         self.api = api
+        self.source = None
 
-    def fetch(self, source: ChirpSource, **kwargs):
-        return source.get_fetched(self, **kwargs)
+    def fetch(self, request: Chirp, **kwargs):
+        return request.request_type.fetch(self, request.source, **kwargs)
 
-    def fetch_microphone(self, **kwargs):
-        samplerate = _get_kwarg(kwargs, "samplerate", 44100)
-        channels = _get_kwarg(kwargs, "channels", 1)
-        blocksize = _get_kwarg(kwargs, "blocksize", 4410)
+    def fetch_microphone(self, blocksize=4410, **kwargs):
+        output = self.source.read(blocksize)
+        if output[1]:
+            print("Overflow detected")
+        return output[0]
 
+    def start_microphone(self, samplerate=44100, channels=1, **kwargs):
+        self.source = sd.InputStream(samplerate, channels)
+        self.source.start()
+
+    def stop_microphone(self, **kwargs):
+        self.source.stop()

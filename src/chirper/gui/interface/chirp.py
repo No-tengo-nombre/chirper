@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 import abc
 
 if TYPE_CHECKING:
-    from . import GuiInterface
     from .input_source import InputSource
     from .data_process import DataProcess
     from .data_handler import DataHandler
@@ -25,16 +24,6 @@ class ChirpType(abc.ABC):
         pass
 
 
-# class ChirpDataRequest(ChirpType):
-#     @abc.abstractmethod
-#     def fetch(self, input_source: InputSource, chirp_source: ChirpSource):
-#         pass
-
-
-# class ChirpFlowControl(ChirpType):
-#     pass
-
-
 class ChirpSource(abc.ABC):
     @abc.abstractmethod
     def get_fetched(self, input_source: InputSource, **kwargs):
@@ -45,7 +34,6 @@ class ChirpSource(abc.ABC):
 class Chirp:
     """Class for a request to the package."""
 
-    def __init__(self, request_type: ChirpType, source: ChirpSource, root: GuiInterface) -> None:
+    def __init__(self, request_type: ChirpType, source: ChirpSource) -> None:
         self.request_type = request_type
         self.source = source
-        self.root = root
