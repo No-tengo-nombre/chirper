@@ -1,6 +1,6 @@
 import numpy as np
 
-from chirper.config import HERTZ, NOISE_TYPE
+from ..config import HERTZ, NOISE_TYPE
 from . import Signal1
 
 

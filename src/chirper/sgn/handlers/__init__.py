@@ -9,7 +9,7 @@ Currently, there is support for the following formats:
 """
 from multipledispatch import dispatch
 
-from chirper.exceptions import InvalidFileExtension
+from ...exceptions import InvalidFileExtension
 
 
 @dispatch(str, str)
