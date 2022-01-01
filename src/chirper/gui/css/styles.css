@@ -1,9 +1,9 @@
 QMainWindow {
-    background-color: #222233;
+    background-color: #000011;
 }
 
 QPushButton {
-    background-color: #000000;
+    background-color: #444444;
     color: #dddddd;
 }
 
@@ -11,6 +11,20 @@ QStatusBar {
     color: #dddddd;
 }
 
-QStatusBar > QLabel {
+QLabel {
+    color: #dddddd;
+}
+
+QComboBox {
+    color: #dddddd;
+    background-color: #333333;
+}
+
+QRadioButton {
+    color: #dddddd;
+}
+
+QTextEdit {
+    background-color: #000000;
     color: #dddddd;
 }

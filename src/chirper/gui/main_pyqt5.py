@@ -79,19 +79,6 @@ class ChirperApp(QtWidgets.QMainWindow):
     def menu_act(self, btn, dur=5000):
         self.statusBar().showMessage(f"Pressed {btn}", dur)
 
-    def new_act(self):
-        self.statusBar().showMessage("Pressed New", 5000)
-
-    def open_act(self):
-        self.statusBar().showMessage("Pressed Open", 5000)
-
-    def save_act(self):
-        self.statusBar().showMessage("Pressed Save", 5000)
-
-    def saveas_act(self):
-        self.statusBar().showMessage("Pressed Save As", 5000)
-
-
     def make_permanent_status_bar(self):
         status_bar_msg = f"Chirper v{chirper.__version__} - For more information, visit the <a href='https://github.com/No-tengo-nombre/chirper'>GitHub repo</a>."
         self.status_lbl = QtWidgets.QLabel(status_bar_msg)
@@ -113,8 +100,8 @@ class ChirperMainWidget(QtWidgets.QWidget):
         config_widget.start()
         data_widget.start()
 
-        self.layout.addWidget(config_widget, 2)
-        self.layout.addWidget(data_widget, 4)
+        self.layout.addWidget(config_widget)
+        self.layout.addWidget(data_widget, 2)
 
     def log_msg(self, msg):
         self.parent().log_msg(msg)
@@ -124,29 +111,69 @@ class ChirperConfigWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.layout = QtWidgets.QVBoxLayout()
+        self.layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.layout)
 
     def start(self):
-        pass
-        # btn1 = QtWidgets.QPushButton("Test button 1", self)
-        # btn1.setToolTip("This is a test button 1")
-        # btn1.clicked.connect(lambda: self.on_click("btn1 was pressed"))
+        source_options = [
+            "Microphone",
+            "Test1",
+            "Test2",
+            "Test3",
+            "Test4",
+        ]
 
-        # btn2 = QtWidgets.QPushButton("Test button 2", self)
-        # btn2.setToolTip("This is a test button 2")
-        # btn2.clicked.connect(lambda: self.on_click("btn2 was pressed"))
+        source_btns = [
+            ("On", ),
+            ("Off", ),
+        ]
 
-        # self.layout.addWidget(btn1)
-        # self.layout.addWidget(btn2)
+        types_options = [
+            "Spectrogram",
+            "Type test 1",
+            "Type test 2",
+            "Type test 3",
+            "Type test 4",
+        ]
 
-    def make_options_entry(self, msg, options):
+        self.title_entry = self.make_options_entry("<h2>Configuration</h2><hr>")
+        self.source_entry = self.make_options_entry("Source", source_options, source_btns)
+        self.types_entry = self.make_options_entry("Visualization", types_options)
+        self.console_box = self.make_console_box()
+
+        self.layout.addWidget(self.title_entry)
+        self.layout.addWidget(self.source_entry)
+        self.layout.addWidget(self.types_entry)
+        self.layout.addWidget(self.console_box)
+
+    def make_options_entry(self, msg=None, options=None, btns=None):
+        entry = QtWidgets.QWidget()
         entry_layout = QtWidgets.QHBoxLayout()
-        text_box = QtWidgets.QLabel(msg, entry_layout)
-        # options_box = QtWidgets.QMnu
+        entry_layout.setAlignment(QtCore.Qt.AlignLeft)
+        entry.setLayout(entry_layout)
 
-    @QtCore.pyqtSlot()
-    def on_click(self, msg):
-        self.parent().log_msg(msg)
+        if msg:
+            text_box = QtWidgets.QLabel(msg)
+            entry_layout.addWidget(text_box)
+
+        if options:
+            options_box = QtWidgets.QComboBox()
+            options_box.addItems(options)
+            entry_layout.addWidget(options_box)
+
+        if btns:
+            for btn, *action in btns:
+                option = QtWidgets.QRadioButton(btn)
+                if action:
+                    option.toggled.connect(*action)
+                entry_layout.addWidget(option)
+
+        return entry
+
+    def make_console_box(self):
+        console = QtWidgets.QTextEdit()
+        console.setPlaceholderText("Chirper console")
+        return console
 
 
 class ChirperDataWidget(QtWidgets.QWidget):
