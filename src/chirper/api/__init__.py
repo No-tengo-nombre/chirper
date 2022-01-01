@@ -8,7 +8,7 @@ from .data_handler import DataHandler
 from .data_process import DataProcess
 from .chirp import Chirp, ChirpType, ChirpSource
 if TYPE_CHECKING:
-    from chirper.sgn import Signal1
+    from ..sgn import Signal1
 
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||||||||| Chirp Types |||||||||||||||||||||||||||||||||||||||||||||||||||||||| #

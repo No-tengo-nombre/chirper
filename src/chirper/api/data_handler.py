@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
 
-from chirper.sgn import Signal1, Signal2
-from chirper.transforms import fourier
+from ..sgn import Signal1, Signal2
+from ..transforms import fourier
 if TYPE_CHECKING:
     from . import GuiInterface
     from .chirp import Chirp

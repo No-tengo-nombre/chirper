@@ -1,12 +1,9 @@
 import numpy as np
-from numpy.core.shape_base import block
-import sounddevice as sd
 import pyqtgraph as pg
 from PyQt5 import QtWidgets
-import time
 import sys
 
-from chirper.api import GuiInterface
+from ..api import GuiInterface
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -19,7 +16,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.r2 = self.blocksize // 2
         # self.r2 = self.blocksize
         self.values = np.zeros((1, 1))
-        # self.values = np.zeros((self.r2 - self.r1, 1))
 
         self.fig = pg.image(self.values)
         self.fig.setColorMap(pg.colormap.get("plasma"))
