@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from copy import deepcopy
 
 from .request_handler import RequestHandler
@@ -5,6 +7,8 @@ from .input_source import InputSource
 from .data_handler import DataHandler
 from .data_process import DataProcess
 from .chirp import Chirp, ChirpType, ChirpSource
+if TYPE_CHECKING:
+    from chirper.sgn import Signal1
 
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||||||||| Chirp Types |||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -15,7 +19,7 @@ class ChirpTypeSpectrogram(ChirpType):
     def get_processed(self, data_process: DataProcess, data, **kwargs):
         return data_process.process_spectrogram(data, **kwargs)
 
-    def get_handled(self, data_handler: DataHandler, signal, **kwargs):
+    def get_handled(self, data_handler: DataHandler, signal: Signal1, **kwargs):
         return data_handler.handle_spectrogram(signal, **kwargs)
 
     def fetch(self, input_source: InputSource, source: ChirpSource, **kwargs):
