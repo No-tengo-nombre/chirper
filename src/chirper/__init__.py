@@ -19,4 +19,10 @@ transforms
     processing applications.
 """
 
+from .gui import mic_test
+
 __all__ = ["sgn", "modulation", "transforms"]
+
+
+def run():
+    mic_test.main()

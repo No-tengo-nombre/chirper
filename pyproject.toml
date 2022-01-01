@@ -9,4 +9,5 @@ requires = [
     "scipy",
     "tqdm",
     "wheel",
+    "sounddevice",
 ]

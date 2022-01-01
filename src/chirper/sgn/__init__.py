@@ -19,8 +19,8 @@ from multipledispatch import dispatch
 
 from ..exceptions import DimensionError
 from ..config import (CONVOLUTION_METHOD, INTERP1_METHOD,
-                           INTERP2_METHOD, CROSS_CORRELATION_METHOD,
-                           KERNEL_OOB)
+                      INTERP2_METHOD, CROSS_CORRELATION_METHOD,
+                      KERNEL_OOB)
 from .. import math_lib
 from .handlers import (handler_csv, handler_json, handler_wav,
                        handler_img)
@@ -121,6 +121,11 @@ class Signal(abc.ABC):
         filename : str
             File to export the data to.
         """
+        pass
+
+    @abc.abstractmethod
+    def is_valid(self):
+        """Checks whether the dimensions of the signal are valid."""
         pass
 
     def clone(self):
@@ -354,7 +359,7 @@ class Signal1(Signal):
         """
         samp_period = 1 / sf
         vals = np.array(values)
-        axis = np.arange(len(values), samp_period) - sp
+        axis = samp_period * np.arange(len(vals)) - sp
         return cls(axis, vals)
 
     @dispatch(Number, str)
@@ -744,6 +749,9 @@ class Signal1(Signal):
         return Signal1(np.concatenate((copy.axis, *s_axis)),
                        np.concatenate((copy.values, *s_values)))
 
+    def is_valid(self):
+        return self.axis.shape == self.values.shape
+
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
@@ -1098,7 +1106,7 @@ class Signal2(Signal):
 
             ind0 = -2 if x1_error else new_ind0 + 1
             f1 = copy.values[ind0, new_ind1]
-            
+
             # Linearly interpolates
             return f0 + (f1 - f0) * (val0 - x0) / (x1 - x0)
         elif axis == 1:
@@ -1122,7 +1130,7 @@ class Signal2(Signal):
 
             ind1 = -2 if y1_error else new_ind1 + 1
             f1 = copy.values[new_ind0, ind1]
-            
+
             # Linearly interpolates
             return f0 + (f1 - f0) * (val1 - y0) / (y1 - y0)
 
@@ -1226,7 +1234,7 @@ class Signal2(Signal):
         """Unpacks the signal in a way that the function `contourf`
         within the module `matplotlib.pyplot` can easily understand.
         If used for this purpose, should be called with *. 
-        
+
         For example, if you want to plot the signal `sign`, then you
         would call
         >>> plt.contourf(*sign.contourf())
@@ -1248,7 +1256,7 @@ class Signal2(Signal):
         way that the axes are automatically reshaped to fit the real
         axes of the signal. If used for this purpose, should be
         called with **.
-        
+
         For example, if you want to plot the signal `sign`, then
         you would call
         >>> plt.imshow(**sign.imshow())
@@ -1312,4 +1320,39 @@ class Signal2(Signal):
         else:
             copy.ax1 = copy.ax1[half_val:]
             copy.values = copy.values[:, half_val:]
+        return copy
+
+    def is_valid(self):
+        return self.values.shape == (len(self.ax0), len(self.ax1))
+
+    def get_ax0(self, start=None, stop=None) -> Signal2:
+        copy = self.clone()
+        if start is None:
+            start_index = 0
+        else:
+            start_index = bisect.bisect(copy.ax0, start)
+
+        if stop is None:
+            stop_index = -1
+        else:
+            stop_index = bisect.bisect(copy.ax0, stop)
+
+        copy.ax0 = copy.ax0[start_index:stop_index]
+        copy.values = copy.values[start_index:stop_index, :]
+        return copy
+
+    def get_ax1(self, start=None, stop=None) -> Signal2:
+        copy = self.clone()
+        if start is None:
+            start_index = 0
+        else:
+            start_index = bisect.bisect(copy.ax1, start)
+
+        if stop is None:
+            stop_index = -1
+        else:
+            stop_index = bisect.bisect(copy.ax1, stop)
+
+        copy.ax1 = copy.ax1[start_index:stop_index]
+        copy.values = copy.values[:, start_index:stop_index]
         return copy
