@@ -14,7 +14,7 @@ class DataProcess:
         self.api = api
 
     def process(self, data, request: Chirp, **kwargs):
-        return request.get_processed(self, data, **kwargs)
+        return request.request_type.get_processed(self, data, **kwargs)
 
     def process_spectrogram(self, data, **kwargs):
         samp_freq = self.api.samplerate
