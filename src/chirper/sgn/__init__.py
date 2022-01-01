@@ -123,6 +123,11 @@ class Signal(abc.ABC):
         """
         pass
 
+    @abc.abstractmethod
+    def is_valid(self):
+        """Checks whether the dimensions of the signal are valid."""
+        pass
+
     def clone(self):
         """Makes a copy of this signal."""
         return deepcopy(self)
@@ -354,7 +359,7 @@ class Signal1(Signal):
         """
         samp_period = 1 / sf
         vals = np.array(values)
-        axis = np.arange(len(values), samp_period) - sp
+        axis = samp_period * np.arange(len(vals)) - sp
         return cls(axis, vals)
 
     @dispatch(Number, str)
@@ -743,6 +748,9 @@ class Signal1(Signal):
                             (sign.values for sign in signals))
         return Signal1(np.concatenate((copy.axis, *s_axis)),
                        np.concatenate((copy.values, *s_values)))
+
+    def is_valid(self):
+        return self.axis.shape == self.values.shape
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal2 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -1312,4 +1320,39 @@ class Signal2(Signal):
         else:
             copy.ax1 = copy.ax1[half_val:]
             copy.values = copy.values[:, half_val:]
+        return copy
+
+    def is_valid(self):
+        return self.values.shape == (len(self.ax0), len(self.ax1))
+
+    def get_ax0(self, start=None, stop=None) -> Signal2:
+        copy = self.clone()
+        if start is None:
+            start_index = 0
+        else:
+            start_index = bisect.bisect(copy.ax0, start)
+
+        if stop is None:
+            stop_index = -1
+        else:
+            stop_index = bisect.bisect(copy.ax0, stop)
+
+        copy.ax0 = copy.ax0[start_index:stop_index]
+        copy.values = copy.values[start_index:stop_index, :]
+        return copy
+
+    def get_ax1(self, start=None, stop=None) -> Signal2:
+        copy = self.clone()
+        if start is None:
+            start_index = 0
+        else:
+            start_index = bisect.bisect(copy.ax1, start)
+
+        if stop is None:
+            stop_index = -1
+        else:
+            stop_index = bisect.bisect(copy.ax1, stop)
+
+        copy.ax1 = copy.ax1[start_index:stop_index]
+        copy.values = copy.values[:, start_index:stop_index]
         return copy
