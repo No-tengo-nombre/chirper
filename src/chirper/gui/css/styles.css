@@ -1,0 +1,16 @@
+QMainWindow {
+    background-color: #222233;
+}
+
+QPushButton {
+    background-color: #000000;
+    color: #dddddd;
+}
+
+QStatusBar {
+    color: #dddddd;
+}
+
+QStatusBar > QLabel {
+    color: #dddddd;
+}
