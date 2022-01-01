@@ -7,6 +7,12 @@ In order to install *Chirper*, simply import it from *PyPi* by running
 
     py -m pip install chirper-py
 
+or clone this repository from *GitHub* and install it by running
+    
+    git clone https://github.com/No-tengo-nombre/chirper
+    cd chirper
+    pip install .
+
 ## Contained subpackages
 Currently, the implemented subpackages are:
 - `modulation` - Contains methods used for signal modulation. Right now, it allows for AM, FM and PM.
@@ -18,6 +24,7 @@ Currently, the implemented subpackages are:
   - `cosine`: Cosine transform (1D, 2D).
   - `sine`: Sine transform (1D, 2D).
   - `stft`: Short-time Fourier transform (1D).
+- `api` - This is an API that allows an user to send requests and receive data back from Chirper in a well formatted way. This is mainly used for the GUI (*not currently implemented*) that allows live signal visualization and manipulation.
 
 ## Changing default methods
 Within the `chirper` folder, there is a file `config.py`. It contains the default configurations used for the code, such as the default method used to calculate a Fourier transform, or the default method for convoluting two signals.
@@ -29,24 +36,4 @@ I want to eventually redesign this system, as it probably is very limiting. Howe
 - [PyPi package](https://pypi.org/project/chirper-py/)
 
 ## License
-MIT License
-
-Copyright (c) 2021 Cristóbal Allendes
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+This code is distributed under the GNU General Public License v3.0. For more information, read the [license](https://github.com/No-tengo-nombre/chirper/blob/main/LICENSE).
