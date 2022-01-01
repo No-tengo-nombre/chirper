@@ -20,7 +20,7 @@ class ChirpType(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def fetch(self, input_source: InputSource, chirp_source: ChirpSource):
+    def fetch(self, input_source: InputSource, chirp_source: ChirpSource, **kwargs):
         pass
 
 

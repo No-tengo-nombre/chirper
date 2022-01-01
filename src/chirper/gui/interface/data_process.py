@@ -13,10 +13,10 @@ class DataProcess:
     def __init__(self, api: GuiInterface) -> None:
         self.api = api
 
-    def process(self, data, request: Chirp):
-        return request.get_processed(self, data)
+    def process(self, data, request: Chirp, **kwargs):
+        return request.get_processed(self, data, **kwargs)
 
-    def process_spectrogram(self, data):
+    def process_spectrogram(self, data, **kwargs):
         samp_freq = self.api.samplerate
         values = data.mean(axis=1)
-        return fourier.f1(Signal1.from_freq(values, samp_freq))
+        return Signal1.from_freq(values, samp_freq)
