@@ -6,21 +6,20 @@ from PyQt5 import QtWidgets
 import time
 import sys
 
-from .interface import GuiInterface
-from chirper.transforms import fourier
+from chirper.api import GuiInterface
 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs) -> None:
         super(MainWindow, self).__init__(*args, **kwargs)
         self.gui = GuiInterface()
-        self.blocksize = 750
+        self.blocksize = 400
         # self.r1 = 0
-        self.r1 = self.blocksize // 2
+        # self.r1 = self.blocksize // 2
         # self.r2 = self.blocksize // 2
-        self.r2 = self.blocksize
-        self.values = np.zeros((self.r2 - self.r1, self.r2 - self.r1))
-
+        # self.r2 = self.blocksize
+        self.values = np.zeros((1, 1))
+        # self.values = np.zeros((self.r2 - self.r1, 1))
 
         self.fig = pg.image(self.values)
         self.fig.setColorMap(pg.colormap.get("plasma"))
@@ -36,12 +35,19 @@ class MainWindow(QtWidgets.QMainWindow):
         return self.graphWidget.image(data)
 
     def update_plot_data(self):
-        self.values = self.values[:, 1:]
+        # self.values = self.values[:, 1:]
 
-        new_col = self.send_fetch_request()
-        self.values = np.vstack((self.values.T, new_col)).T
+        # max_time = 2
 
-        self.fig.setImage(self.values.T)
+        new_values = self.send_fetch_request().abs()
+        # if new_values.ax0_span() > max_time:
+        #     end_time = new_values.ax0[-1]
+        #     new_values = new_values.get_ax0(end_time - max_time)
+
+        self.fig.setImage(new_values.values)
+        # self.values = np.vstack((self.values.T, new_col)).T
+
+        # self.fig.setImage(self.values.T)
 
     def send_start_request(self):
         self.gui.make_request({
@@ -50,15 +56,12 @@ class MainWindow(QtWidgets.QMainWindow):
         })
 
     def send_fetch_request(self):
-        data = self.gui.make_request({
+        return self.gui.make_request({
             "request_type": "spectrogram",
             "source": "microphone",
             "blocksize": self.blocksize,
-            "return_raw_data": True,
+            "max_time": 2,
         })
-        data = data.mean(axis=1) * 10
-        data = abs(np.fft.fft(data))[self.r1:self.r2]
-        return data
 
     def send_stop_request(self):
         self.gui.make_request({
