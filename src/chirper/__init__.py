@@ -1,10 +1,10 @@
 """
-======
+=======
 Chirper
-======
+=======
 
-Chirper is a package that aims to provide different tools and functionalities for analyzing and processing
-signals.
+Chirper is a package that aims to provide different tools and
+functionalities for analyzing and processing signals.
 
 Subpackages
 -----------
@@ -17,6 +17,11 @@ modulation
 transforms
     Implementation of different integral transforms utilized in signal
     processing applications.
+api
+    An API for the GUI to request data in a nicely formatted way.
+gui
+    Subpackage that contains the code for the GUI, which allows for live
+    signal visualization and manipulation.
 """
 
 import os

@@ -1,3 +1,11 @@
+"""
+=======
+GUI API
+=======
+
+This subpackage contains the basic tools to request data from Chirper
+in a way that facilitates showing data in a GUI.
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from copy import deepcopy
