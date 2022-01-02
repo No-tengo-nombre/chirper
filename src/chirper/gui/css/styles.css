@@ -28,6 +28,11 @@ QRadioButton {
     color: #dddddd;
 }
 
+QLineEdit {
+    background-color: #000000;
+    color: #dddddd;
+}
+
 ConsoleBox, InputConsoleBox {
     background-color: #000000;
     color: #dddddd;
