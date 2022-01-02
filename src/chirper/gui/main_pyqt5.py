@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 import chirper
@@ -152,8 +153,10 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         ]
 
         source_btns = [
-            ("On", lambda: self.log("Source turned ON")),
-            ("Off", lambda: self.log("Source turned OFF")),
+            # ("On", lambda: self.log("Source turned ON")),
+            # ("Off", lambda: self.log("Source turned OFF")),
+            ("On", lambda: logging.info("On")),
+            ("Off", lambda: logging.info("Off")),
         ]
 
         types_options = [
@@ -170,12 +173,21 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             "Source", source_options, source_btns)
         self.types_entry = self.make_options_entry(
             "Visualization", types_options)
-        self.console_box = self.make_console_box()
+        self.input_console_box = self.make_console_box()
+        self.output_console_box = self.make_console_box()
+
+        self.input_console_box.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+        self.input_console_box.setReadOnly(True)
+        logging.getLogger().addHandler(self.input_console_box)
+        logging.getLogger().setLevel(logging.DEBUG)
+
+        self.output_console_box.setPlaceholderText(">>> Chirper console")
 
         self.layout.addWidget(self.title_entry)
         self.layout.addWidget(self.source_entry)
         self.layout.addWidget(self.types_entry)
-        self.layout.addWidget(self.console_box)
+        self.layout.addWidget(self.input_console_box)
+        self.layout.addWidget(self.output_console_box)
 
     def make_options_entry(self, msg=None, options=None, btns=None):
         entry = QtWidgets.QWidget()
@@ -196,15 +208,15 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             for btn, *action in btns:
                 option = QtWidgets.QRadioButton(btn)
                 if action:
-                    option.toggled.connect(*action)
+                    # option.toggled.connect(*action)
+                    option.clicked.connect(*action)
                 entry_layout.addWidget(option)
 
         return entry
 
     def make_console_box(self):
-        console = QtWidgets.QTextEdit()
+        console = ConsoleBox()
         console.setFont(QtGui.QFont("Courier New"))
-        console.setPlaceholderText("Chirper console")
         return console
 
     def log(self, msg):
@@ -238,6 +250,14 @@ class ChirperDataWidget(QtWidgets.QWidget):
     def on_click(self, msg):
         self.parent().log_msg(msg)
 
+
+class ConsoleBox(QtWidgets.QTextEdit, logging.Handler):
+    def emit(self, record):
+        msg = self.format(record)
+        self.append(msg)
+
+    def append(self, text: str) -> None:
+        return super().append(f">>> {text}")
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

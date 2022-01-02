@@ -28,9 +28,10 @@ QRadioButton {
     color: #dddddd;
 }
 
-ChirperConfigWidget > QTextEdit {
+ConsoleBox {
     background-color: #000000;
     color: #dddddd;
+    font-size: 7pt;
 }
 
 ChirperApp > QMessageBox {
