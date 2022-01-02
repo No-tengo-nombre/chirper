@@ -261,15 +261,6 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             lambda: self.output_console_box.setText(""))
         self.console_config_entry.layout().addWidget(console_clear_btn)
 
-        self.log(f"""
-        request type {self.request_type}
-        source {self.source}
-        blocksize {self.blocksize}
-        samplerate {self.samplerate}
-        max time {self.max_time}
-        channels {self.channels}
-        """)
-
     def source_options_event(self, entry):
         option_index = entry.options_box.currentIndex()
         self.source = self.source_options[option_index]
