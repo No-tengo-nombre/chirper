@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import sounddevice as sd
+import logging
 
 if TYPE_CHECKING:
     from . import GuiInterface
@@ -19,7 +20,7 @@ class InputSource:
         output = self.source.read(blocksize)
         self.api.blocksize = blocksize
         if output[1]:
-            print("Overflow detected")
+            logging.info("Overflow detected")
         return output[0]
 
     def start_microphone(self, samplerate=44100, channels=1, **kwargs):
