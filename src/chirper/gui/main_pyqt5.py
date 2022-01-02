@@ -47,34 +47,49 @@ class ChirperApp(QtWidgets.QMainWindow):
         self.bar = self.menuBar()
 
         self.bar_file = self.bar.addMenu("File")
-        self.add_entry_to_menu("&New", self.bar_file, "Ctrl+N", lambda: self.menu_act("New"))
-        self.add_entry_to_menu("&Open", self.bar_file, "Ctrl+O", lambda: self.menu_act("Open"))
-        self.add_entry_to_menu("&Save", self.bar_file, "Ctrl+S", lambda: self.menu_act("Save"))
-        self.add_entry_to_menu("&Save As", self.bar_file, "Ctrl+Shift+S", lambda: self.menu_act("Save As"))
+        self.add_entry_to_menu("&New", self.bar_file,
+                               "Ctrl+N", lambda: self.menu_act("New"))
+        self.add_entry_to_menu("&Open", self.bar_file,
+                               "Ctrl+O", lambda: self.menu_act("Open"))
+        self.add_entry_to_menu("&Save", self.bar_file,
+                               "Ctrl+S", lambda: self.menu_act("Save"))
+        self.add_entry_to_menu("&Save As", self.bar_file,
+                               "Ctrl+Shift+S", lambda: self.menu_act("Save As"))
 
         self.bar_file.addSeparator()
 
         self.export_menu = self.bar_file.addMenu("Export")
-        self.add_entry_to_menu("&csv", self.export_menu, on_pressed=lambda: self.menu_act("csv"))
-        self.add_entry_to_menu("&json", self.export_menu, on_pressed=lambda: self.menu_act("json"))
-        self.add_entry_to_menu("&wav", self.export_menu, on_pressed=lambda: self.menu_act("wav"))
-        self.add_entry_to_menu("&png", self.export_menu, on_pressed=lambda: self.menu_act("png"))
+        self.add_entry_to_menu("&csv", self.export_menu,
+                               on_pressed=lambda: self.menu_act("csv"))
+        self.add_entry_to_menu("&json", self.export_menu,
+                               on_pressed=lambda: self.menu_act("json"))
+        self.add_entry_to_menu("&wav", self.export_menu,
+                               on_pressed=lambda: self.menu_act("wav"))
+        self.add_entry_to_menu("&png", self.export_menu,
+                               on_pressed=lambda: self.menu_act("png"))
 
         self.bar_file.addSeparator()
 
-        self.add_entry_to_menu("&Exit", self.bar_file, on_pressed=lambda: self.menu_act("Exit"))
+        self.add_entry_to_menu("&Exit", self.bar_file,
+                               "Ctrl+W", self.close)
 
         self.bar_edit = self.bar.addMenu("Edit")
-        self.add_entry_to_menu("&Undo", self.bar_edit, "Ctrl+Z", lambda: self.menu_act("Undo"))
-        self.add_entry_to_menu("&Redo", self.bar_edit, "Ctrl+Y", lambda: self.menu_act("Redo"))
+        self.add_entry_to_menu("&Undo", self.bar_edit,
+                               "Ctrl+Z", lambda: self.menu_act("Undo"))
+        self.add_entry_to_menu("&Redo", self.bar_edit,
+                               "Ctrl+Y", lambda: self.menu_act("Redo"))
 
         self.bar_view = self.bar.addMenu("View")
-        self.add_entry_to_menu("&Zoom", self.bar_view, on_pressed=lambda: self.menu_act("Zoom"))
-        self.add_entry_to_menu("&Fit to content", self.bar_view, on_pressed=lambda: self.menu_act("Fit to content"))
+        self.add_entry_to_menu("&Zoom", self.bar_view,
+                               on_pressed=lambda: self.menu_act("Zoom"))
+        self.add_entry_to_menu("&Fit to content", self.bar_view,
+                               on_pressed=lambda: self.menu_act("Fit to content"))
 
         self.bar_help = self.bar.addMenu("Help")
-        self.add_entry_to_menu("&README", self.bar_help, on_pressed=lambda: self.menu_act("README"))
-        self.add_entry_to_menu("&Visit webpage", self.bar_help, on_pressed=lambda: self.menu_act("Visit webpage"))
+        self.add_entry_to_menu("&README", self.bar_help,
+                               on_pressed=lambda: self.menu_act("README"))
+        self.add_entry_to_menu("&Visit webpage", self.bar_help,
+                               on_pressed=lambda: self.menu_act("Visit webpage"))
 
     def menu_act(self, btn, dur=5000):
         self.statusBar().showMessage(f"Pressed {btn}", dur)
@@ -83,6 +98,19 @@ class ChirperApp(QtWidgets.QMainWindow):
         status_bar_msg = f"Chirper v{chirper.__version__} - For more information, visit the <a href='https://github.com/No-tengo-nombre/chirper'>GitHub repo</a>."
         self.status_lbl = QtWidgets.QLabel(status_bar_msg)
         self.statusBar().addPermanentWidget(self.status_lbl)
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Quit",
+            "Are you sure you want to exit the program?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No
+        )
+        if reply == QtWidgets.QMessageBox.Yes:
+            a0.accept()
+        else:
+            a0.ignore()
 
     def log_msg(self, msg):
         print(msg)
@@ -124,8 +152,8 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         ]
 
         source_btns = [
-            ("On", ),
-            ("Off", ),
+            ("On", lambda: self.log("Source turned ON")),
+            ("Off", lambda: self.log("Source turned OFF")),
         ]
 
         types_options = [
@@ -136,9 +164,12 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             "Type test 4",
         ]
 
-        self.title_entry = self.make_options_entry("<h2>Configuration</h2><hr>")
-        self.source_entry = self.make_options_entry("Source", source_options, source_btns)
-        self.types_entry = self.make_options_entry("Visualization", types_options)
+        self.title_entry = self.make_options_entry(
+            "<h2>Configuration</h2><hr>")
+        self.source_entry = self.make_options_entry(
+            "Source", source_options, source_btns)
+        self.types_entry = self.make_options_entry(
+            "Visualization", types_options)
         self.console_box = self.make_console_box()
 
         self.layout.addWidget(self.title_entry)
@@ -172,8 +203,12 @@ class ChirperConfigWidget(QtWidgets.QWidget):
 
     def make_console_box(self):
         console = QtWidgets.QTextEdit()
+        console.setFont(QtGui.QFont("Courier New"))
         console.setPlaceholderText("Chirper console")
         return console
+
+    def log(self, msg):
+        self.console_box.append(msg)
 
 
 class ChirperDataWidget(QtWidgets.QWidget):
