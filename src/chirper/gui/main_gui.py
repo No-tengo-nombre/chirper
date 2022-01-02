@@ -39,7 +39,7 @@ class ChirperApp(QtWidgets.QMainWindow):
     def init_ui(self) -> None:
         """Initializes the main window."""
         self.set_stylesheet(os.path.join(
-            chirper.BASE_DIRNAME, "gui/css/styles.css"))
+            chirper.BASE_DIRNAME, "gui", "styles.css"))
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.make_menu_bar()
