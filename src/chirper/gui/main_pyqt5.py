@@ -1,9 +1,12 @@
 import sys
 import os
 import logging
+import pyqtgraph as pg
+import numpy as np
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 import chirper
+from ..api import GuiInterface
 
 
 class ChirperApp(QtWidgets.QMainWindow):
@@ -127,10 +130,10 @@ class ChirperMainWidget(QtWidgets.QWidget):
         config_widget = ChirperConfigWidget(self)
         data_widget = ChirperDataWidget(self)
         config_widget.start()
-        data_widget.start()
+        # data_widget.start()
 
         self.layout.addWidget(config_widget)
-        self.layout.addWidget(data_widget, 2)
+        self.layout.addWidget(data_widget.fig, 2)
 
     def log_msg(self, msg):
         self.parent().log_msg(msg)
@@ -153,10 +156,8 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         ]
 
         source_btns = [
-            # ("On", lambda: self.log("Source turned ON")),
-            # ("Off", lambda: self.log("Source turned OFF")),
-            ("On", lambda: logging.info("On")),
-            ("Off", lambda: logging.info("Off")),
+            ("On", lambda: logging.info("Source turned ON")),
+            ("Off", lambda: logging.info("Source turned OFF")),
         ]
 
         types_options = [
@@ -167,50 +168,89 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             "Type test 4",
         ]
 
+        console_options = [
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL",
+        ]
+
         self.title_entry = self.make_options_entry(
-            "<h2>Configuration</h2><hr>")
+            "<h2>Configuration</h2><hr>"
+        )
         self.source_entry = self.make_options_entry(
-            "Source", source_options, source_btns)
+            "Source", source_options, source_btns
+        )
         self.types_entry = self.make_options_entry(
-            "Visualization", types_options)
-        self.input_console_box = self.make_console_box()
+            "Visualization", types_options
+        )
+        self.console_config_entry = self.make_options_entry(
+            "Console level",
+            console_options,
+            combo_event=lambda: self.console_options_event(self.console_config_entry),
+            current_index=2,
+        )
+
         self.output_console_box = self.make_console_box()
+        self.input_console_box = self.make_input_console_box()
 
-        self.input_console_box.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
-        self.input_console_box.setReadOnly(True)
-        logging.getLogger().addHandler(self.input_console_box)
-        logging.getLogger().setLevel(logging.DEBUG)
+        self.output_console_box.setFormatter(
+            logging.Formatter("%(levelname)s - %(message)s"))
+        self.output_console_box.setReadOnly(True)
+        logging.getLogger().addHandler(self.output_console_box)
 
-        self.output_console_box.setPlaceholderText(">>> Chirper console")
+        self.input_console_box.setPlaceholderText("Chirper console")
+
+        console_clear_btn = QtWidgets.QPushButton("Clear console")
+        console_clear_btn.clicked.connect(lambda: self.output_console_box.setText(""))
+        self.console_config_entry.layout().addWidget(console_clear_btn)
 
         self.layout.addWidget(self.title_entry)
         self.layout.addWidget(self.source_entry)
         self.layout.addWidget(self.types_entry)
-        self.layout.addWidget(self.input_console_box)
+        self.layout.addWidget(self.console_config_entry)
         self.layout.addWidget(self.output_console_box)
+        self.layout.addWidget(self.input_console_box)
 
-    def make_options_entry(self, msg=None, options=None, btns=None):
+    def console_options_event(self, entry):
+        options = [
+            logging.DEBUG,
+            logging.INFO,
+            logging.WARNING,
+            logging.ERROR,
+            logging.CRITICAL,
+        ]
+        option_index = entry.options_box.currentIndex()
+        logging.getLogger().setLevel(options[option_index])
+
+    def make_options_entry(self, msg=None, options=None, btns=None, combo_event=None, current_index=None):
         entry = QtWidgets.QWidget()
         entry_layout = QtWidgets.QHBoxLayout()
         entry_layout.setAlignment(QtCore.Qt.AlignLeft)
         entry.setLayout(entry_layout)
 
         if msg:
-            text_box = QtWidgets.QLabel(msg)
-            entry_layout.addWidget(text_box)
+            entry.text_box = QtWidgets.QLabel(msg)
+            entry_layout.addWidget(entry.text_box)
 
         if options:
-            options_box = QtWidgets.QComboBox()
-            options_box.addItems(options)
-            entry_layout.addWidget(options_box)
+            entry.options_box = QtWidgets.QComboBox()
+            entry.options_box.addItems(options)
+            if current_index:
+                entry.options_box.setCurrentIndex(current_index)
+            if combo_event:
+                entry.options_box.activated.connect(combo_event)
+            entry_layout.addWidget(entry.options_box)
 
         if btns:
+            entry.btns = []
             for btn, *action in btns:
                 option = QtWidgets.QRadioButton(btn)
                 if action:
-                    # option.toggled.connect(*action)
                     option.clicked.connect(*action)
                 entry_layout.addWidget(option)
+                entry.btns.append(option)
 
         return entry
 
@@ -219,36 +259,83 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         console.setFont(QtGui.QFont("Courier New"))
         return console
 
+    def make_input_console_box(self):
+        console = InputConsoleBox()
+        console.setFont(QtGui.QFont("Courier New"))
+        return console
+
     def log(self, msg):
         self.console_box.append(msg)
 
 
+# class ChirperDataWidget(QtWidgets.QWidget):
+#     def __init__(self, *args, **kwargs) -> None:
+#         super().__init__(*args, **kwargs)
+#         self.layout = QtWidgets.QVBoxLayout()
+#         self.setLayout(self.layout)
+
+#     def start(self):
+#         btn1 = QtWidgets.QPushButton("Test button 1", self)
+#         btn1.setToolTip("This is a test button 1")
+#         btn1.clicked.connect(lambda: self.on_click("btn1 was pressed"))
+
+#         btn2 = QtWidgets.QPushButton("Test button 2", self)
+#         btn2.setToolTip("This is a test button 2")
+#         btn2.clicked.connect(lambda: self.on_click("btn2 was pressed"))
+
+#         btn3 = QtWidgets.QPushButton("Test button 3", self)
+#         btn3.setToolTip("This is a test button 3")
+#         btn3.clicked.connect(lambda: self.on_click("btn3 was pressed"))
+
+#         self.layout.addWidget(btn1)
+#         self.layout.addWidget(btn2)
+#         self.layout.addWidget(btn3)
+
+#     @QtCore.pyqtSlot()
+#     def on_click(self, msg):
+#         self.parent().log_msg(msg)
+
+
 class ChirperDataWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.layout)
+        super(QtWidgets.QWidget, self).__init__(*args, **kwargs)
+        self.gui = GuiInterface()
+        self.blocksize = 400
+        self.values = np.zeros((1, 1))
 
-    def start(self):
-        btn1 = QtWidgets.QPushButton("Test button 1", self)
-        btn1.setToolTip("This is a test button 1")
-        btn1.clicked.connect(lambda: self.on_click("btn1 was pressed"))
+        self.fig = pg.image(self.values)
+        self.fig.setColorMap(pg.colormap.get("plasma"))
 
-        btn2 = QtWidgets.QPushButton("Test button 2", self)
-        btn2.setToolTip("This is a test button 2")
-        btn2.clicked.connect(lambda: self.on_click("btn2 was pressed"))
+        self.send_start_request()
 
-        btn3 = QtWidgets.QPushButton("Test button 3", self)
-        btn3.setToolTip("This is a test button 3")
-        btn3.clicked.connect(lambda: self.on_click("btn3 was pressed"))
+        self.timer = pg.Qt.QtCore.QTimer()
+        self.timer.setInterval(10)
+        self.timer.timeout.connect(self.update_plot_data)
+        self.timer.start()
 
-        self.layout.addWidget(btn1)
-        self.layout.addWidget(btn2)
-        self.layout.addWidget(btn3)
+    def update_plot_data(self):
+        new_values = self.send_fetch_request().abs()
+        self.fig.setImage(new_values.values)
 
-    @QtCore.pyqtSlot()
-    def on_click(self, msg):
-        self.parent().log_msg(msg)
+    def send_start_request(self):
+        self.gui.make_request({
+            "request_type": "start",
+            "source": "microphone",
+        })
+
+    def send_fetch_request(self):
+        return self.gui.make_request({
+            "request_type": "spectrogram",
+            "source": "microphone",
+            "blocksize": self.blocksize,
+            "max_time": 2,
+        })
+
+    def send_stop_request(self):
+        self.gui.make_request({
+            "request_type": "stop",
+            "source": "microphone",
+        })
 
 
 class ConsoleBox(QtWidgets.QTextEdit, logging.Handler):
@@ -258,6 +345,11 @@ class ConsoleBox(QtWidgets.QTextEdit, logging.Handler):
 
     def append(self, text: str) -> None:
         return super().append(f">>> {text}")
+
+
+class InputConsoleBox(QtWidgets.QLineEdit):
+    pass
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

@@ -28,7 +28,7 @@ QRadioButton {
     color: #dddddd;
 }
 
-ConsoleBox {
+ConsoleBox, InputConsoleBox {
     background-color: #000000;
     color: #dddddd;
     font-size: 7pt;
