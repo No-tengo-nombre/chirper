@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import logging
 import numpy as np
 
 from ..sgn import Signal1, Signal2
@@ -60,3 +61,7 @@ class DataHandler:
 
         assert self.values.is_valid(), "Something went wrong"
         return self.values.abs()
+
+    def clear_data(self, signal: Signal1, **kwargs):
+        logging.info("Clearing data in data handler")
+        self.values = None
