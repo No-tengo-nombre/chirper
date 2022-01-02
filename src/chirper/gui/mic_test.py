@@ -35,7 +35,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # max_time = 2
 
-        new_values = self.send_fetch_request().abs()
+        new_values = self.send_fetch_request()
         # if new_values.ax0_span() > max_time:
         #     end_time = new_values.ax0[-1]
         #     new_values = new_values.get_ax0(end_time - max_time)
