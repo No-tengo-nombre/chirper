@@ -43,7 +43,7 @@ class DataHandler:
             fourier_signal.values[:, None].T,
         )
         assert self.values.is_valid(), "Something went wrong"
-        return self.values
+        return self.values.abs()
 
     def _handle_spectrogram_notempty(self, fourier_signal, max_time, **kwargs):
         self.values.ax0 = np.append(
@@ -59,4 +59,4 @@ class DataHandler:
             self.values = self.values.get_ax0(end_time - max_time)
 
         assert self.values.is_valid(), "Something went wrong"
-        return self.values
+        return self.values.abs()
