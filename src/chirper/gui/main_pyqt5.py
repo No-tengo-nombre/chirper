@@ -3,13 +3,14 @@ import os
 import logging
 import pyqtgraph as pg
 import numpy as np
+from multipledispatch import dispatch
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 import chirper
 from ..api import GuiInterface
 
 ########################################################################################################################
-# |||||||||||||||||||||||||||||||||||||||||||| Main GUI definitions |||||||||||||||||||||||||||||||||||||||||||||||||| #
+# ||||||||||||||||||||||||||||||||||||||||||||||| Main container ||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
 
 
@@ -124,6 +125,11 @@ class ChirperApp(QtWidgets.QMainWindow):
         logging.info(msg)
 
 
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||| Main widget for the window |||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
+
+
 class ChirperMainWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -143,6 +149,10 @@ class ChirperMainWidget(QtWidgets.QWidget):
 
     def log_msg(self, msg):
         self.parent().log_msg(msg)
+
+########################################################################################################################
+# |||||||||||||||||||||||||||||||||||||||||||| Configuration column |||||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
 
 
 class ChirperConfigWidget(QtWidgets.QWidget):
@@ -433,6 +443,10 @@ class ChirperConfigWidget(QtWidgets.QWidget):
 
     def log(self, msg):
         self.output_console_box.append(msg)
+    
+########################################################################################################################
+# ||||||||||||||||||||||||||||||||||||||||| Data visualization column |||||||||||||||||||||||||||||||||||||||||||||||| #
+########################################################################################################################
 
 
 class ChirperDataWidget(QtWidgets.QWidget):
@@ -443,9 +457,7 @@ class ChirperDataWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.start(*args, **kwargs)
 
-    # def start(self, blocksize=500, cmap=None, *args, **kwargs):
     def start(self, *args, cmap=None, **kwargs):
-        # self.blocksize = blocksize
         self.start_request = {
             "request_type": "start",
         }
@@ -458,14 +470,22 @@ class ChirperDataWidget(QtWidgets.QWidget):
         self.fig = pg.image(self.empty_values)
 
         if cmap is not None:
-            self.fig.setColorMap(pg.colormap.get(cmap))
+            self.set_cmap(cmap)
         else:
-            self.fig.setColorMap(pg.colormap.get("plasma"))
+            self.set_cmap("plasma")
 
         self.layout.addWidget(self.fig)
 
     def clear_image(self):
+        self.send_request({
+            "request_type": "clear",
+            "source": self.source,
+        })
         self.fig.clear()
+
+    @dispatch(str)
+    def set_cmap(self, cmap: str):
+        self.fig.setColorMap(pg.colormap.get(cmap))
 
     def set_source(self, source):
         self.source = source
