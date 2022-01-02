@@ -19,10 +19,17 @@ transforms
     processing applications.
 """
 
-from .gui import mic_test
+import os
+from importlib.metadata import version
+
+from .gui import main_gui
+
 
 __all__ = ["sgn", "modulation", "transforms"]
+__version__ = version("chirper-py")
+
+BASE_DIRNAME = os.path.dirname(__file__)
 
 
 def run():
-    mic_test.main()
+    main_gui.main()

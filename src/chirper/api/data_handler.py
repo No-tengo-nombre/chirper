@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import logging
 import numpy as np
 
 from ..sgn import Signal1, Signal2
@@ -43,7 +44,8 @@ class DataHandler:
             fourier_signal.values[:, None].T,
         )
         assert self.values.is_valid(), "Something went wrong"
-        return self.values
+        self.permanent_values = self.values.clone()
+        return self.values.abs()
 
     def _handle_spectrogram_notempty(self, fourier_signal, max_time, **kwargs):
         self.values.ax0 = np.append(
@@ -54,9 +56,23 @@ class DataHandler:
             (self.values.values, fourier_signal.values)
         )
 
+        # The permanent values are the same as the values, except
+        # they are not cut when they exceed the length
+        self.permanent_values.ax0 = np.append(
+            self.permanent_values.ax0,
+            self.permanent_values.ax0[-1] + self.dt,
+        )
+        self.permanent_values.values = np.vstack(
+            (self.permanent_values.values, fourier_signal.values)
+        )
+
         if self.values.ax0_span() > max_time:
             end_time = self.values.ax0[-1]
             self.values = self.values.get_ax0(end_time - max_time)
 
         assert self.values.is_valid(), "Something went wrong"
-        return self.values
+        return self.values.abs()
+
+    def clear_data(self, signal: Signal1, **kwargs):
+        logging.info("Clearing data in data handler")
+        self.values = None
