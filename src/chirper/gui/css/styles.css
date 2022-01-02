@@ -1,0 +1,44 @@
+* {
+    font-size: 9pt;
+}
+
+QMainWindow {
+    background-color: #000011;
+}
+
+QPushButton {
+    background-color: #444444;
+    color: #dddddd;
+}
+
+QStatusBar {
+    color: #dddddd;
+}
+
+QLabel {
+    color: #dddddd;
+}
+
+QComboBox {
+    color: #dddddd;
+    background-color: #333333;
+}
+
+QRadioButton {
+    color: #dddddd;
+}
+
+QLineEdit {
+    background-color: #000000;
+    color: #dddddd;
+}
+
+ConsoleBox, InputConsoleBox {
+    background-color: #000000;
+    color: #dddddd;
+    font-size: 7pt;
+}
+
+ChirperApp > QMessageBox {
+    background-color: #000011;
+}

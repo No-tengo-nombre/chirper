@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import logging
 
 if TYPE_CHECKING:
     from . import GuiInterface
@@ -10,14 +11,13 @@ class RequestHandler:
     def __init__(self, api: GuiInterface) -> None:
         self.api = api
 
-    def take_request(self, request: Chirp, return_raw_data=False, **kwargs):
+    def take_request(self, request: Chirp, **kwargs):
         data = self.send_to_source(request, **kwargs)
 
         # The source returns something if data is being fetched. If the
         # request is a control request, it is None
         if data is not None:
-            if return_raw_data:
-                return data
+            logging.info(f"Received request | {request}")
             signal = self.send_to_process(data, request, **kwargs)
             return self.send_to_handler(signal, request, **kwargs)
 

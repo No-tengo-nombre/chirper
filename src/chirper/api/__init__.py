@@ -1,3 +1,11 @@
+"""
+=======
+GUI API
+=======
+
+This subpackage contains the basic tools to request data from Chirper
+in a way that facilitates showing data in a GUI.
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from copy import deepcopy
@@ -16,6 +24,9 @@ if TYPE_CHECKING:
 
 
 class ChirpTypeSpectrogram(ChirpType):
+    def __str__(self) -> str:
+        return "spectrogram"
+
     def get_processed(self, data_process: DataProcess, data, **kwargs):
         return data_process.process_spectrogram(data, **kwargs)
 
@@ -27,25 +38,33 @@ class ChirpTypeSpectrogram(ChirpType):
 
 
 class ChirpTypeStart(ChirpType):
-    def get_processed(self, data_process: DataProcess, data, **kwargs):
-        return None
-
-    def get_handled(self, data_handler: DataHandler, signal, **kwargs):
-        return None
+    def __str__(self) -> str:
+        return "start"
 
     def fetch(self, input_source: InputSource, source: ChirpSource, **kwargs):
         return source.start_stream(input_source, **kwargs)
 
 
 class ChirpTypeStop(ChirpType):
-    def get_processed(self, data_process: DataProcess, data, **kwargs):
-        return None
-
-    def get_handled(self, data_handler: DataHandler, signal, **kwargs):
-        return None
+    def __str__(self) -> str:
+        return "stop"
 
     def fetch(self, input_source: InputSource, source: ChirpSource, **kwargs):
         return source.stop_stream(input_source, **kwargs)
+
+
+class ChirpTypeClear(ChirpType):
+    def __str__(self) -> str:
+        return "clear"
+
+    def get_processed(self, data_process: DataProcess, data, **kwargs):
+        return 0
+
+    def get_handled(self, data_handler: DataHandler, signal: Signal1, **kwargs):
+        return data_handler.clear_data(signal, **kwargs)
+
+    def fetch(self, input_source: InputSource, chirp_source: ChirpSource, **kwargs):
+        return 0
 
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||||||||| Chirp Sources |||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -53,6 +72,9 @@ class ChirpTypeStop(ChirpType):
 
 
 class ChirpSourceMicrophone(ChirpSource):
+    def __str__(self) -> str:
+        return "microphone"
+
     def get_fetched(self, input_source: InputSource, **kwargs):
         return input_source.fetch_microphone(**kwargs)
 
@@ -73,6 +95,7 @@ class GuiInterface:
         "spectrogram": ChirpTypeSpectrogram,
         "start": ChirpTypeStart,
         "stop": ChirpTypeStop,
+        "clear": ChirpTypeClear,
     }
     REQUEST_SOURCES = {
         "microphone": ChirpSourceMicrophone,
