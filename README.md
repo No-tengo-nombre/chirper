@@ -49,7 +49,8 @@ Currently, the implemented subpackages are:
   - `cosine`: Cosine transform (1D, 2D).
   - `sine`: Sine transform (1D, 2D).
   - `stft`: Short-time Fourier transform (1D).
-- `api` - This is an API that allows an user to send requests and receive data back from Chirper in a well formatted way. This is mainly used for the GUI (*not currently implemented*) that allows live signal visualization and manipulation.
+- `api` - This is an API that allows an user to send requests and receive data back from Chirper in a well formatted way. This is mainly used for the GUI that allows live signal visualization and manipulation.
+- `gui` - This subpackage contains the code for the GUI that allows the user to visualize and manipulate signals in real time.
 
 ## Changing default methods
 Within the `chirper` folder, there is a file `config.py`. It contains the default configurations used for the code, such as the default method used to calculate a Fourier transform, or the default method for convoluting two signals.
