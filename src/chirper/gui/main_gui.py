@@ -17,6 +17,54 @@ if TYPE_CHECKING:
 # ||||||||||||||||||||||||||||||||||||||||||||||| Main container ||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
 
+# I don't like this approach, but python wasn't including css files in the build
+STYLE = """
+* {
+    font-size: 9pt;
+}
+
+QMainWindow {
+    background-color: #000011;
+}
+
+QPushButton {
+    background-color: #444444;
+    color: #dddddd;
+}
+
+QStatusBar {
+    color: #dddddd;
+}
+
+QLabel {
+    color: #dddddd;
+}
+
+QComboBox {
+    color: #dddddd;
+    background-color: #333333;
+}
+
+QRadioButton {
+    color: #dddddd;
+}
+
+QLineEdit {
+    background-color: #000000;
+    color: #dddddd;
+}
+
+ConsoleBox, InputConsoleBox {
+    background-color: #000000;
+    color: #dddddd;
+    font-size: 7pt;
+}
+
+ChirperApp > QMessageBox {
+    background-color: #000011;
+}
+"""
+
 
 class ChirperApp(QtWidgets.QMainWindow):
     """Main window for Chirper."""
@@ -31,15 +79,18 @@ class ChirperApp(QtWidgets.QMainWindow):
 
         self.init_ui()
 
-    def set_stylesheet(self, filename) -> None:
+    def set_stylesheet_fromfile(self, filename) -> None:
         """Read a stylesheet."""
         with open(filename, "r") as stylesheet:
             self.setStyleSheet(stylesheet.read())
 
+    def set_stylesheet_fromstring(self, style) -> None:
+        """Read a stylesheet."""
+        self.setStyleSheet(style)
+
     def init_ui(self) -> None:
         """Initializes the main window."""
-        self.set_stylesheet(os.path.join(
-            chirper.BASE_DIRNAME, "gui", "styles.css"))
+        self.set_stylesheet_fromstring(STYLE)
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.make_menu_bar()
