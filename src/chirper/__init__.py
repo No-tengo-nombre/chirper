@@ -20,12 +20,13 @@ transforms
 """
 
 import os
+from importlib.metadata import version
 
-from .gui import mic_test, main_pyqt5
+from .gui import main_pyqt5
 
 
 __all__ = ["sgn", "modulation", "transforms"]
-__version__ = "1.1.1"
+__version__ = version("chirper-py")
 
 BASE_DIRNAME = os.path.dirname(__file__)
 
