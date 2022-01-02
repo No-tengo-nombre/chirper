@@ -163,8 +163,10 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         ]
 
         self.source_btns = [
-            ("On", lambda: logging.info("Source turned ON")),
-            ("Off", lambda: logging.info("Source turned OFF")),
+            # ("On", lambda: logging.info("Source turned ON")),
+            # ("Off", lambda: logging.info("Source turned OFF")),
+            ("On", self.source_on_event),
+            ("Off", self.source_off_event),
         ]
 
         self.types_options = [
@@ -187,10 +189,20 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             "<h2>Configuration</h2><hr>"
         )
         self.source_entry = self.make_options_entry(
-            "Source", self.source_options, self.source_btns
+            "Source",
+            self.source_options,
+            self.source_btns,
+            self.source_options_event,
+            0,
+            self.source_options_default,
         )
         self.types_entry = self.make_options_entry(
-            "Visualization", self.types_options
+            "Visualization",
+            self.types_options,
+            None,
+            self.type_options_event,
+            0,
+            self.type_options_default,
         )
         self.blocksize_entry = self.make_number_config(
             "Blocksize",
@@ -221,7 +233,7 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             self.console_options,
             options_event=lambda: self.console_options_event(
                 self.console_config_entry),
-            current_index=2,
+            default_index=2,
         )
 
         self.output_console_box = self.make_console_box()
@@ -240,6 +252,8 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         self.console_config_entry.layout().addWidget(console_clear_btn)
 
         self.log(f"""
+        request type {self.request_type}
+        source {self.source}
         blocksize {self.blocksize}
         samplerate {self.samplerate}
         max time {self.max_time}
@@ -250,9 +264,15 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         option_index = entry.options_box.currentIndex()
         self.source = self.source_options[option_index]
 
+    def source_options_default(self, index):
+        self.source = self.source_options[index]
+
     def type_options_event(self, entry):
         option_index = entry.options_box.currentIndex()
         self.request_type = self.types_options[option_index]
+
+    def type_options_default(self, index):
+        self.request_type = self.types_options[index]
 
     def blocksize_event(self, entry):
         value = entry.input_box.text()
@@ -314,6 +334,25 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         except ValueError:
             logging.warning(f"Can't understand {value} as int.")
 
+    def source_on_event(self):
+        data_widget = self.parent().data_widget
+        data_widget.set_source(self.source)
+        data_widget.send_start_request()
+
+        data_widget.fetch_request["request_type"] = self.request_type
+        data_widget.fetch_request["blocksize"] = self.blocksize
+        data_widget.fetch_request["samplerate"] = self.samplerate
+        data_widget.fetch_request["max-time"] = self.max_time
+        data_widget.fetch_request["channels"] = self.channels
+        data_widget.start_fetch()
+
+    def source_off_event(self):
+        data_widget = self.parent().data_widget
+
+        data_widget.stop_fetch()
+        data_widget.send_stop_request()
+        data_widget.clear_image()
+
     def console_options_event(self, entry):
         options = [
             logging.DEBUG,
@@ -325,30 +364,32 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         option_index = entry.options_box.currentIndex()
         logging.getLogger().setLevel(options[option_index])
 
-    def make_options_entry(self, msg=None, options=None, btns=None, options_event=None, current_index=None):
+    def make_options_entry(self, msg=None, options=None, btns=None, options_event=None, default_index=None, default_setter=None):
         entry = QtWidgets.QWidget()
         entry_layout = QtWidgets.QHBoxLayout()
         entry_layout.setAlignment(QtCore.Qt.AlignLeft)
         entry.setLayout(entry_layout)
 
-        if msg:
+        if msg is not None:
             entry.text_box = QtWidgets.QLabel(msg)
             entry_layout.addWidget(entry.text_box)
 
-        if options:
+        if options is not None:
             entry.options_box = QtWidgets.QComboBox()
             entry.options_box.addItems(options)
-            if current_index:
-                entry.options_box.setCurrentIndex(current_index)
-            if options_event:
+            if default_index is not None:
+                entry.options_box.setCurrentIndex(default_index)
+                if default_setter is not None:
+                    default_setter(default_index)
+            if options_event is not None:
                 entry.options_box.activated.connect(options_event)
             entry_layout.addWidget(entry.options_box)
 
-        if btns:
+        if btns is not None:
             entry.btns = []
             for btn, *action in btns:
                 option = QtWidgets.QRadioButton(btn)
-                if action:
+                if action is not None:
                     option.clicked.connect(*action)
                 entry_layout.addWidget(option)
                 entry.btns.append(option)
@@ -362,16 +403,16 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         entry_layout.setAlignment(QtCore.Qt.AlignLeft)
         entry.setLayout(entry_layout)
 
-        if msg:
+        if msg is not None:
             entry.text_box = QtWidgets.QLabel(msg)
             entry_layout.addWidget(entry.text_box)
 
         entry.input_box = QtWidgets.QLineEdit()
-        if default:
+        if default is not None:
             entry.input_box.setText(str(default))
-            if default_setter:
+            if default_setter is not None:
                 default_setter(default)
-        if enter_event:
+        if enter_event is not None:
             entry.input_box.returnPressed.connect(enter_event)
         entry_layout.addWidget(entry.input_box)
 
@@ -394,61 +435,6 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         self.output_console_box.append(msg)
 
 
-# class ChirperDataWidget(QtWidgets.QWidget):
-#     def __init__(self, *args, **kwargs) -> None:
-#         super().__init__(*args, **kwargs)
-#         self.layout = QtWidgets.QVBoxLayout()
-#         self.setLayout(self.layout)
-#         self.source_handler = SourceHandler()
-#         self.start()
-
-#     def start(self):
-#         self.fig = QtWidgets.QLabel("")
-#         self.layout.addWidget(self.fig)
-
-
-# class ChirperDataWidget(QtWidgets.QWidget):
-#     def __init__(self, *args, **kwargs) -> None:
-#         super(QtWidgets.QWidget, self).__init__(*args, **kwargs)
-#         self.gui = GuiInterface()
-#         self.blocksize = 400
-#         self.values = np.zeros((1, 1))
-
-#         self.fig = pg.image(self.values)
-#         self.fig.setColorMap(pg.colormap.get("plasma"))
-
-#         self.send_start_request()
-
-#         self.timer = pg.Qt.QtCore.QTimer()
-#         self.timer.setInterval(20)
-#         self.timer.timeout.connect(self.update_plot_data)
-#         self.timer.start()
-
-#     def update_plot_data(self):
-#         new_values = self.send_fetch_request().abs()
-#         self.fig.setImage(new_values.values)
-
-#     def send_start_request(self):
-#         self.gui.make_request({
-#             "request_type": "start",
-#             "source": "microphone",
-#         })
-
-#     def send_fetch_request(self):
-#         return self.gui.make_request({
-#             "request_type": "spectrogram",
-#             "source": "microphone",
-#             "blocksize": self.blocksize,
-#             "max_time": 2,
-#         })
-
-#     def send_stop_request(self):
-#         self.gui.make_request({
-#             "request_type": "stop",
-#             "source": "microphone",
-#         })
-
-
 class ChirperDataWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs) -> None:
         super(QtWidgets.QWidget, self).__init__(*args, **kwargs)
@@ -457,21 +443,35 @@ class ChirperDataWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.start(*args, **kwargs)
 
-    def start(self, blocksize=500, cmap=None, *args, **kwargs):
-        self.blocksize = blocksize
-        self.start_request = {}
+    # def start(self, blocksize=500, cmap=None, *args, **kwargs):
+    def start(self, *args, cmap=None, **kwargs):
+        # self.blocksize = blocksize
+        self.start_request = {
+            "request_type": "start",
+        }
         self.fetch_request = {}
-        self.stop_request = {}
-        self.values = np.zeros((1, 1))
+        self.stop_request = {
+            "request_type": "stop",
+        }
+        self.empty_values = np.zeros((1, 1))
 
-        self.fig = pg.image(self.values)
+        self.fig = pg.image(self.empty_values)
 
-        if cmap:
+        if cmap is not None:
             self.fig.setColorMap(pg.colormap.get(cmap))
         else:
             self.fig.setColorMap(pg.colormap.get("plasma"))
 
         self.layout.addWidget(self.fig)
+
+    def clear_image(self):
+        self.fig.clear()
+
+    def set_source(self, source):
+        self.source = source
+        self.start_request["source"] = source
+        self.stop_request["source"] = source
+        self.fetch_request["source"] = source
 
     def start_fetch(self, interval=20):
         self.timer = pg.Qt.QtCore.QTimer()
@@ -479,53 +479,28 @@ class ChirperDataWidget(QtWidgets.QWidget):
         self.timer.timeout.connect(self.update_plot_data)
         self.timer.start()
 
+    def stop_fetch(self):
+        self.timer.stop()
+
     def update_plot_data(self):
         new_values = self.send_fetch_request()
         self.fig.setImage(new_values.values)
 
+    def send_request(self, request: dict):
+        logging.info(f"Send request {request}")
+        return self.gui.make_request(request)
+
     def send_start_request(self):
+        logging.info(f"Send start request {self.start_request}")
         return self.gui.make_request(self.start_request)
 
     def send_fetch_request(self):
+        logging.info(f"Send fetch request {self.fetch_request}")
         return self.gui.make_request(self.fetch_request)
 
     def send_stop_request(self):
+        logging.info(f"Send stop request {self.stop_request}")
         return self.gui.make_request(self.stop_request)
-
-
-# class Source:
-#     def __init__(self, source) -> None:
-#         self.source = source
-#         self.start_request = {
-#             "request_type": "start",
-#             "source": self.source,
-#         }
-
-
-# class SourceMicrophone:
-#     def __init__(self) -> None:
-#         self.source = "microphone"
-#         self.start_request = {
-#             "request_type": "start",
-#             "source": self.source
-#         }
-
-
-########################################################################################################################
-# |||||||||||||||||||||||||||||||||||||| Handlers for sources and types |||||||||||||||||||||||||||||||||||||||||||||| #
-########################################################################################################################
-
-
-# class SourceHandler:
-#     def __init__(self) -> None:
-#         self.sources = {
-#             "microphone": SourceMicrophone(),
-#         }
-#         self.request_types = {
-#             "spectrogram": ReqSpectrogram(),
-#             "start": ReqStart(),
-#             "stop": ReqStop(),
-#         }
 
 
 ########################################################################################################################
