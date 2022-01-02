@@ -22,7 +22,7 @@ transforms
 import os
 from importlib.metadata import version
 
-from .gui import main_pyqt5
+from .gui import main_gui
 
 
 __all__ = ["sgn", "modulation", "transforms"]
@@ -32,4 +32,4 @@ BASE_DIRNAME = os.path.dirname(__file__)
 
 
 def run():
-    main_pyqt5.main()
+    main_gui.main()

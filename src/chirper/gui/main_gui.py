@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import sys
 import os
 import logging
@@ -8,6 +10,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 import chirper
 from ..api import GuiInterface
+if TYPE_CHECKING:
+    from ..sgn import Signal
 
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||||||||| Main container ||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -15,6 +19,7 @@ from ..api import GuiInterface
 
 
 class ChirperApp(QtWidgets.QMainWindow):
+    """Main window for Chirper."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -26,11 +31,13 @@ class ChirperApp(QtWidgets.QMainWindow):
 
         self.init_ui()
 
-    def set_stylesheet(self, filename):
+    def set_stylesheet(self, filename) -> None:
+        """Read a stylesheet."""
         with open(filename, "r") as stylesheet:
             self.setStyleSheet(stylesheet.read())
 
-    def init_ui(self):
+    def init_ui(self) -> None:
+        """Initializes the main window."""
         self.set_stylesheet(os.path.join(
             chirper.BASE_DIRNAME, "gui/css/styles.css"))
         self.setWindowTitle(self.title)
@@ -38,13 +45,14 @@ class ChirperApp(QtWidgets.QMainWindow):
         self.make_menu_bar()
 
         self.main_window = ChirperMainWidget(self)
-        # self.main_window.start()
         self.setCentralWidget(self.main_window)
 
         self.make_permanent_status_bar()
         self.show()
 
-    def add_entry_to_menu(self, title, bar, shortcut=None, on_pressed=None):
+    def add_entry_to_menu(self, title, bar, shortcut=None,
+                          on_pressed=None) -> None:
+        """Adds an entry to the top menu."""
         act = QtWidgets.QAction(title, bar)
         if shortcut:
             act.setShortcut(shortcut)
@@ -52,7 +60,8 @@ class ChirperApp(QtWidgets.QMainWindow):
             act.triggered.connect(on_pressed)
         bar.addAction(act)
 
-    def make_menu_bar(self):
+    def make_menu_bar(self) -> None:
+        """Makes the top menu bar."""
         self.bar = self.menuBar()
 
         self.bar_file = self.bar.addMenu("File")
@@ -100,15 +109,17 @@ class ChirperApp(QtWidgets.QMainWindow):
         self.add_entry_to_menu("&Visit webpage", self.bar_help,
                                on_pressed=lambda: self.menu_act("Visit webpage"))
 
-    def menu_act(self, btn, dur=5000):
+    def menu_act(self, btn, dur=5000) -> None:
         self.statusBar().showMessage(f"Pressed {btn}", dur)
 
-    def make_permanent_status_bar(self):
+    def make_permanent_status_bar(self) -> None:
+        """Adds permanent information to the status bar."""
         status_bar_msg = f"Chirper v{chirper.__version__} - For more information, visit the <a href='https://github.com/No-tengo-nombre/chirper'>GitHub repo</a>."
         self.status_lbl = QtWidgets.QLabel(status_bar_msg)
         self.statusBar().addPermanentWidget(self.status_lbl)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        """Handles confirmation when exiting."""
         reply = QtWidgets.QMessageBox.question(
             self,
             "Quit",
@@ -121,7 +132,7 @@ class ChirperApp(QtWidgets.QMainWindow):
         else:
             a0.ignore()
 
-    def log_msg(self, msg):
+    def log_msg(self, msg) -> None:
         logging.info(msg)
 
 
@@ -131,20 +142,20 @@ class ChirperApp(QtWidgets.QMainWindow):
 
 
 class ChirperMainWidget(QtWidgets.QWidget):
+    """Main content widget."""
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.layout = QtWidgets.QHBoxLayout()
         self.setLayout(self.layout)
         self.start()
 
-    def start(self):
+    def start(self) -> None:
+        """Initializes the main widget."""
         self.config_widget = ChirperConfigWidget(self)
         self.data_widget = ChirperDataWidget(self)
-        # self.config_widget.start()
-        # self.data_widget.start()
 
         self.layout.addWidget(self.config_widget)
-        # self.layout.addWidget(data_widget, 2)
         self.layout.addWidget(self.data_widget.fig, 2)
 
     def log_msg(self, msg):
@@ -156,6 +167,8 @@ class ChirperMainWidget(QtWidgets.QWidget):
 
 
 class ChirperConfigWidget(QtWidgets.QWidget):
+    """Widget that contains all the configurations for the app."""
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.layout = QtWidgets.QVBoxLayout()
@@ -163,13 +176,11 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.start()
 
-    def start(self):
+    def start(self) -> None:
+        """Initializes the configuration widget."""
+        # Make all the options and buttons
         self.source_options = [
             "microphone",
-            "Test1",
-            "Test2",
-            "Test3",
-            "Test4",
         ]
 
         self.source_btns = [
@@ -181,10 +192,6 @@ class ChirperConfigWidget(QtWidgets.QWidget):
 
         self.types_options = [
             "spectrogram",
-            "Type test 1",
-            "Type test 2",
-            "Type test 3",
-            "Type test 4",
         ]
 
         self.console_options = [
@@ -195,14 +202,15 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             "CRITICAL",
         ]
 
+        # Adding the widgets to the main one
         self.title_entry = self.make_options_entry(
-            "<h2>Configuration</h2><hr>"
+            "<h3>Configuration</h3><hr>"
         )
         self.source_entry = self.make_options_entry(
             "Source",
             self.source_options,
             self.source_btns,
-            self.source_options_event,
+            lambda: self.source_options_event(self.source_entry),
             0,
             self.source_options_default,
         )
@@ -210,7 +218,7 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             "Visualization",
             self.types_options,
             None,
-            self.type_options_event,
+            lambda: self.type_options_event(self.types_entry),
             0,
             self.type_options_default,
         )
@@ -246,9 +254,11 @@ class ChirperConfigWidget(QtWidgets.QWidget):
             default_index=2,
         )
 
+        # Making the console boxes
         self.output_console_box = self.make_console_box()
         self.input_console_box = self.make_input_console_box()
 
+        # We format the output console as a logger
         self.output_console_box.setFormatter(
             logging.Formatter("%(levelname)s - %(message)s"))
         self.output_console_box.setReadOnly(True)
@@ -256,26 +266,28 @@ class ChirperConfigWidget(QtWidgets.QWidget):
 
         self.input_console_box.setPlaceholderText("Chirper console")
 
+        # Adding a 'clear console' button
         console_clear_btn = QtWidgets.QPushButton("Clear console")
         console_clear_btn.clicked.connect(
             lambda: self.output_console_box.setText(""))
         self.console_config_entry.layout().addWidget(console_clear_btn)
 
-    def source_options_event(self, entry):
+    # The following are all handlers for all the events
+    def source_options_event(self, entry) -> None:
         option_index = entry.options_box.currentIndex()
         self.source = self.source_options[option_index]
 
-    def source_options_default(self, index):
+    def source_options_default(self, index) -> None:
         self.source = self.source_options[index]
 
-    def type_options_event(self, entry):
+    def type_options_event(self, entry) -> None:
         option_index = entry.options_box.currentIndex()
         self.request_type = self.types_options[option_index]
 
-    def type_options_default(self, index):
+    def type_options_default(self, index) -> None:
         self.request_type = self.types_options[index]
 
-    def blocksize_event(self, entry):
+    def blocksize_event(self, entry) -> None:
         value = entry.input_box.text()
         try:
             self.blocksize = int(value)
@@ -283,7 +295,7 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         except ValueError:
             logging.warning(f"Can't understand {value} as int.")
 
-    def samplerate_event(self, entry):
+    def samplerate_event(self, entry) -> None:
         value = entry.input_box.text()
         try:
             self.samplerate = int(value)
@@ -291,7 +303,7 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         except ValueError:
             logging.warning(f"Can't understand {value} as int.")
 
-    def maxtime_event(self, entry):
+    def maxtime_event(self, entry) -> None:
         value = entry.input_box.text()
         try:
             self.max_time = float(value)
@@ -299,7 +311,7 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         except ValueError:
             logging.warning(f"Can't understand {value} as float.")
 
-    def channels_event(self, entry):
+    def channels_event(self, entry) -> None:
         value = entry.input_box.text()
         try:
             self.channels = int(value)
@@ -307,54 +319,63 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         except ValueError:
             logging.warning(f"Can't understand {value} as int.")
 
-    def blocksize_default(self, value):
+    def blocksize_default(self, value) -> None:
         try:
             self.blocksize = int(value)
             logging.info(f"Set blocksize to {self.blocksize}")
         except ValueError:
             logging.warning(f"Can't understand {value} as int.")
 
-    def samplerate_default(self, value):
+    def samplerate_default(self, value) -> None:
         try:
             self.samplerate = int(value)
             logging.info(f"Set samplerate to {self.samplerate}")
         except ValueError:
             logging.warning(f"Can't understand {value} as int.")
 
-    def maxtime_default(self, value):
+    def maxtime_default(self, value) -> None:
         try:
             self.max_time = float(value)
             logging.info(f"Set max time to {self.max_time}")
         except ValueError:
             logging.warning(f"Can't understand {value} as float.")
 
-    def channels_default(self, value):
+    def channels_default(self, value) -> None:
         try:
             self.channels = int(value)
             logging.info(f"Set channels to {self.channels}")
         except ValueError:
             logging.warning(f"Can't understand {value} as int.")
 
-    def source_on_event(self):
+    def source_on_event(self) -> None:
+        # Acquire the data widget from the parent and tell it to start
         data_widget = self.parent().data_widget
         data_widget.set_source(self.source)
         data_widget.send_start_request()
 
+        # Create the adequate fetch request and start fetching
         data_widget.fetch_request["request_type"] = self.request_type
         data_widget.fetch_request["blocksize"] = self.blocksize
         data_widget.fetch_request["samplerate"] = self.samplerate
         data_widget.fetch_request["max-time"] = self.max_time
         data_widget.fetch_request["channels"] = self.channels
+
+        # This method loops until the user sends a stop request
         data_widget.start_fetch()
 
-    def source_off_event(self):
+    def source_off_event(self) -> None:
         data_widget = self.parent().data_widget
 
+        # The procedure for stopping the source is
+        #  - Stop fetching
+        #  - Send a stop request
+        #  - Clearing the image (this last one can be omitted)
+        # It is important to do the first two in that order
         data_widget.stop_fetch()
         data_widget.send_stop_request()
         data_widget.clear_image()
 
-    def console_options_event(self, entry):
+    def console_options_event(self, entry) -> None:
         options = [
             logging.DEBUG,
             logging.INFO,
@@ -365,17 +386,22 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         option_index = entry.options_box.currentIndex()
         logging.getLogger().setLevel(options[option_index])
 
-    def make_options_entry(self, msg=None, options=None, btns=None, options_event=None, default_index=None, default_setter=None):
+    def make_options_entry(self, msg=None, options=None, btns=None,
+                           options_event=None, default_index=None,
+                           default_setter=None) -> QtWidgets.QWidget:
+        # The container widget for an entry is an HBox
         entry = QtWidgets.QWidget()
         entry_layout = QtWidgets.QHBoxLayout()
         entry_layout.setAlignment(QtCore.Qt.AlignLeft)
         entry.setLayout(entry_layout)
 
         if msg is not None:
+            # If a message is specified we make a label with it
             entry.text_box = QtWidgets.QLabel(msg)
             entry_layout.addWidget(entry.text_box)
 
         if options is not None:
+            # The options are given in a combo box
             entry.options_box = QtWidgets.QComboBox()
             entry.options_box.addItems(options)
             if default_index is not None:
@@ -383,6 +409,8 @@ class ChirperConfigWidget(QtWidgets.QWidget):
                 if default_setter is not None:
                     default_setter(default_index)
             if options_event is not None:
+                # We add the event handler for changing the option (if
+                # it is specified)
                 entry.options_box.activated.connect(options_event)
             entry_layout.addWidget(entry.options_box)
 
@@ -398,49 +426,60 @@ class ChirperConfigWidget(QtWidgets.QWidget):
         self.layout.addWidget(entry)
         return entry
 
-    def make_number_config(self, msg, default=None, enter_event=None, default_setter=None):
+    def make_number_config(self, msg, default=None, enter_event=None,
+                           default_setter=None) -> QtWidgets.QWidget:
+        # The container widget for an entry is an HBox
         entry = QtWidgets.QWidget()
         entry_layout = QtWidgets.QHBoxLayout()
         entry_layout.setAlignment(QtCore.Qt.AlignLeft)
         entry.setLayout(entry_layout)
 
         if msg is not None:
+            # If a message is specified we make a label with it
             entry.text_box = QtWidgets.QLabel(msg)
             entry_layout.addWidget(entry.text_box)
 
+        # For a number configuration, the entry box is a QLineEdit
         entry.input_box = QtWidgets.QLineEdit()
         if default is not None:
+            # We set the default number if it is given
             entry.input_box.setText(str(default))
             if default_setter is not None:
                 default_setter(default)
         if enter_event is not None:
+            # We add an event that happens when we press the Enter key
+            # within the text box
             entry.input_box.returnPressed.connect(enter_event)
         entry_layout.addWidget(entry.input_box)
 
         self.layout.addWidget(entry)
         return entry
 
-    def make_console_box(self):
+    def make_console_box(self) -> QtWidgets.QTextEdit:
         console = ConsoleBox()
+        # Courier New is the "computer looking" font
         console.setFont(QtGui.QFont("Courier New"))
         self.layout.addWidget(console)
         return console
 
-    def make_input_console_box(self):
+    def make_input_console_box(self) -> QtWidgets.QLineEdit:
         console = InputConsoleBox()
+        # Courier New is the "computer looking" font
         console.setFont(QtGui.QFont("Courier New"))
         self.layout.addWidget(console)
         return console
 
-    def log(self, msg):
+    def log(self, msg) -> None:
         self.output_console_box.append(msg)
-    
+
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||| Data visualization column |||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
 
 
 class ChirperDataWidget(QtWidgets.QWidget):
+    """Widget that contains the data visualization."""
+
     def __init__(self, *args, **kwargs) -> None:
         super(QtWidgets.QWidget, self).__init__(*args, **kwargs)
         self.gui = GuiInterface()
@@ -448,7 +487,10 @@ class ChirperDataWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.start(*args, **kwargs)
 
-    def start(self, *args, cmap=None, **kwargs):
+    def start(self, *args, cmap=None, **kwargs) -> None:
+        """Initialize the widget."""
+
+        # We make the default requests
         self.start_request = {
             "request_type": "start",
         }
@@ -456,10 +498,11 @@ class ChirperDataWidget(QtWidgets.QWidget):
         self.stop_request = {
             "request_type": "stop",
         }
-        self.empty_values = np.zeros((1, 1))
 
-        self.fig = pg.image(self.empty_values)
+        # This attribute is the one that will be shown on the screen
+        self.fig = pg.ImageView()
 
+        # Set the colormap if it is specified, otherwise set it to plasma
         if cmap is not None:
             self.set_cmap(cmap)
         else:
@@ -467,7 +510,8 @@ class ChirperDataWidget(QtWidgets.QWidget):
 
         self.layout.addWidget(self.fig)
 
-    def clear_image(self):
+    def clear_image(self) -> None:
+        """Clear the content of the main figure."""
         self.send_request({
             "request_type": "clear",
             "source": self.source,
@@ -475,44 +519,50 @@ class ChirperDataWidget(QtWidgets.QWidget):
         self.fig.clear()
 
     @dispatch(str)
-    def set_cmap(self, cmap: str):
+    def set_cmap(self, cmap: str) -> None:
         self.fig.setColorMap(pg.colormap.get(cmap))
 
-    def set_source(self, source):
+    def set_source(self, source) -> None:
+        """Sets the source of the widget."""
         self.source = source
         self.start_request["source"] = source
         self.stop_request["source"] = source
         self.fetch_request["source"] = source
 
-    def start_fetch(self, interval=20):
+    def start_fetch(self, interval=20) -> None:
+        """Starts the loop to fetch the data."""
         self.timer = pg.Qt.QtCore.QTimer()
         self.timer.setInterval(interval)
         self.timer.timeout.connect(self.update_plot_data)
         self.timer.start()
 
-    def stop_fetch(self):
+    def stop_fetch(self) -> None:
+        """Stops the data fetch loop."""
         self.timer.stop()
 
-    def update_plot_data(self):
-        new_values = self.send_fetch_request()
-        self.fig.setImage(new_values.values)
+    def update_plot_data(self) -> None:
+        self.values = self.send_fetch_request()
+        self.fig.setImage(self.values.values)
 
-    def send_request(self, request: dict):
+    def send_request(self, request: dict) -> Signal:
+        """Sends the given request to the API."""
         logging.info(f"Send request {request}")
         return self.gui.make_request(request)
 
-    def send_start_request(self):
+    def send_start_request(self) -> Signal:
+        """Sends the contained start request to the API."""
         logging.info(f"Send start request {self.start_request}")
         return self.gui.make_request(self.start_request)
 
-    def send_fetch_request(self):
+    def send_fetch_request(self) -> Signal:
+        """Sends the contained fetch request to the API."""
         logging.info(f"Send fetch request {self.fetch_request}")
         return self.gui.make_request(self.fetch_request)
 
-    def send_stop_request(self):
+    def send_stop_request(self) -> Signal:
+        """Sends the contained stop request to the API."""
         logging.info(f"Send stop request {self.stop_request}")
         return self.gui.make_request(self.stop_request)
-
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Console Box ||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -520,17 +570,20 @@ class ChirperDataWidget(QtWidgets.QWidget):
 
 
 class ConsoleBox(QtWidgets.QTextEdit, logging.Handler):
+    """Widget for a read only console."""
+
     def emit(self, record):
         msg = self.format(record)
         self.append(msg)
 
     def append(self, text: str) -> None:
+        """Appends the given text with a >>> in the beginning."""
         return super().append(f">>> {text}")
 
 
 class InputConsoleBox(QtWidgets.QLineEdit):
+    """Widget for a console that allows the user to send data."""
     pass
-
 
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||||||||| Main function |||||||||||||||||||||||||||||||||||||||||||||||||||||| #
