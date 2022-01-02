@@ -44,6 +44,7 @@ class DataHandler:
             fourier_signal.values[:, None].T,
         )
         assert self.values.is_valid(), "Something went wrong"
+        self.permanent_values = self.values.clone()
         return self.values.abs()
 
     def _handle_spectrogram_notempty(self, fourier_signal, max_time, **kwargs):
@@ -53,6 +54,16 @@ class DataHandler:
         )
         self.values.values = np.vstack(
             (self.values.values, fourier_signal.values)
+        )
+
+        # The permanent values are the same as the values, except
+        # they are not cut when they exceed the length
+        self.permanent_values.ax0 = np.append(
+            self.permanent_values.ax0,
+            self.permanent_values.ax0[-1] + self.dt,
+        )
+        self.permanent_values.values = np.vstack(
+            (self.permanent_values.values, fourier_signal.values)
         )
 
         if self.values.ax0_span() > max_time:
