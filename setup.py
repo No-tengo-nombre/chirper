@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/No-tengo-nombre/chirper",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU GPL v3",
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages("src"),
