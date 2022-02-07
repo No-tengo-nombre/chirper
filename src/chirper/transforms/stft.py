@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from . import fourier
-from chirper import window
+from . import f1
+from chirper.utils import window
 from chirper.sgn import Signal1, Signal2
 
 
@@ -25,7 +25,7 @@ def stft1(signal1: Signal1, time_interval=None,
     copy = copy.get(*time_interval)
 
     windowed = copy.apply_window(w_signal, 0.5 * samp_time, interp_method)
-    w_fourier = fourier.f1(windowed)
+    w_fourier = f1(windowed)
 
     time_axis = np.arange(*time_interval, samp_time)
     freq_axis = w_fourier.axis
@@ -33,7 +33,7 @@ def stft1(signal1: Signal1, time_interval=None,
 
     for t in tqdm(time_axis + 0.5 * samp_time, "Calculating STFT"):
         windowed = copy.apply_window(w_signal, t, interp_method)
-        w_fourier = fourier.f1(windowed, shift=shift, scale=scale)
+        w_fourier = f1(windowed, shift=shift, scale=scale)
         values_pad, w_pad = _pad(values, w_fourier.values)
 
         # If we had to pad the previous values, we update the frequency axis

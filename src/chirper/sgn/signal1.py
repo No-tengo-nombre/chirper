@@ -9,9 +9,9 @@ from multipledispatch import dispatch
 
 from chirper.exceptions import DimensionError
 from chirper.config import CONVOLUTION_METHOD, INTERP1_METHOD, CROSS_CORRELATION_METHOD
-from chirper import math_lib
-from .handlers import handler_csv, handler_json, handler_wav
-from .signal import Signal
+from chirper.utils import math_lib
+from chirper.sgn.handlers import handler_csv, handler_json, handler_wav
+from chirper.sgn.signal import Signal
 
 
 class Signal1(Signal):

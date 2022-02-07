@@ -8,9 +8,9 @@ from multipledispatch import dispatch
 
 from chirper.exceptions import DimensionError
 from chirper.config import INTERP2_METHOD, KERNEL_OOB
-from chirper import math_lib
-from .handlers import handler_img
-from .signal import Signal
+from chirper.utils import math_lib
+from chirper.sgn.handlers import handler_img
+from chirper.sgn.signal import Signal
 
 
 class Signal2(Signal):
