@@ -1,6 +1,6 @@
 from multipledispatch import dispatch
 
-from ...exceptions import InvalidFileExtension
+from chirper.exceptions import InvalidFileExtension
 
 
 @dispatch(str, str)

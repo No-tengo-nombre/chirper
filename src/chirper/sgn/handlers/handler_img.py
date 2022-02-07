@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import cv2
 import numpy as np
 
-from .utils import validate_extension
+from chirper.utils.file_handling import validate_extension
 if TYPE_CHECKING:
     from chirper.sgn import Signal2
 

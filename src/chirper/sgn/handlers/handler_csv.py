@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import csv
 
-from .utils import validate_extension
+from chirper.utils import validate_extension
 if TYPE_CHECKING:
     from chirper.sgn import Signal1
 
