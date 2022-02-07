@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import cv2
 import numpy as np
 
-from . import validate_extension
+from .utils import validate_extension
 if TYPE_CHECKING:
     from .. import Signal2
 

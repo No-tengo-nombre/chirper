@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from . import validate_extension
+from .utils import validate_extension
 if TYPE_CHECKING:
     from .. import Signal1
 
