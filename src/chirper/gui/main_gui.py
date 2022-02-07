@@ -9,9 +9,9 @@ from multipledispatch import dispatch
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 import chirper
-from ..api import GuiInterface
+from chirper.api import GuiInterface
 if TYPE_CHECKING:
-    from ..sgn import Signal
+    from chirper.sgn import Signal
 
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||||||||| Main container ||||||||||||||||||||||||||||||||||||||||||||||||||||| #

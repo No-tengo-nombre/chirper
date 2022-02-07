@@ -7,9 +7,9 @@ from tqdm import tqdm
 from numbers import Number, Real
 from multipledispatch import dispatch
 
-from ..exceptions import DimensionError
-from ..config import CONVOLUTION_METHOD, INTERP1_METHOD, CROSS_CORRELATION_METHOD
-from .. import math_lib
+from chirper.exceptions import DimensionError
+from chirper.config import CONVOLUTION_METHOD, INTERP1_METHOD, CROSS_CORRELATION_METHOD
+from chirper import math_lib
 from .handlers import handler_csv, handler_json, handler_wav
 from .signal import Signal
 

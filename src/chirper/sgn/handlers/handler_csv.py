@@ -5,7 +5,7 @@ import csv
 
 from .utils import validate_extension
 if TYPE_CHECKING:
-    from .. import Signal1
+    from chirper.sgn import Signal1
 
 
 def validate_filename(filename: str) -> None:

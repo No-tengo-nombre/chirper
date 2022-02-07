@@ -27,7 +27,7 @@ gui
 import os
 from importlib.metadata import version
 
-from .gui import main_gui
+from chirper.gui import main_gui
 
 
 __all__ = ["sgn", "modulation", "transforms"]

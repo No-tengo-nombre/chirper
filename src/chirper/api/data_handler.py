@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 import logging
 import numpy as np
 
-from ..sgn import Signal1, Signal2
-from ..transforms import fourier
+from chirper.sgn import Signal1, Signal2
+from chirper.transforms import fourier
 if TYPE_CHECKING:
     from . import GuiInterface
     from .chirp import Chirp

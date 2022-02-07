@@ -4,8 +4,8 @@ import numpy as np
 from tqdm import tqdm
 
 from . import fourier
-from .. import window
-from ..sgn import Signal1, Signal2
+from chirper import window
+from chirper.sgn import Signal1, Signal2
 
 
 def stft1(signal1: Signal1, time_interval=None,

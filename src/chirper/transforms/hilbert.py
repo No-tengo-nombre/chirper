@@ -1,8 +1,8 @@
 import numpy as np
 from scipy import signal
 
-from ..sgn import Signal1
-from ..config import H1_METHOD
+from chirper.sgn import Signal1
+from chirper.config import H1_METHOD
 from . import fourier, ifourier
 
 

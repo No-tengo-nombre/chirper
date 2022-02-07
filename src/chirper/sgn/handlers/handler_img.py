@@ -6,7 +6,7 @@ import numpy as np
 
 from .utils import validate_extension
 if TYPE_CHECKING:
-    from .. import Signal2
+    from chirper.sgn import Signal2
 
 
 def validate_filename(filename: str) -> None:

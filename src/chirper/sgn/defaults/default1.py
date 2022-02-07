@@ -1,7 +1,7 @@
 import numpy as np
 
-from ...config import HERTZ, NOISE_TYPE
-from .. import Signal1
+from chirper.config import HERTZ, NOISE_TYPE
+from chirper.sgn import Signal1
 
 
 class SQUARE(Signal1):

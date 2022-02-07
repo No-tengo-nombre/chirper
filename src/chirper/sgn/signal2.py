@@ -6,9 +6,9 @@ import operator
 from numbers import Number, Real
 from multipledispatch import dispatch
 
-from ..exceptions import DimensionError
-from ..config import INTERP2_METHOD, KERNEL_OOB
-from .. import math_lib
+from chirper.exceptions import DimensionError
+from chirper.config import INTERP2_METHOD, KERNEL_OOB
+from chirper import math_lib
 from .handlers import handler_img
 from .signal import Signal
 

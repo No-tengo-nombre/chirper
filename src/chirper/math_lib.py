@@ -5,7 +5,7 @@ import numpy as np
 from .config import CONVOLUTION_METHOD, CROSS_CORRELATION_METHOD, KERNEL_OOB
 from .exceptions import DimensionError
 if TYPE_CHECKING:
-    from .sgn import Signal1, Signal2
+    from chirper.sgn import Signal1, Signal2
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
