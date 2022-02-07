@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .input_source import InputSource
-    from .data_process import DataProcess
-    from .data_handler import DataHandler
+    from chirper.api.input_source import InputSource
+    from chirper.api.data_process import DataProcess
+    from chirper.api.data_handler import DataHandler
 
 
 class ChirpType:

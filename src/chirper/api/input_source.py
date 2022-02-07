@@ -4,8 +4,8 @@ import sounddevice as sd
 import logging
 
 if TYPE_CHECKING:
-    from . import GuiInterface
-    from .chirp import Chirp
+    from chirper.api import GuiInterface
+    from chirper.api.chirp import Chirp
 
 
 class InputSource:

@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 import logging
 
 if TYPE_CHECKING:
-    from . import GuiInterface
-    from .chirp import Chirp
+    from chirper.api import GuiInterface
+    from chirper.api.chirp import Chirp
 
 
 class RequestHandler:
