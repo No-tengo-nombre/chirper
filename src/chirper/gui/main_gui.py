@@ -1,10 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import sys
-import os
 import logging
 import pyqtgraph as pg
-import numpy as np
 from multipledispatch import dispatch
 from PyQt5 import QtCore, QtWidgets, QtGui
 
