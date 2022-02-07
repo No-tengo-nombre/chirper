@@ -8,6 +8,9 @@ signal processing purposes. The ones currently available are:
 - Fourier
 - Inverse Fourier
 - Hilbert
+- Cosine
+- Sine
+- Short-time Fourier
 """
 
 from .cosine import c1, c2
