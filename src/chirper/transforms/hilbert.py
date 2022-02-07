@@ -3,7 +3,7 @@ from scipy import signal
 
 from chirper.sgn import Signal1
 from chirper.config import H1_METHOD
-from . import fourier, ifourier
+from chirper.transforms import f1, if1
 
 
 def _char_function(t) -> float:
@@ -23,14 +23,14 @@ def calculate_conv(signal1: Signal1) -> Signal1:
 def calculate_fft(signal1: Signal1) -> Signal1:
     output = signal1.clone()
     signal2 = Signal1.from_function(output.axis, _char_function)
-    self_fourier = fourier.f1(output)
-    t_fourier = fourier.f1(signal2)
-    return ifourier.if1(self_fourier * t_fourier)
+    self_fourier = f1(output)
+    t_fourier = f1(signal2)
+    return if1(self_fourier * t_fourier)
 
 
 def calculate_prod(signal1: Signal1) -> Signal1:
     output = signal1.clone()
-    self_fourier = fourier.f1(output)
+    self_fourier = f1(output)
     # self_fourier = Fourier1(output).freq_shift()
     axis_len = len(output.axis)
     if axis_len % 2 == 0:
@@ -44,7 +44,7 @@ def calculate_prod(signal1: Signal1) -> Signal1:
     # output.values = h_values
     # return InverseFourier1(output * self_fourier)
     output.values = output.values * self_fourier.values
-    return ifourier.if1(output)
+    return if1(output)
 
 
 def calculate_scipy(signal1: Signal1) -> Signal1:

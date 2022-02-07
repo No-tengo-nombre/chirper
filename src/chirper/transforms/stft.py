@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from . import f1
+from chirper.transforms import f1
 from chirper.utils import window
 from chirper.sgn import Signal1, Signal2
 
