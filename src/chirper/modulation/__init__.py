@@ -10,6 +10,6 @@ Currently implemented are:
 - PM
 """
 
-from .am import am_modulation
-from .fm import fm_modulation
-from .pm import pm_modulation
+from chirper.modulation.am import am_modulation
+from chirper.modulation.fm import fm_modulation
+from chirper.modulation.pm import pm_modulation
