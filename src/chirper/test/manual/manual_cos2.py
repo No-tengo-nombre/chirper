@@ -9,6 +9,7 @@ def f(x, y):
     return np.sin(x ** 2 + y ** 2)
     # return np.sin(1.1 * x + 0.6 * y)
 
+
 def main(show_fig=False):
     axis = np.linspace(0, 20, 50)
 

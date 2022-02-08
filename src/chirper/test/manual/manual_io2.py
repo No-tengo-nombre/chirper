@@ -46,7 +46,8 @@ def main(show_fig=False, export=True):
 
     fig, ax = plt.subplots()
     fig.suptitle("Fourier transform")
-    im = ax.imshow(abs(signal_fourier).values, cmap="gray", norm=LogNorm(0.01, 1e6))
+    im = ax.imshow(abs(signal_fourier).values,
+                   cmap="gray", norm=LogNorm(0.01, 1e6))
     fig.colorbar(im)
 
     # fig, ax = plt.subplots()

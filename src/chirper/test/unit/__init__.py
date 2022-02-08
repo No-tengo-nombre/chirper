@@ -4,7 +4,7 @@ from chirper.test.unit import sgn
 
 
 TEST_CASES = (
-    
+
 )
 
 TEST_DIRS = (

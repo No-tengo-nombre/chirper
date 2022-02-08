@@ -88,8 +88,10 @@ def main(show_fig=False, export=True):
 
     if export:
         print("Exporting")
-        signal1.export_to_file("chirper/test/manual/outputs/manual_io_sgn1.wav")
-        signal2.export_to_file("chirper/test/manual/outputs/manual_io_sgn2.wav")
+        signal1.export_to_file(
+            "chirper/test/manual/outputs/manual_io_sgn1.wav")
+        signal2.export_to_file(
+            "chirper/test/manual/outputs/manual_io_sgn2.wav")
         if1(manipulated).__abs__().export_to_file(
             "chirper/test/manual/outputs/manual_io_sgn3.wav")
 

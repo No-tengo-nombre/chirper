@@ -109,7 +109,8 @@ class GuiInterface:
 
     def make_request(self, request_data, **kwargs):
         request, kwargs_out = self.parse_request_data(request_data)
-        result = self.request_handler.take_request(request, **kwargs, **kwargs_out)
+        result = self.request_handler.take_request(
+            request, **kwargs, **kwargs_out)
         return result
 
     def parse_request_data(self, request_data: dict) -> Chirp:
