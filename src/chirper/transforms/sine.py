@@ -40,7 +40,7 @@ def _calculate_i_1(signal1: Signal1) -> Signal1:
     output = signal1.clone()
     signal_len = len(output)
     new_values = np.zeros(signal_len)
-    for k in tqdm(range(signal_len), "Calculating DCT-I"):
+    for k in tqdm(range(signal_len), "Calculating DST-I"):
         temp = 0
         for n, x in enumerate(output.values[1:-1]):
             temp += x * np.sin(np.pi * (n + 1) * (k + 1) / (signal_len + 1))
@@ -53,7 +53,7 @@ def _calculate_ii_1(signal1: Signal1) -> Signal1:
     output = signal1.clone()
     signal_len = len(output)
     new_values = np.zeros(signal_len)
-    for k in tqdm(range(signal_len), "Calculating DCT-II"):
+    for k in tqdm(range(signal_len), "Calculating DST-II"):
         temp = 0
         for n, x in enumerate(output.values):
             temp += x * np.sin((np.pi * (k + 1) / signal_len) * (n + 0.5))
@@ -67,7 +67,7 @@ def _calculate_iii_1(signal1: Signal1) -> Signal1:
     output = signal1.clone()
     signal_len = len(output)
     new_values = np.zeros(signal_len)
-    for k in tqdm(range(signal_len), "Calculating DCT-III"):
+    for k in tqdm(range(signal_len), "Calculating DST-III"):
         temp = 0
         for n, x in enumerate(output.values[:-1]):
             temp += x * np.sin((np.pi * (n + 1) / signal_len) * (k + 0.5))
@@ -81,7 +81,7 @@ def _calculate_iv_1(signal1: Signal1) -> Signal1:
     output = signal1.clone()
     signal_len = len(output)
     new_values = np.zeros(signal_len)
-    for k in tqdm(range(signal_len), "Calculating DCT-IV"):
+    for k in tqdm(range(signal_len), "Calculating DST-IV"):
         temp = 0
         for n, x in enumerate(output.values):
             temp += x * np.sin((np.pi / signal_len) * (n + 0.5) * (k + 0.5))
@@ -136,7 +136,7 @@ def _calculate_ii_2(signal2: Signal2) -> Signal2:
     signal_shape = output.shape()
     N, M = signal_shape
     new_values = np.zeros(signal_shape)
-    for k in tqdm(range(N), "Calculating 2D DCT-II"):
+    for k in tqdm(range(N), "Calculating 2D DST-II"):
         for l in range(M):
             temp = 0
             for n in range(N):
@@ -153,7 +153,7 @@ def _calculate_iv_2(signal2: Signal2) -> Signal2:
     signal_shape = output.shape()
     N, M = signal_shape
     new_values = np.zeros(signal_shape)
-    for k in tqdm(range(N), "Calculating 2D DCT-IV"):
+    for k in tqdm(range(N), "Calculating 2D DST-IV"):
         for l in range(M):
             temp = 0
             for n in range(N):
