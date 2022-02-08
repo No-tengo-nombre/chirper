@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.chirper.sgn import Signal2
-from src.chirper.transforms import cosine
+from chirper.sgn import Signal2
+from chirper.transforms import c2
 
 
 def f(x, y):
@@ -19,8 +19,8 @@ def main(show_fig=False):
     plt.imshow(Y.values, cmap="gray", origin="lower")
     # plt.contourf(*Y.unpack(), cmap="Greys")
 
-    y_c2 = cosine.c2(Y, 2)
-    y_c4 = cosine.c2(Y, 4)
+    y_c2 = c2(Y, 2)
+    y_c4 = c2(Y, 4)
 
     fig, ax = plt.subplots()
     fig.suptitle("Cosine 2")

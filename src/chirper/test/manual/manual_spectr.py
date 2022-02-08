@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 
-from src.chirper.sgn import Signal1
-from src.chirper.transforms import stft
+from chirper.sgn import Signal1
+from chirper.transforms import stft1
 
 
 def main(show_fig=False):
-    audio = Signal1.from_file("test/audio/audio_4.wav")
-    spect = stft.stft1(audio, time_interval=(0, 3), samp_time=0.05,
+    audio = Signal1.from_file("chirper/test/manual/audio/audio_4.wav")
+    spect = stft1(audio, time_interval=(0, 3), samp_time=0.05,
                        window_method="gaussian").half()
 
     fig, ax = plt.subplots()

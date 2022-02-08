@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.chirper.sgn.defaults import SIN, COS
-from src.chirper.transforms import cosine
+from chirper.sgn.defaults import SIN, COS
+from chirper.transforms import c1
 
 
 def main(show_fig=False):
@@ -28,12 +28,12 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    c1 = cosine.c1(triangle_built, 1)
-    c1_inv = cosine.c1(c1, 1)
+    c1_var = c1(triangle_built, 1)
+    c1_inv = c1(c1_var, 1)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DCT-I transform")
-    ax.plot(*c1.unpack(), label="Spectrum")
+    ax.plot(*c1_var.unpack(), label="Spectrum")
     ax.legend()
     ax.grid()
     ax.set_xlabel("Frequency (Hz)")
@@ -47,8 +47,8 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    c2 = cosine.c1(triangle_built, 2)
-    c2_inv = cosine.c1(c2, 3)
+    c2 = c1(triangle_built, 2)
+    c2_inv = c1(c2, 3)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DCT-II transform")
@@ -66,8 +66,8 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    c3 = cosine.c1(triangle_built, 3)
-    c3_inv = cosine.c1(c3, 2)
+    c3 = c1(triangle_built, 3)
+    c3_inv = c1(c3, 2)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DCT-III transform")
@@ -85,8 +85,8 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    c4 = cosine.c1(triangle_built, 4)
-    c4_inv = cosine.c1(c4, 4)
+    c4 = c1(triangle_built, 4)
+    c4_inv = c1(c4, 4)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DCT-IV transform")
@@ -104,8 +104,8 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    # cfft = cosine.c1(triangle_built, "fft")
-    # cfft_inv = cosine.c1(c4, 4)
+    # cfft = c1(triangle_built, "fft")
+    # cfft_inv = c1(c4, 4)
 
     # fig, ax = plt.subplots()
     # fig.suptitle("Triangular signal DCT-FFT transform")

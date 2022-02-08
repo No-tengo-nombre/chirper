@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.chirper.sgn.defaults import NOISE, SIN, SQUARE, COS
-from src.chirper.transforms import fourier, ifourier
+from chirper.sgn.defaults import NOISE, SIN, SQUARE, COS
+from chirper.transforms import f1, if1
 
 ################################################################################################################
 ################################################################################################################
@@ -36,7 +36,7 @@ def main(show_fig=False, export=True):
         i += 1
         f += 440
 
-    manipulated = fourier.f1(signal1).rect_smooth(3)
+    manipulated = f1(signal1).rect_smooth(3)
 
     mod = SIN(time, 10, 0.1) + SIN(time, 15, 0.075) + SIN(time, 25, 0.05) + 1
     signal1 *= mod
@@ -50,9 +50,9 @@ def main(show_fig=False, export=True):
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
     fig.suptitle("Original signals")
     ax1.plot(*signal1.unpack(), label="Signal 1")
-    ax2.plot(*ifourier.if1(manipulated).real_part().unpack(),
+    ax2.plot(*if1(manipulated).real_part().unpack(),
              label="Manipulated (Re)")
-    ax2.plot(*ifourier.if1(manipulated).imag_part().unpack(),
+    ax2.plot(*if1(manipulated).imag_part().unpack(),
              label="Manipulated (Im)")
     ax3.plot(*signal2.unpack(), label="Signal 2")
     ax1.legend()
@@ -66,9 +66,9 @@ def main(show_fig=False, export=True):
 
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
     fig.suptitle("Fourier spectra")
-    ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Signal 1")
+    ax1.plot(*abs(f1(signal1)).unpack(), label="Signal 1")
     ax2.plot(*abs(manipulated).unpack(), label="Manipulated")
-    ax3.plot(*abs(fourier.f1(signal2)).unpack(), label="Signal 2")
+    ax3.plot(*abs(f1(signal2)).unpack(), label="Signal 2")
     ax1.legend()
     ax2.legend()
     ax3.legend()
@@ -88,10 +88,10 @@ def main(show_fig=False, export=True):
 
     if export:
         print("Exporting")
-        signal1.export_to_file("test/outputs/manual_io_sgn1.wav")
-        signal2.export_to_file("test/outputs/manual_io_sgn2.wav")
-        ifourier.if1(manipulated).__abs__().export_to_file(
-            "test/outputs/manual_io_sgn3.wav")
+        signal1.export_to_file("chirper/test/manual/outputs/manual_io_sgn1.wav")
+        signal2.export_to_file("chirper/test/manual/outputs/manual_io_sgn2.wav")
+        if1(manipulated).__abs__().export_to_file(
+            "chirper/test/manual/outputs/manual_io_sgn3.wav")
 
 
 if __name__ == "__main__":
