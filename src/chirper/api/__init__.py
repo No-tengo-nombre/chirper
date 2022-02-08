@@ -10,13 +10,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from copy import deepcopy
 
-from .request_handler import RequestHandler
-from .input_source import InputSource
-from .data_handler import DataHandler
-from .data_process import DataProcess
-from .chirp import Chirp, ChirpType, ChirpSource
+from chirper.api.request_handler import RequestHandler
+from chirper.api.input_source import InputSource
+from chirper.api.data_handler import DataHandler
+from chirper.api.data_process import DataProcess
+from chirper.api.chirp import Chirp, ChirpType, ChirpSource
 if TYPE_CHECKING:
-    from ..sgn import Signal1
+    from chirper.sgn import Signal1
 
 ########################################################################################################################
 # ||||||||||||||||||||||||||||||||||||||||||||||| Chirp Types |||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
@@ -107,9 +107,10 @@ class GuiInterface:
         self.request_handler = RequestHandler(self)
         self.data_process = DataProcess(self)
 
-    def make_request(self, request_data):
-        request, kwargs = self.parse_request_data(request_data)
-        result = self.request_handler.take_request(request, **kwargs)
+    def make_request(self, request_data, **kwargs):
+        request, kwargs_out = self.parse_request_data(request_data)
+        result = self.request_handler.take_request(
+            request, **kwargs, **kwargs_out)
         return result
 
     def parse_request_data(self, request_data: dict) -> Chirp:

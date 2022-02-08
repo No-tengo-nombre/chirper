@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.chirper.sgn import Signal2
-from src.chirper.transforms import fourier, ifourier
+from chirper.sgn import Signal2
+from chirper.transforms import f2, if2
 
 
 def f(x, y):
@@ -20,9 +20,9 @@ def main(show_fig=False):
     # plt.contourf(*Y.unpack(), cmap="gray")
     plt.colorbar()
 
-    y_fft = fourier.f2(Y)
-    y_inv = ifourier.if2(y_fft)
-    y_inv_fft = fourier.f2(y_inv)
+    y_fft = f2(Y)
+    y_inv = if2(y_fft)
+    y_inv_fft = f2(y_inv)
 
     fig, ax = plt.subplots()
     fig.suptitle("FFT")

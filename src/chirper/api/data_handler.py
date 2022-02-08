@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 import logging
 import numpy as np
 
-from ..sgn import Signal1, Signal2
-from ..transforms import fourier
+from chirper.sgn import Signal1, Signal2
+from chirper.transforms import f1
 if TYPE_CHECKING:
-    from . import GuiInterface
-    from .chirp import Chirp
+    from chirper.api import GuiInterface
+    from chirper.api.chirp import Chirp
 
 
 class DataHandler:
@@ -20,9 +20,9 @@ class DataHandler:
 
     def handle_spectrogram(self, signal: Signal1, half=True, positive_half=True, max_time=5, **kwargs):
         if half:
-            fourier_signal = fourier.f1(signal).half(positive_half)
+            fourier_signal = f1(signal).half(positive_half)
         else:
-            fourier_signal = fourier.f1(signal)
+            fourier_signal = f1(signal)
 
         # This runs on the first fetch request
         if self.values is None:

@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from ..config import C1_METHOD, C2_METHOD
+from chirper.config import C1_METHOD, C2_METHOD
 if TYPE_CHECKING:
-    from ..sgn import Signal1, Signal2
+    from chirper.sgn import Signal1, Signal2
 
 ########################################################################################################################
 # |||||||||||||||||||||||||||||||||||||||||||||||| Signal1 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #

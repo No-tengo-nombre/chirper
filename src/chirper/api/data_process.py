@@ -1,11 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-import numpy as np
 
-from ..sgn import Signal1
+from chirper.sgn import Signal1
 if TYPE_CHECKING:
-    from . import GuiInterface
-    from .chirp import Chirp
+    from chirper.api import GuiInterface
+    from chirper.api.chirp import Chirp
 
 
 class DataProcess:

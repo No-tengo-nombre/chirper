@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.chirper.sgn import Signal2
-from src.chirper import kernel
+from chirper.sgn import Signal2
+from chirper.utils import kernel
 
 
 def f(x, y):

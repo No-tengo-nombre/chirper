@@ -24,10 +24,13 @@ gui
     signal visualization and manipulation.
 """
 
+import unittest
 import os
 from importlib.metadata import version
 
-from .gui import main_gui
+from chirper.gui import main_gui
+from chirper.test import manual_tests
+from chirper.test import unit_tests
 
 
 __all__ = ["sgn", "modulation", "transforms"]
@@ -36,5 +39,14 @@ __version__ = version("chirper-py")
 BASE_DIRNAME = os.path.dirname(__file__)
 
 
-def run():
+def run_main_application(filename=None):
     main_gui.main()
+
+
+def run_unit_tests():
+    suite = unittest.TestLoader().loadTestsFromModule(unit_tests)
+    unittest.TextTestRunner().run(suite)
+
+
+def run_manual_tests(tests, show_results):
+    manual_tests.run(tests, show_results)

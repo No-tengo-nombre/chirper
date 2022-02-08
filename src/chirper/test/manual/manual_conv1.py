@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from src.chirper.sgn import Signal1
+from chirper.sgn import Signal1
 
-from src.chirper.sgn.defaults import NOISE, SIN
-from src.chirper.transforms import fourier
+from chirper.sgn.defaults import NOISE, SIN
+from chirper.transforms import f1
 
 ################################################################################################################
 ################################################################################################################
@@ -42,8 +42,8 @@ def main(show_fig=False):
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     fig.suptitle("Original signals fourier spectra")
-    ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Signal 1")
-    ax2.plot(*abs(fourier.f1(signal2)).unpack(), label="Signal 2")
+    ax1.plot(*abs(f1(signal1)).unpack(), label="Signal 1")
+    ax2.plot(*abs(f1(signal2)).unpack(), label="Signal 2")
     ax1.legend()
     ax2.legend()
     ax1.grid()
@@ -56,7 +56,7 @@ def main(show_fig=False):
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle("Convoluted signal")
     ax1.plot(*conv_signal.unpack(), label="Convoluted signal")
-    ax2.plot(*abs(fourier.f1(conv_signal)).unpack(),
+    ax2.plot(*abs(f1(conv_signal)).unpack(),
              label="Convoluted signal spectrum")
     ax1.legend()
     ax2.legend()
@@ -117,10 +117,10 @@ def main(show_fig=False):
 
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
     fig.suptitle("Fourier spectra")
-    ax1.plot(*abs(fourier.f1(signal1)).unpack(), label="Signal 1")
-    ax2.plot(*abs(fourier.f1(sign1_ac)).unpack(), label="Signal 1 auto")
-    ax3.plot(*abs(fourier.f1(signal2)).unpack(), label="Signal 2")
-    ax4.plot(*abs(fourier.f1(sign2_ac)).unpack(), label="Signal 2 auto")
+    ax1.plot(*abs(f1(signal1)).unpack(), label="Signal 1")
+    ax2.plot(*abs(f1(sign1_ac)).unpack(), label="Signal 1 auto")
+    ax3.plot(*abs(f1(signal2)).unpack(), label="Signal 2")
+    ax4.plot(*abs(f1(sign2_ac)).unpack(), label="Signal 2 auto")
     ax1.legend()
     ax2.legend()
     ax3.legend()

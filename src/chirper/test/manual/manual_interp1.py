@@ -2,7 +2,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.chirper.sgn.defaults import SIN
+from chirper.sgn.defaults import SIN
 
 
 def main(show_fig=False):

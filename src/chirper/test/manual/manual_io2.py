@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
-from src.chirper import kernel
-from src.chirper.sgn import Signal2
-from src.chirper.transforms import cosine, sine, fourier
+from chirper.utils import kernel
+from chirper.sgn import Signal2
+from chirper.transforms import c2, s2, f2
 
 
 def main(show_fig=False, export=True):
-    filename = "test/img/cat.png"
+    filename = "chirper/test/manual/img/cat.png"
     signal = Signal2.from_file(filename)
     signal_r = Signal2.from_file(filename, "r")
     signal_g = Signal2.from_file(filename, "g")
@@ -40,13 +40,14 @@ def main(show_fig=False, export=True):
     plt.colorbar(im3, ax=ax3)
     plt.colorbar(im4, ax=ax4)
 
-    signal_fourier = fourier.f2(signal)
-    # signal_cos = cosine.c2(signal)
-    # signal_sine = sine.s2(signal)
+    signal_fourier = f2(signal)
+    # signal_cos = c2(signal)
+    # signal_sine = s2(signal)
 
     fig, ax = plt.subplots()
     fig.suptitle("Fourier transform")
-    im = ax.imshow(abs(signal_fourier).values, cmap="gray", norm=LogNorm(0.01, 1e6))
+    im = ax.imshow(abs(signal_fourier).values,
+                   cmap="gray", norm=LogNorm(0.01, 1e6))
     fig.colorbar(im)
 
     # fig, ax = plt.subplots()

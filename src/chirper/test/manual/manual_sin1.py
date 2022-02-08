@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.chirper.sgn.defaults import SIN
-from src.chirper.transforms import sine
+from chirper.sgn.defaults import SIN
+from chirper.transforms import s1
 
 
 def main(show_fig=False):
@@ -28,12 +28,12 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    s1 = sine.s1(triangle_built, 1)
-    s1_inv = sine.s1(s1, 1)
+    s1_var = s1(triangle_built, 1)
+    s1_inv = s1(s1_var, 1)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DST-I transform")
-    ax.plot(*s1.unpack(), label="Spectrum")
+    ax.plot(*s1_var.unpack(), label="Spectrum")
     ax.legend()
     ax.grid()
     ax.set_xlabel("Frequency (Hz)")
@@ -47,8 +47,8 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    s2 = sine.s1(triangle_built, 2)
-    s2_inv = sine.s1(s2, 3)
+    s2 = s1(triangle_built, 2)
+    s2_inv = s1(s2, 3)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DST-II transform")
@@ -66,8 +66,8 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    s3 = sine.s1(triangle_built, 3)
-    s3_inv = sine.s1(s3, 2)
+    s3 = s1(triangle_built, 3)
+    s3_inv = s1(s3, 2)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DST-III transform")
@@ -85,8 +85,8 @@ def main(show_fig=False):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Amplitude (-)")
 
-    s4 = sine.s1(triangle_built, 4)
-    s4_inv = sine.s1(s4, 4)
+    s4 = s1(triangle_built, 4)
+    s4_inv = s1(s4, 4)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal DST-IV transform")

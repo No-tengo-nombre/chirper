@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from src.chirper.sgn import Signal1
+from chirper.sgn import Signal1
 
-from src.chirper.sgn.defaults import IMPULSE, SIN, SQUARE, COS
-from src.chirper.transforms import fourier, ifourier
+from chirper.sgn.defaults import IMPULSE, SIN, SQUARE, COS
+from chirper.transforms import f1, if1
 
 ################################################################################################################
 ################################################################################################################
@@ -26,8 +26,8 @@ def main(show_fig=False):
     )
 
     # print(1 / (triangle_built.axis[1] - triangle_built.axis[0]))
-    orig_fourier = fourier.f1(triangle_built)
-    triangle_inv = ifourier.if1(orig_fourier)
+    orig_fourier = f1(triangle_built)
+    triangle_inv = if1(orig_fourier)
 
     fig, ax = plt.subplots()
     fig.suptitle("Triangular signal fourier spectrum")
@@ -51,12 +51,14 @@ def main(show_fig=False):
     ax2.set_ylabel("Amplitude (-)")
     ax2.set_xlabel("Time (s)")
 
-    RECTANGULAR = Signal1([-0.3, -0.26, -0.25, 0, 0.25, 0.26, 0.3], [0, 0, 1, 1, 1, 0, 0])
+    RECTANGULAR = Signal1([-0.3, -0.26, -0.25, 0, 0.25,
+                          0.26, 0.3], [0, 0, 1, 1, 1, 0, 0])
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
     fig.suptitle("Original vs windowed signal")
     ax1.plot(*triangle_built.unpack(), label="Original")
     ax2.plot(*RECTANGULAR.unpack(), label="Window")
-    ax3.plot(*triangle_built.apply_window(RECTANGULAR, 1.5, "linear").unpack(), label="Windowed")
+    ax3.plot(*triangle_built.apply_window(RECTANGULAR,
+             1.5, "linear").unpack(), label="Windowed")
     ax1.legend()
     ax2.legend()
     ax3.legend()

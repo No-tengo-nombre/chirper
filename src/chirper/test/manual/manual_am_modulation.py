@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.chirper.sgn.defaults import SIN
-from src.chirper.transforms import fourier, ifourier
-from src.chirper.modulation import am
+from chirper.sgn.defaults import SIN
+from chirper.transforms import f1, if1
+from chirper.modulation import am_modulation
 
 ################################################################################################################
 ################################################################################################################
@@ -18,10 +18,10 @@ def main(show_fig=False):
     triangle_built = SIN(time, 5, 10) + SIN(time, 10, 5) + SIN(time, 15, 2.5) + \
         SIN(time, 20, 1.25) + SIN(time, 25, 0.625) + SIN(time, 30, 0.3125)
 
-    dsbfc_t = am.am_modulation(triangle_built, 200, 1, method="dsbfc")
-    dsbsc_t = am.am_modulation(triangle_built, 200, 1, method="dsbsc")
-    ssbu_t = am.am_modulation(triangle_built, 200, method="usb")
-    ssbl_t = am.am_modulation(triangle_built, 200, method="lsb")
+    dsbfc_t = am_modulation(triangle_built, 200, 1, method="dsbfc")
+    dsbsc_t = am_modulation(triangle_built, 200, 1, method="dsbsc")
+    ssbu_t = am_modulation(triangle_built, 200, method="usb")
+    ssbl_t = am_modulation(triangle_built, 200, method="lsb")
 
     fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex=True)
     fig.suptitle("Original and different AM modulations")
@@ -43,17 +43,17 @@ def main(show_fig=False):
     ax3.set_ylabel("Amplitude (-)")
     ax5.set_xlabel("Time (s)")
 
-    orig_fourier = fourier.f1(triangle_built)
-    dsbfc_fourier = fourier.f1(dsbfc_t)
-    dsbsc_fourier = fourier.f1(dsbsc_t)
-    ssbu_fourier = fourier.f1(ssbu_t)
-    ssbl_fourier = fourier.f1(ssbl_t)
+    orig_fourier = f1(triangle_built)
+    dsbfc_fourier = f1(dsbfc_t)
+    dsbsc_fourier = f1(dsbsc_t)
+    ssbu_fourier = f1(ssbu_t)
+    ssbl_fourier = f1(ssbl_t)
 
-    orig_inv = ifourier.if1(orig_fourier)
-    dsbfc_inv = ifourier.if1(dsbfc_fourier)
-    dsbsc_inv = ifourier.if1(dsbsc_fourier)
-    ssbu_inv = ifourier.if1(ssbu_fourier)
-    ssbl_inv = ifourier.if1(ssbl_fourier)
+    orig_inv = if1(orig_fourier)
+    dsbfc_inv = if1(dsbfc_fourier)
+    dsbsc_inv = if1(dsbsc_fourier)
+    ssbu_inv = if1(ssbu_fourier)
+    ssbl_inv = if1(ssbl_fourier)
 
     fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex=True)
     fig.suptitle("Fourier spectra of different AM modulations")

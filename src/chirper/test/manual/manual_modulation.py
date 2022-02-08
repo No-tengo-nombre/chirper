@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.chirper.sgn.defaults import SIN
-from src.chirper.transforms import fourier, ifourier
-from src.chirper.modulation import am, fm, pm
+from chirper.sgn.defaults import SIN
+from chirper.transforms import f1, if1
+from chirper.modulation import am_modulation, fm_modulation, pm_modulation
 
 ################################################################################################################
 ################################################################################################################
@@ -18,19 +18,19 @@ def main(show_fig=False):
     triangle_built = SIN(time, 5, 10) + SIN(time, 10, 5) + SIN(time, 15, 2.5) + \
         SIN(time, 20, 1.25) + SIN(time, 25, 0.625) + SIN(time, 30, 0.3125)
 
-    t_am_mod = am.am_modulation(triangle_built, 200, 1)
-    t_fm_mod = fm.fm_modulation(triangle_built, 200, 1, 0.1)
-    t_pm_mod = pm.pm_modulation(triangle_built, 100, 10)
+    t_am_mod = am_modulation(triangle_built, 200, 1)
+    t_fm_mod = fm_modulation(triangle_built, 200, 1, 0.1)
+    t_pm_mod = pm_modulation(triangle_built, 100, 10)
 
-    orig_fourier = fourier.f1(triangle_built)
-    am_fourier = fourier.f1(t_am_mod)
-    fm_fourier = fourier.f1(t_fm_mod)
-    pm_fourier = fourier.f1(t_pm_mod)
+    orig_fourier = f1(triangle_built)
+    am_fourier = f1(t_am_mod)
+    fm_fourier = f1(t_fm_mod)
+    pm_fourier = f1(t_pm_mod)
 
-    orig_inv = ifourier.if1(orig_fourier)
-    am_inv = ifourier.if1(am_fourier)
-    fm_inv = ifourier.if1(fm_fourier)
-    pm_inv = ifourier.if1(pm_fourier)
+    orig_inv = if1(orig_fourier)
+    am_inv = if1(am_fourier)
+    fm_inv = if1(fm_fourier)
+    pm_inv = if1(pm_fourier)
 
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
 

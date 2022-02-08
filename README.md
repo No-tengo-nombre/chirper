@@ -7,7 +7,7 @@ In order to install *Chirper*, simply import it from *PyPi* by running
 
     pip install chirper-py
 
-or clone this repository from *GitHub* and install it by running
+or clone the repository from *GitHub* and install it by running
     
     git clone https://github.com/No-tengo-nombre/chirper
     cd chirper

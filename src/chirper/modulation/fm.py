@@ -1,7 +1,7 @@
 import numpy as np
 
-from ..sgn import Signal1
-from ..config import HERTZ, FM_MODULATION
+from chirper.sgn import Signal1
+from chirper.config import HERTZ, FM_MODULATION
 
 
 def fm_modulation(signal1: Signal1, *args, method=FM_MODULATION, hertz=HERTZ, **kwargs) -> Signal1:

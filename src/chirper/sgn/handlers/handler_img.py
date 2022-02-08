@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 import cv2
 import numpy as np
 
-from . import validate_extension
+from chirper.utils.file_handling import validate_extension
 if TYPE_CHECKING:
-    from .. import Signal2
+    from chirper.sgn import Signal2
 
 
 def validate_filename(filename: str) -> None:

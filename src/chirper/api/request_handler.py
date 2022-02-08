@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 import logging
 
 if TYPE_CHECKING:
-    from . import GuiInterface
-    from .chirp import Chirp
+    from chirper.api import GuiInterface
+    from chirper.api.chirp import Chirp
 
 
 class RequestHandler:
@@ -17,7 +17,7 @@ class RequestHandler:
         # The source returns something if data is being fetched. If the
         # request is a control request, it is None
         if data is not None:
-            logging.info(f"Received request | {request}")
+            logging.debug(f"Received request | {request}")
             signal = self.send_to_process(data, request, **kwargs)
             return self.send_to_handler(signal, request, **kwargs)
 
