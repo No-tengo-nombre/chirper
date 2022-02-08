@@ -67,11 +67,8 @@ tests_are_run = manual_not_none or args.unit_tests
 
 if tests_are_run:
     if args.unit_tests:
-        print("Running unit tests")
         run_unit_tests()
     if manual_not_none:
-        print("Running manual tests")
         run_manual_tests(manual_tests, show_results)
 else:
-    print("Running main app")
     run_main_application(filename=args.file_name)
