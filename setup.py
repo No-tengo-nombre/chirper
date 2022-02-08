@@ -6,7 +6,6 @@ with open("README.md", "r") as file:
 setuptools.setup(
     name="chirper-py",
     version="1.1.4",
-
     author="Cristobal Allendes",
     author_email="callendes.molina@gmail.com",
     description="Package for signal analysis",
@@ -15,7 +14,7 @@ setuptools.setup(
     url="https://github.com/No-tengo-nombre/chirper",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU GPL v3",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages("src"),
