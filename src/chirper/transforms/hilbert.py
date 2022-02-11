@@ -1,3 +1,4 @@
+"""Hilbert transform"""
 from scipy import signal
 
 from chirper.sgn import Signal1
