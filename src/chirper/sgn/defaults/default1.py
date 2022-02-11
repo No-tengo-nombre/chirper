@@ -1,3 +1,4 @@
+"""Default one-dimensional signals"""
 import numpy as np
 
 from chirper.config import HERTZ, NOISE_TYPE
