@@ -1,3 +1,8 @@
+"""
+Definition of custom exceptions for the Chirper package
+"""
+
+
 class DimensionError(Exception):
     """Exception for innapropriate object dimensions."""
 

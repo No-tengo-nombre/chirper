@@ -1,5 +1,5 @@
 """
-Default parameters for this package.
+Default parameters for this package
 """
 
 # TODO: Fix the way defaults are obtained
