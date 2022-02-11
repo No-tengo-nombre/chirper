@@ -1,3 +1,6 @@
+"""
+Module that provides utilities for importing and exporting files
+"""
 from multipledispatch import dispatch
 
 from chirper.exceptions import InvalidFileExtension

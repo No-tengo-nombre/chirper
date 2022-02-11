@@ -1,3 +1,7 @@
+"""
+Module that provides the definition of windows used for certain integral
+transforms
+"""
 import numpy as np
 
 from chirper.sgn import Signal1

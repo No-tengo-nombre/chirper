@@ -1,3 +1,7 @@
+"""
+Module that defines utilities for generating kernels, used for image
+processing
+"""
 import numpy as np
 
 
