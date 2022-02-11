@@ -1,3 +1,4 @@
+"""Definitions for AM"""
 from chirper.sgn import Signal1
 from chirper.sgn.defaults import COS, SIN
 from chirper.config import AM_MODULATION, HERTZ, SSB_UPPER

@@ -1,3 +1,4 @@
+"""Definitions for FM"""
 import numpy as np
 
 from chirper.sgn import Signal1
